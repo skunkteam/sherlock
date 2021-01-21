@@ -1,6 +1,6 @@
 {
     "npmScope": "sherlock",
-    "affected": { "defaultBase": "master" },
+    "affected": { "defaultBase": "main" },
     "implicitDependencies": {
         "workspace.json": "*",
         "package.json": { "dependencies": "*", "devDependencies": "*" },
@@ -17,5 +17,5 @@
             }
         }
     },
-    "projects": { "sherlock": { "tags": [] } }
+    "projects": { "sherlock": { "tags": [] }, "sherlock-utils": { "tags": [] } }
 }

@@ -23,7 +23,8 @@
         "forceConsistentCasingInFileNames": true,
         "baseUrl": ".",
         "paths": {
-            "@skunkteam/sherlock": ["libs/sherlock/src/index.ts"]
+            "@skunkteam/sherlock": ["libs/sherlock/src/index.ts"],
+            "@skunkteam/sherlock-utils": ["libs/sherlock-utils/src/index.ts"]
         }
     },
     "exclude": ["node_modules", "tmp"]

@@ -1,90 +1,187 @@
 # Sherlock
 
-This project was generated using [Nx](https://nx.dev).
+A reactive programming library for JavaScript applications, built with TypeScript.
 
-<p align="center"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
+## Introduction
 
-🔎 **Nx is a set of Extensible Dev Tools for Monorepos.**
+> I'm Sherlock, the world's best deduction expert.
+>
+> I'm not going to go into detail about how I do what I do because chances are you wouldn't understand.
+>
+> This is what I do:
+>
+> 1. I observe mutable state _(**`Atoms`**)_
+> 2. From what I observe, I deduce everything else. _(**`Derivations`**)_
+> 3. I don't glitch, my deductions are always correct and up to date, and I'm really fast!
 
-## Adding capabilities to your workspace
+_[Adapted from [The Science of Deduction](http://www.thescienceofdeduction.co.uk/)]_
 
-Nx supports many plugins which add capabilities for developing different types of applications and different tools.
+Special thanks to @ds300 for creating [derivablejs](https://github.com/ds300/derivablejs) which was the main inspiration for Sherlock. Sherlock was originally designed to be API compatible with derivablejs, but has been rewritten from the ground up (in TypeScript) to address a number of fundamental issues that prevented its use in our projects. See [Differences with derivablejs](#differences-with-derivablejs) for more information.
 
-These capabilities include generating applications, libraries, etc as well as the devtools to test, and build projects as well.
+## Concepts
 
-Below are our core plugins:
+### Application state
 
--   [React](https://reactjs.org)
-    -   `npm install --save-dev @nrwl/react`
--   Web (no framework frontends)
-    -   `npm install --save-dev @nrwl/web`
--   [Angular](https://angular.io)
-    -   `npm install --save-dev @nrwl/angular`
--   [Nest](https://nestjs.com)
-    -   `npm install --save-dev @nrwl/nest`
--   [Express](https://expressjs.com)
-    -   `npm install --save-dev @nrwl/express`
--   [Node](https://nodejs.org)
-    -   `npm install --save-dev @nrwl/node`
+Sherlock Holmes, the fictional consulting detective, is known for his power of deduction. The Sherlock library applies the power of deduction to application state. This is best explained using a small example. Let's say we're developing an eBook reader (to read about Sherlock Holmes of course). Our naive version is as follow:
 
-There are also many [community plugins](https://nx.dev/nx-community) you could add.
+```typescript
+/** Calculates an array of pages (['Title page...', 'page 1...', ...]). */
+function calculatePages(book: Book, fontsize: number): string[] { /* secret internal code. ;-) */ }
 
-## Generate an application
+// Initialisation:
+let currentBook: Book = ...; // magically appears
+let currentFontSize = 12;
+let currentPageNumber = 0;
+let currentPages = calculatePages(currentBook, currentFontSize);
+let currentPage = currentPages[currentPageNumber];
 
-Run `nx g @nrwl/react:app my-app` to generate an application.
+updateScreen();
 
-> You can use any of the plugins above to generate applications as well.
+function selectPage(pageNr: number) {
+    currentPageNumber = pageNr;
+    currentPage = currentPages[currentPageNumber];
+    updateScreen();
+}
 
-When using Nx, you can create multiple applications and libraries in the same workspace.
+function selectFontSize(newSize: number) {
+    currentFontSize = newSize;
+    currentPages = calculatePages(book, currentFontSize);
+    currentPage = currentPages[currentPageNumber];
+    updateScreen();
+}
+```
 
-## Generate a library
+Here we can observe two kinds of variables. The first kind contains the real mutable state of the application, that is:
 
-Run `nx g @nrwl/react:lib my-lib` to generate a library.
+-   `currentBook`
+-   `currentFontSize`
+-   `currentPageNumber`
 
-> You can also use any of the plugins above to generate libraries as well.
+The rest of the variables is derived state:
 
-Libraries are sharable across libraries and applications. They can be imported from `@sherlock/mylib`.
+-   `currentPages`
+-   `currentPage`
 
-## Development server
+The derived state can be derived from the real state. As you can see in this example, we need to make sure to always update the derived state whenever the real state changes. If, for example, we forget to update `currentPages` after changing `currentFontSize` we end up with an invalid state.
 
-Run `nx serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
+Another way to explain the difference between real state and derived state is to look at the way a spreadsheet works. Any cell in a spreadsheet that contains a value contains _real state_, any cell that contains a formula contains _derived state_. A spreadsheet is very powerful like that because it automatically updates formula-cells whenever needed. Wouldn't it be nice to have that power in our code as well?
 
-## Code scaffolding
+Another thing we can see in the eBook code is that this magic `updateScreen` function needs to be called whenever `currentPage` changes.
 
-Run `nx g @nrwl/react:component my-component --project=my-app` to generate a new component.
+### The power of deduction
 
-## Build
+The idea behind Sherlock (and other reactive libraries) is to make all derivations _(i.e. calculating derived state)_ and reactions _(calling some function whenever something changes)_ explicit and automatic.
 
-Run `nx build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+All real state is put in so-called Atoms, all other state is derived. An Atom has a `#get` and a `#set` method to access or change its state. Using Sherlock, the code could look as follows _(the dollar-suffix is a syntactic indication that a variable has been "sherlocked", i.e. that a variable is derivable)_:
 
-## Running unit tests
+```typescript
+/** same as before */
+function calculatePages(book: Book, fontsize: number): string[] { /* secret internal code. ;-) */ }
 
-Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).
+// Initialisation:
+let currentBook$: Atom<Book> = ...; // magically appears
+let currentFontSize$ = atom(12);
+let currentPageNumber$ = atom(0);
 
-Run `nx affected:test` to execute the unit tests affected by a change.
+// We simply use a lambda function to define currentPage$ as a derivation of currentBook$
+// and currentFontSize$ using calculatePages. Sherlock automatically records all dependencies.
+let currentPages$ = derivation(() => calculatePages(currentBook$.get(), currentFontSize$.get()));
 
-## Running end-to-end tests
+// currentPage$ is always equal to the element in currentPages$ at position currentPageNumber$.
+let currentPage$ = currentPages$.pluck(currentPageNumber$);
 
-Run `ng e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
+// Automatically call updateScreen whenever neccessary.
+currentPage$.react(() => updateScreen());
 
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
+function selectPage(pageNr: number) {
+    currentPageNumber$.set(pageNr);
+}
 
-## Understand your workspace
+function selectFontSize(newSize: number) {
+    currentFontSize$.set(newSize);
+}
+```
 
-Run `nx dep-graph` to see a diagram of the dependencies of your projects.
+The initial setup is slightly more complex because we make all dependencies explicit at initialization time, but the `selectPage` and `selectFontSize` functions have suddenly become preposterously simple.
 
-## Further help
+## Derivables
 
-Visit the [Nx Documentation](https://nx.dev) to learn more.
+The base concept of Sherlock is the _Derivable_. A _Derivable_ is a piece of application state that can be combined and used to derive other pieces of application state.
 
-## ☁ Nx Cloud
+There are three types of Derivables:
 
-### Computation Memoization in the Cloud
+-   **Atoms**
 
-<p align="center"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-cloud-card.png"></p>
+    Atoms are the basic building blocks of a reactive application. They are mutable references to immutable values. Atoms represent the ground truth from which the rest of the application state is derived.
 
-Nx Cloud pairs with Nx in order to enable you to build and test code more rapidly, by up to 10 times. Even teams that are new to Nx can connect to Nx Cloud and start saving time instantly.
+    ```typescript
+    import { atom, Atom } from '@politie/sherlock';
 
-Teams using Nx gain the advantage of building full-stack applications with their preferred framework alongside Nx’s advanced code generation and project dependency graph, plus a unified experience for both frontend and backend developers.
+    const name$: Atom<string> = atom('Sherlock');
 
-Visit [Nx Cloud](https://nx.app/) to learn more.
+    name$.get(); // => 'Sherlock'
+
+    name$.set('Moriarty');
+
+    name$.get(); // => 'Moriarty'
+    ```
+
+-   **Constant**
+
+    Constants are simple immutable references to immutable values.
+
+    ```typescript
+    import { constant, Derivable } from '@politie/sherlock';
+
+    const emptyString$: Derivable<string> = constant('');
+
+    emptyString$.get(); // => ''
+    ```
+
+-   **Derivations**
+
+    Derivations are calculated derived state (deductions if you will) based on other Atoms of Derivations. They can be created with the `#derive` method that is present on all derivables.
+
+    ```typescript
+    const isBrilliant$ = name$.derive(name => name === 'Sherlock');
+
+    isBrilliant$.get(); // false
+
+    name$.set('Sherlock');
+
+    isBrilliant$.get(); // true
+    ```
+
+    Derivations can also be created with the generic `derivation` function as seen earlier. This function can be used to do an arbitrary calculation on any number of derivables. `@politie/sherlock` automatically records which derivable is dependent on which other derivable to be able to update derived state when needed.
+
+## Reactors
+
+To execute side effects, you can react to changes on any derivable as seen in an earlier example.
+
+_More documentation coming soon_
+
+## Transactions
+
+_More documentation coming soon_
+
+## Interoperability with RxJS using sherlock-rxjs
+
+_Coming soon_
+
+## Proxies using sherlock-proxies
+
+_Coming soon_
+
+## Immutable
+
+@politie/sherlock should be used in combination with immutable data structures such as the excellent [Immutable](https://facebook.github.io/immutable-js/) library by Facebook.
+
+## Differences with derivablejs
+
+### Fixes to the change propagation algorithm
+
+_Coming soon_
+
+### Cyclic reactors
+
+_Coming soon_

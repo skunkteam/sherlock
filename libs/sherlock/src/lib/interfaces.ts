@@ -122,7 +122,7 @@ export interface Derivable<V> {
      * its dependencies, by using the same mechanism that is used by a reactor. It has a setup cost comparable to starting a reactor every
      * first time #get is called per tick. Starting a reactor on a Derivable with an active and up-to-date cache is cheap though.
      */
-    autoCache(): this;
+    autoCache: <T>(this: T) => T;
 
     /**
      * React on changes of the this derivable. Will continue to run indefinitely until either garbage collected or limited by

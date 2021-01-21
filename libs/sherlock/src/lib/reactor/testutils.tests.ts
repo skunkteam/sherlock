@@ -1,6 +1,6 @@
 import { Derivable, ReactorOptions } from '../interfaces';
 
-let currentReactorTest: { reactions: number; value: unknown } | undefined;
+let currentReactorTest: { reactions: number; value: unknown };
 export function react<V>(d: Derivable<V>, opts?: Partial<ReactorOptions<V>>) {
     currentReactorTest = { reactions: 0, value: undefined };
     return d.react(v => {
@@ -9,7 +9,7 @@ export function react<V>(d: Derivable<V>, opts?: Partial<ReactorOptions<V>>) {
     }, opts);
 }
 
-afterEach(() => (currentReactorTest = undefined));
+afterEach(() => (currentReactorTest = undefined as any));
 
 export function shouldNotHaveReacted() {
     expect(currentReactorTest.reactions).toBe(0);

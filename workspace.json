@@ -32,6 +32,39 @@
                     }
                 }
             }
+        },
+        "sherlock-utils": {
+            "root": "libs/sherlock-utils",
+            "sourceRoot": "libs/sherlock-utils/src",
+            "projectType": "library",
+            "targets": {
+                "lint": {
+                    "executor": "@nrwl/linter:eslint",
+                    "options": {
+                        "lintFilePatterns": ["libs/sherlock-utils/**/*.ts"]
+                    }
+                },
+                "test": {
+                    "executor": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/sherlock-utils"],
+                    "options": {
+                        "jestConfig": "libs/sherlock-utils/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                },
+                "build": {
+                    "executor": "@nrwl/node:package",
+                    "outputs": ["{options.outputPath}"],
+                    "options": {
+                        "outputPath": "dist/libs/sherlock-utils",
+                        "tsConfig": "libs/sherlock-utils/tsconfig.lib.json",
+                        "packageJson": "libs/sherlock-utils/package.json",
+                        "main": "libs/sherlock-utils/src/index.ts",
+                        "assets": ["libs/sherlock-utils/*.md"],
+                        "updateBuildableProjectDepsInPackageJson": true
+                    }
+                }
+            }
         }
     },
     "cli": {
