@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ValuePipe } from './value.pipe';
 
 @NgModule({
-    imports: [CommonModule],
+    declarations: [ValuePipe],
+    exports: [ValuePipe],
 })
 export class NgxSherlockModule {}
