@@ -24,7 +24,17 @@
         "update": "nx migrate latest",
         "workspace-generator": "nx workspace-generator",
         "dep-graph": "nx dep-graph",
-        "help": "nx help"
+        "help": "nx help",
+        "prepare-release": "standard-version && npm run build"
+    },
+    "standard-version": {
+        "bumpFiles": [
+            "package.json",
+            "libs/sherlock/package.json",
+            "libs/sherlock-utils/package.json",
+            "libs/sherlock-rxjs/package.json",
+            "package-lock.json"
+        ]
     },
     "private": true,
     "dependencies": {
@@ -49,6 +59,7 @@
         "jest": "26.2.2",
         "jest-extended": "^0.11.5",
         "prettier": "2.2.1",
+        "standard-version": "^9.1.0",
         "ts-jest": "26.4.0",
         "ts-node": "~9.1.1",
         "tslint": "~6.1.0",
