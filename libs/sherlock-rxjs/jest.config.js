@@ -1,5 +1,5 @@
 module.exports = {
-    displayName: 'sherlock-utils',
+    displayName: 'sherlock-rxjs',
     preset: '../../jest.preset.js',
     globals: {
         'ts-jest': {
@@ -11,5 +11,5 @@ module.exports = {
         '^.+\\.[tj]sx?$': 'ts-jest',
     },
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-    coverageDirectory: '../../coverage/libs/sherlock-utils',
+    coverageDirectory: '../../coverage/libs/sherlock-rxjs',
 };

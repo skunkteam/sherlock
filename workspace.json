@@ -65,6 +65,38 @@
                     }
                 }
             }
+        },
+        "sherlock-rxjs": {
+            "root": "libs/sherlock-rxjs",
+            "sourceRoot": "libs/sherlock-rxjs/src",
+            "projectType": "library",
+            "targets": {
+                "lint": {
+                    "executor": "@nrwl/linter:eslint",
+                    "options": {
+                        "lintFilePatterns": ["libs/sherlock-rxjs/**/*.ts"]
+                    }
+                },
+                "test": {
+                    "executor": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/sherlock-rxjs"],
+                    "options": {
+                        "jestConfig": "libs/sherlock-rxjs/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                },
+                "build": {
+                    "executor": "@nrwl/node:package",
+                    "outputs": ["{options.outputPath}"],
+                    "options": {
+                        "outputPath": "dist/libs/sherlock-rxjs",
+                        "tsConfig": "libs/sherlock-rxjs/tsconfig.lib.json",
+                        "packageJson": "libs/sherlock-rxjs/package.json",
+                        "main": "libs/sherlock-rxjs/src/index.ts",
+                        "assets": ["libs/sherlock-rxjs/*.md"]
+                    }
+                }
+            }
         }
     },
     "cli": {

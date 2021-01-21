@@ -12,10 +12,8 @@
     "tasksRunnerOptions": {
         "default": {
             "runner": "@nrwl/workspace/tasks-runners/default",
-            "options": {
-                "cacheableOperations": ["build", "lint", "test", "e2e"]
-            }
+            "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
         }
     },
-    "projects": { "sherlock": { "tags": [] }, "sherlock-utils": { "tags": [] } }
+    "projects": { "sherlock": { "tags": [] }, "sherlock-utils": { "tags": [] }, "sherlock-rxjs": { "tags": [] } }
 }
