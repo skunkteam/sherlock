@@ -1,0 +1,14 @@
+export const autoCacheMode = Symbol('autoCacheMode');
+export const connect = Symbol('connect');
+export const dependencies = Symbol('dependencies');
+export const dependencyVersions = Symbol('dependencyVersions');
+export const derivableAtom = Symbol('derivableAtom');
+export const disconnect = Symbol('disconnect');
+export const emptyCache = Symbol('emptyCache');
+export const finalize = Symbol('finalize');
+export const internalGetState = Symbol('internalGetState');
+export const mark = Symbol('mark');
+export const observers = Symbol('observers');
+export const rollback = Symbol('rollback');
+export const sherlockInstances = Symbol('sherlockInstances');
+export const unresolved = Symbol('unresolved');

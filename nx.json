@@ -1,14 +1,9 @@
 {
     "npmScope": "sherlock",
-    "affected": {
-        "defaultBase": "master"
-    },
+    "affected": { "defaultBase": "master" },
     "implicitDependencies": {
         "workspace.json": "*",
-        "package.json": {
-            "dependencies": "*",
-            "devDependencies": "*"
-        },
+        "package.json": { "dependencies": "*", "devDependencies": "*" },
         "tsconfig.base.json": "*",
         "tslint.json": "*",
         ".eslintrc.json": "*",
@@ -22,5 +17,5 @@
             }
         }
     },
-    "projects": {}
+    "projects": { "sherlock": { "tags": [] } }
 }

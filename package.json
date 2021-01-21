@@ -5,9 +5,9 @@
     "scripts": {
         "nx": "nx",
         "start": "nx serve",
-        "build": "nx build",
-        "test": "nx test",
-        "lint": "nx workspace-lint && nx lint",
+        "build": "nx run-many --all --target build",
+        "test": "nx run-many --all --target test",
+        "lint": "nx workspace-lint && nx run-many --all --target lint && nx format:check",
         "e2e": "nx e2e",
         "affected:apps": "nx affected:apps",
         "affected:libs": "nx affected:libs",
@@ -26,17 +26,30 @@
         "help": "nx help"
     },
     "private": true,
-    "dependencies": {},
+    "dependencies": {
+        "tslib": "^2.1.0"
+    },
     "devDependencies": {
-        "@nrwl/tao": "11.1.5",
         "@nrwl/cli": "11.1.5",
+        "@nrwl/eslint-plugin-nx": "11.1.5",
+        "@nrwl/jest": "11.1.5",
+        "@nrwl/node": "^11.1.5",
+        "@nrwl/tao": "11.1.5",
         "@nrwl/workspace": "11.1.5",
+        "@types/jest": "26.0.8",
         "@types/node": "12.12.38",
+        "@typescript-eslint/eslint-plugin": "4.3.0",
+        "@typescript-eslint/parser": "4.3.0",
         "dotenv": "6.2.0",
+        "eslint": "7.10.0",
+        "eslint-config-prettier": "6.0.0",
+        "immutable": "^4.0.0-rc.12",
+        "jest": "26.2.2",
+        "jest-extended": "^0.11.5",
+        "prettier": "2.2.1",
+        "ts-jest": "26.4.0",
         "ts-node": "~9.1.1",
         "tslint": "~6.1.0",
-        "eslint": "7.10.0",
-        "typescript": "~4.0.3",
-        "prettier": "2.2.1"
+        "typescript": "~4.0.3"
     }
 }

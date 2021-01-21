@@ -13,8 +13,18 @@
         "lib": ["es2017", "dom"],
         "skipLibCheck": true,
         "skipDefaultLibCheck": true,
+        "strict": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "forceConsistentCasingInFileNames": true,
         "baseUrl": ".",
-        "paths": {}
+        "paths": {
+            "@skunkteam/sherlock": ["libs/sherlock/src/index.ts"]
+        }
     },
     "exclude": ["node_modules", "tmp"]
 }

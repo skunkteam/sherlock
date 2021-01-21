@@ -1,7 +1,39 @@
 {
     "version": 2,
-
-    "projects": {},
+    "projects": {
+        "sherlock": {
+            "root": "libs/sherlock",
+            "sourceRoot": "libs/sherlock/src",
+            "projectType": "library",
+            "targets": {
+                "lint": {
+                    "executor": "@nrwl/linter:eslint",
+                    "options": {
+                        "lintFilePatterns": ["libs/sherlock/**/*.ts"]
+                    }
+                },
+                "test": {
+                    "executor": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/sherlock"],
+                    "options": {
+                        "jestConfig": "libs/sherlock/jest.config.js"
+                    }
+                },
+                "build": {
+                    "executor": "@nrwl/node:package",
+                    "outputs": ["{options.outputPath}"],
+                    "options": {
+                        "outputPath": "dist/libs/sherlock",
+                        "tsConfig": "libs/sherlock/tsconfig.lib.json",
+                        "packageJson": "libs/sherlock/package.json",
+                        "main": "libs/sherlock/src/index.ts",
+                        "assets": ["libs/sherlock/*.md"],
+                        "updateBuildableProjectDepsInPackageJson": true
+                    }
+                }
+            }
+        }
+    },
     "cli": {
         "defaultCollection": "@nrwl/workspace"
     }
