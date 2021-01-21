@@ -1,3 +1,4 @@
+import 'tslib';
 export * from './lib/derivable-cache';
 export * from './lib/from-promise';
 export * from './lib/lift';

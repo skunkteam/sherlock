@@ -1,3 +1,4 @@
+import 'tslib';
 import { resolveFallback } from './lib/derivable';
 import { clone, equals, isPlainObject } from './lib/utils';
 import { runGlobalStateWarning } from './lib/utils/multiple-instances-warning';
