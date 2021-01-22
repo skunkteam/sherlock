@@ -97,9 +97,55 @@
                     }
                 }
             }
+        },
+        "ngx-sherlock": {
+            "projectType": "library",
+            "root": "libs/ngx-sherlock",
+            "sourceRoot": "libs/ngx-sherlock/src",
+            "prefix": "sherlock",
+            "targets": {
+                "build": {
+                    "executor": "@nrwl/angular:package",
+                    "options": {
+                        "tsConfig": "libs/ngx-sherlock/tsconfig.lib.json",
+                        "project": "libs/ngx-sherlock/ng-package.json"
+                    },
+                    "configurations": {
+                        "production": {
+                            "tsConfig": "libs/ngx-sherlock/tsconfig.lib.prod.json"
+                        }
+                    }
+                },
+                "lint": {
+                    "executor": "@nrwl/linter:eslint",
+                    "options": {
+                        "lintFilePatterns": ["libs/ngx-sherlock/src/**/*.ts", "libs/ngx-sherlock/src/**/*.html"]
+                    }
+                },
+                "test": {
+                    "executor": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/ngx-sherlock"],
+                    "options": {
+                        "jestConfig": "libs/ngx-sherlock/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
         }
     },
     "cli": {
-        "defaultCollection": "@nrwl/workspace"
+        "defaultCollection": "@nrwl/angular"
+    },
+    "generators": {
+        "@nrwl/angular:application": {
+            "unitTestRunner": "jest"
+        },
+        "@nrwl/angular:library": {
+            "unitTestRunner": "jest",
+            "strict": true
+        },
+        "@nrwl/angular:component": {
+            "style": "scss"
+        }
     }
 }

@@ -15,5 +15,10 @@
             "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
         }
     },
-    "projects": { "sherlock": { "tags": [] }, "sherlock-utils": { "tags": [] }, "sherlock-rxjs": { "tags": [] } }
+    "projects": {
+        "sherlock": { "tags": [] },
+        "sherlock-utils": { "tags": [] },
+        "sherlock-rxjs": { "tags": [] },
+        "ngx-sherlock": { "tags": [] }
+    }
 }

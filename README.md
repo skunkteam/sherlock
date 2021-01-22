@@ -115,7 +115,7 @@ There are three types of Derivables:
     Atoms are the basic building blocks of a reactive application. They are mutable references to immutable values. Atoms represent the ground truth from which the rest of the application state is derived.
 
     ```typescript
-    import { atom, Atom } from '@politie/sherlock';
+    import { atom, Atom } from '@skunkteam/sherlock';
 
     const name$: Atom<string> = atom('Sherlock');
 
@@ -131,7 +131,7 @@ There are three types of Derivables:
     Constants are simple immutable references to immutable values.
 
     ```typescript
-    import { constant, Derivable } from '@politie/sherlock';
+    import { constant, Derivable } from '@skunkteam/sherlock';
 
     const emptyString$: Derivable<string> = constant('');
 
@@ -152,7 +152,7 @@ There are three types of Derivables:
     isBrilliant$.get(); // true
     ```
 
-    Derivations can also be created with the generic `derivation` function as seen earlier. This function can be used to do an arbitrary calculation on any number of derivables. `@politie/sherlock` automatically records which derivable is dependent on which other derivable to be able to update derived state when needed.
+    Derivations can also be created with the generic `derivation` function as seen earlier. This function can be used to do an arbitrary calculation on any number of derivables. `@skunkteam/sherlock` automatically records which derivable is dependent on which other derivable to be able to update derived state when needed.
 
 ## Reactors
 
@@ -174,7 +174,7 @@ _Coming soon_
 
 ## Immutable
 
-@politie/sherlock should be used in combination with immutable data structures such as the excellent [Immutable](https://facebook.github.io/immutable-js/) library by Facebook.
+@skunkteam/sherlock should be used in combination with immutable data structures such as the excellent [Immutable](https://facebook.github.io/immutable-js/) library by Facebook.
 
 ## Differences with derivablejs
 
