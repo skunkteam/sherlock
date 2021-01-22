@@ -1,4 +1,4 @@
-import { atom, Derivable, ErrorWrapper, ReactorOptions, _internal } from '@skunkteam/sherlock';
+import { atom, Derivable, ErrorWrapper, ReactorOptions } from '@skunkteam/sherlock';
 import { Observable, Subscribable, Subscriber, Unsubscribable } from 'rxjs';
 
 /**
@@ -9,7 +9,7 @@ import { Observable, Subscribable, Subscriber, Unsubscribable } from 'rxjs';
  */
 export function toObservable<V>(derivable: Derivable<V>, options?: Partial<ReactorOptions<V>>): Observable<V> {
     return new Observable<V>((subscriber: Subscriber<V>) => {
-        return _internal.Reactor.create(derivable as _internal.BaseDerivable<V>, value => subscriber.next(value), {
+        return derivable.react(value => subscriber.next(value), {
             ...options,
             afterShutdown: () => {
                 subscriber.closed || subscriber.complete();
@@ -25,11 +25,11 @@ export function fromObservable<V>(observable: Subscribable<V>): Derivable<V> {
     let subscription: Unsubscribable | undefined;
     atom$.connected$.react(() => {
         if (atom$.connected && !subscription) {
-            subscription = observable.subscribe(
-                value => atom$.set(value),
-                err => atom$.setFinal(new ErrorWrapper(err)),
-                () => atom$.setFinal(atom$.getState()),
-            );
+            subscription = observable.subscribe({
+                next: value => atom$.set(value),
+                error: err => atom$.setFinal(new ErrorWrapper(err)),
+                complete: () => atom$.setFinal(atom$.getState()),
+            });
         }
         // This is not chained with the previous as an `else` branch, because this can be true immediately after
         // the subscription occurs. Observables can complete synchronously on subscription.
