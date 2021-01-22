@@ -3,14 +3,28 @@ import { atom, Derivable, unwrap } from '@skunkteam/sherlock';
 
 /**
  * The {@link ValuePipe} can be used to unwrap `Derivable` values in templates. Like Angular's
- * [AsyncPipe]{@link https://angular.io/api/common/AsyncPipe}, the
- * [ChangeDetectorRef]{@link https://angular.io/api/core/ChangeDetectorRef} of the `@Host()` component will be `markedForCheck` whenever
- * the provided value emits a new value. Usage is as follows:
+ * [AsyncPipe](https://angular.io/api/common/AsyncPipe), the change-detector of the host-component
+ * will be `markedForCheck` whenever the provided value emits a new value. Usage is as follows:
  *
  * ```html
  * <!-- both title$ and someText$ are derivable values in MyComponent class -->
  * <my-component [title]="title$ | value">
  *     <p>{{ someText$ | value }}</p>
+ * </my-component>
+ * ```
+ *
+ * By default the `value` pipe returns `undefined` when the input derivable is `unresolved`. It is
+ * currently not possible to determine whether a Derivable can be unresolved by looking at the type,
+ * so the return-type of the pipe is by default: `T | undefined`. If you are sure that your derivable
+ * cannot be unresolved and you don't want to handle the `undefined` return-type, you can put the pipe
+ * in `sync` mode. It will then throw when de Derivable is unresolved, instead of returning `undefined`.
+ * This is reflected in the return-type.
+ *
+ * Example:
+ * ```html
+ * <!-- if we know title$ will never be unresolved and [title] does not accept undefined: -->
+ * <my-component [title]="title$ | value:'sync'">
+ *     ...
  * </my-component>
  * ```
  */
