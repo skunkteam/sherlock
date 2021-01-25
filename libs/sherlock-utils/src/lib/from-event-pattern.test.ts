@@ -39,6 +39,7 @@ describe('sherlock-utils/fromEventPattern', () => {
         d$.react(reactor, { onError, afterShutdown });
         expect(unsubscribeHandler).toHaveBeenCalledAfter(subscribeHandler);
         expect(reactor).toHaveBeenCalledAfter(subscribeHandler);
+        expect(reactor).toHaveBeenCalledWith('value', expect.toBeFunction());
         expect(afterShutdown).toHaveBeenCalledAfter(unsubscribeHandler);
         expect(onError).not.toHaveBeenCalled();
     });
