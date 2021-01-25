@@ -1,4 +1,5 @@
 export * from './lib/derivable-cache';
+export * from './lib/from-event-pattern';
 export * from './lib/from-promise';
 export * from './lib/lift';
 export * from './lib/pairwise';

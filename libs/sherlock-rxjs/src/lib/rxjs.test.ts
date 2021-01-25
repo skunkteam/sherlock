@@ -49,15 +49,15 @@ describe('rxjs/rxjs', () => {
                 next: v => (value = v),
                 complete: () => (complete = true),
             });
-            expect(complete).toBe(false);
+            expect(complete).toBeFalse();
             expect(value).toBe('a');
 
             a$.set('aa');
-            expect(complete).toBe(false);
+            expect(complete).toBeFalse();
             expect(value).toBe('aa');
 
             a$.set('aaa');
-            expect(complete).toBe(true);
+            expect(complete).toBeTrue();
             expect(value).toBe('aa');
         });
 
@@ -68,7 +68,7 @@ describe('rxjs/rxjs', () => {
                 next: v => values.push(v),
                 complete: () => (complete = true),
             });
-            expect(complete).toBe(true);
+            expect(complete).toBeTrue();
             expect(values).toEqual(['a']);
 
             a$.set('b');
@@ -82,15 +82,15 @@ describe('rxjs/rxjs', () => {
                 next: v => values.push(v),
                 complete: () => (complete = true),
             });
-            expect(complete).toBe(false);
+            expect(complete).toBeFalse();
             expect(Object.keys(values)).toHaveLength(0);
 
             a$.set('b');
-            expect(complete).toBe(true);
+            expect(complete).toBeTrue();
             expect(values).toEqual(['b']);
 
             a$.set('c');
-            expect(complete).toBe(true);
+            expect(complete).toBeTrue();
             expect(values).toEqual(['b']);
         });
 
@@ -131,7 +131,7 @@ describe('rxjs/rxjs', () => {
             toObservable(a$)
                 .subscribe({ complete: () => (complete = true) })
                 .unsubscribe();
-            expect(complete).toBe(false);
+            expect(complete).toBeFalse();
         });
     });
 
@@ -140,31 +140,83 @@ describe('rxjs/rxjs', () => {
             const subj = new Subject<string>();
             const d$ = fromObservable(subj);
 
-            expect(d$.resolved).toBe(false);
-            let value = '';
+            expect(d$.resolved).toBeFalse();
+            let value: string | undefined;
             d$.react(v => (value = v), { skipFirst: true, once: true });
 
-            expect(d$.resolved).toBe(false);
+            expect(d$.resolved).toBeFalse();
 
             subj.next('first value');
 
-            expect(d$.resolved).toBe(true);
-            expect(value).toBe('');
+            expect(d$.resolved).toBeTrue();
+            expect(value).toBeUndefined();
 
             subj.next('this stops the reactor');
 
-            expect(d$.value).toBe('this stops the reactor');
+            expect(d$.resolved).toBeFalse();
+            expect(d$.value).toBeUndefined();
             expect(value).toBe('this stops the reactor');
 
             subj.next('this is ignored');
 
-            expect(d$.value).toBe('this stops the reactor');
+            expect(d$.resolved).toBeFalse();
+            expect(d$.value).toBeUndefined();
             expect(value).toBe('this stops the reactor');
         });
 
         it('should subscribe to observable when used to power a reactor', () => {
             const subj = new Subject<string>();
             const d$ = fromObservable(subj);
+
+            expect(subj.observers).toHaveLength(0);
+
+            let value: string | undefined;
+            let reactions = 0;
+            let done = d$.react(v => (++reactions, (value = v)));
+
+            expect(subj.observers).toHaveLength(1);
+            expect(reactions).toBe(0);
+
+            subj.next('value');
+
+            expect(reactions).toBe(1);
+            expect(value).toBe('value');
+            expect(d$.value).toBe('value');
+
+            done();
+
+            expect(subj.observers).toHaveLength(0);
+            expect(reactions).toBe(1);
+            expect(d$.value).toBeUndefined();
+
+            subj.next('another value');
+
+            expect(subj.observers).toHaveLength(0);
+            expect(reactions).toBe(1);
+            expect(d$.value).toBeUndefined();
+
+            done = d$.react(v => (++reactions, (value = v)));
+
+            expect(subj.observers).toHaveLength(1);
+            expect(reactions).toBe(1);
+            expect(d$.value).toBeUndefined();
+
+            subj.next('yet another value');
+
+            expect(subj.observers).toHaveLength(1);
+            expect(reactions).toBe(2);
+            expect(d$.value).toBe('yet another value');
+
+            done();
+
+            expect(subj.observers).toHaveLength(0);
+            expect(reactions).toBe(2);
+            expect(d$.value).toBeUndefined();
+        });
+
+        it('should allow opting into old behavior of caching values while not subscribed', () => {
+            const subj = new Subject<string>();
+            const d$ = fromObservable(subj).take({ when: d => d.resolved });
 
             expect(subj.observers).toHaveLength(0);
 
@@ -295,13 +347,13 @@ describe('rxjs/rxjs', () => {
 
             expect(subj.observers).toHaveLength(0);
             expect(reactions).toBe(1);
-            expect(value).toBe(false);
+            expect(value).toBeFalse();
 
             useIt$.set(true);
 
             expect(subj.observers).toHaveLength(1);
             expect(reactions).toBe(1);
-            expect(value).toBe(false);
+            expect(value).toBeFalse();
 
             subj.next('value');
 
@@ -312,7 +364,7 @@ describe('rxjs/rxjs', () => {
 
             expect(subj.observers).toHaveLength(0);
             expect(reactions).toBe(3);
-            expect(value).toBe(false);
+            expect(value).toBeFalse();
         });
 
         it('should work with a fallback when given and not connected', () => {
@@ -340,7 +392,7 @@ describe('rxjs/rxjs', () => {
 
             expect(subj.observers).toHaveLength(0);
             expect(reactions).toBe(2);
-            expect(d$.get()).toBe('value');
+            expect(d$.get()).toBe('fallback');
         });
 
         it('should propagate errors', () => {
@@ -350,7 +402,7 @@ describe('rxjs/rxjs', () => {
             d$.autoCache();
 
             expect(subj.observers).toHaveLength(0);
-            expect(d$.resolved).toBe(false);
+            expect(d$.resolved).toBeFalse();
             expect(subj.observers).toHaveLength(1);
 
             subj.next('a value');
@@ -372,10 +424,8 @@ describe('rxjs/rxjs', () => {
 
             setTimeout(() => subj.error(new Error('my error')), 0);
 
-            // Reusing the same will return the last known value.
-            expect(await d$.toPromise()).toBe('value');
             try {
-                await fromObservable(subj).toPromise();
+                await d$.toPromise();
                 throw new Error('should have thrown an error');
             } catch (e) {
                 expect(e.message).toBe('my error');
