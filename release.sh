@@ -2,12 +2,18 @@
 
 set -euxo pipefail
 
-npx standard-version
+npx standard-version "$@"
+
+read -p "Press enter to continue to build step"
+
 npm run build
 
-# git push --follow-tags origin main
+read -p "Press enter to continue to NPM publish"
 
 npm publish dist/libs/sherlock --access public
 npm publish dist/libs/sherlock-rxjs --access public
 npm publish dist/libs/sherlock-utils --access public
-npm publish dist/list/ngx-sherlock --access public
+npm publish dist/libs/ngx-sherlock --access public
+
+echo "Run:"
+echo "git push --follow-tags origin main"
