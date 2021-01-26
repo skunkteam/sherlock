@@ -66,19 +66,12 @@ export interface Derivable<V> {
      *
      * @param f the deriver function
      */
-    derive<R>(f: (v: V) => MaybeFinalState<R>): Derivable<R>;
-    derive<R, P1>(f: (v: V, p1: P1) => MaybeFinalState<R>, p1: Unwrappable<P1>): Derivable<R>;
-    derive<R, P1, P2>(
-        f: (v: V, p1: P1, p2: P2) => MaybeFinalState<R>,
-        p1: Unwrappable<P1>,
-        p2: Unwrappable<P2>,
-    ): Derivable<R>;
-    derive<R, P>(f: (v: V, ...ps: P[]) => MaybeFinalState<R>, ...ps: Array<Unwrappable<P>>): Derivable<R>;
+    derive<R, PS extends unknown[]>(f: (v: V, ...ps: UnwrapTuple<PS>) => MaybeFinalState<R>, ...ps: PS): Derivable<R>;
 
     map<R>(f: (v: V) => MaybeFinalState<R>): Derivable<R>;
     mapState<R>(f: (v: State<V>) => MaybeFinalState<R>): Derivable<R>;
 
-    flatMap<R>(f: (v: V) => Derivable<R>): Derivable<R>;
+    flatMap<R>(f: (v: V) => Unwrappable<R>): Derivable<R>;
 
     take(options: Partial<TakeOptions<V>>): Derivable<V>;
 
@@ -98,12 +91,12 @@ export interface Derivable<V> {
     /**
      * Combine this derivable with another Derivable or value using the `&&` operator on the values. Returns another Derivable.
      */
-    and<W>(other: Unwrappable<W>): Derivable<V | W>;
+    and<W>(other: Unwrappable<W>): Derivable<RestrictToFalsies<V> | W>;
 
     /**
      * Combine this derivable with another Derivable or value using the `||` operator on the values. Returns another Derivable.
      */
-    or<W>(other: Unwrappable<W>): Derivable<V | W>;
+    or<W>(other: Unwrappable<W>): Derivable<ExcludeFalsies<V> | W>;
 
     /**
      * Create a Derivation of this Derivable using the `!` operator on the value.
@@ -186,11 +179,7 @@ export interface SettableDerivable<V> extends Derivable<V> {
      *
      * @param f the swap function
      */
-    swap(f: (v: V) => V): void;
-    swap<P1>(f: (v: V, p1: P1) => V, p1: Unwrappable<P1>): void;
-    swap<P1, P2>(f: (v: V, p1: P1, p2: P2) => V, p1: Unwrappable<P1>, p2: Unwrappable<P2>): void;
-    swap<P>(f: (v: V, ...ps: P[]) => V, ...ps: Array<Unwrappable<P>>): void;
-    swap(f: (oldValue: V, ...args: unknown[]) => V, ...args: unknown[]): void;
+    swap<PS extends unknown[]>(f: (v: V, ...ps: UnwrapTuple<PS>) => V, ...ps: PS): void;
 }
 
 export interface DerivableAtom<V> extends SettableDerivable<V> {
@@ -211,9 +200,9 @@ export interface DerivableAtom<V> extends SettableDerivable<V> {
  * A description of a standalone lens with arbitrary dependencies. Can be used with the {@link lens} function
  * to create a new Lens.
  */
-export interface LensDescriptor<V, P> {
-    get(this: Derivable<V>, ...ps: P[]): State<V>;
-    set(this: SettableDerivable<V>, newValue: V, ...ps: P[]): void;
+export interface LensDescriptor<V, PS extends unknown[] = []> {
+    get(this: Derivable<V>, ...ps: PS): State<V>;
+    set(this: SettableDerivable<V>, newValue: V, ...ps: PS): void;
 }
 
 export type TakeOptionValue<V> = Unwrappable<boolean> | ((d: Derivable<V>) => Unwrappable<boolean>);
@@ -275,10 +264,25 @@ export interface ReactorOptions<V> extends TakeOptions<V> {
 
 export type ToPromiseOptions<V> = Pick<ReactorOptions<V>, 'from' | 'until' | 'when' | 'skipFirst'>;
 
-export declare type Unwrappable<T> = T | Derivable<T>;
+export type Unwrappable<T> = T | Derivable<T>;
+
+export type Unwrap<T> = T extends Derivable<infer U> ? U : T;
+
+export type UnwrappableTuple<T extends unknown[]> = { [K in keyof T]: Unwrappable<T[K]> };
+
+export type UnwrapTuple<T extends Unwrappable<unknown>[]> = { [K in keyof T]: Unwrap<T[K]> };
 
 export type Fallback<T> = Unwrappable<T> | (() => T);
 
-export type State<V> = V | typeof unresolved | ErrorWrapper;
+export type State<V> = V | unresolved | ErrorWrapper;
 
 export type MaybeFinalState<V> = State<V> | FinalWrapper<State<V>>;
+
+/** Excludes all possible falsy values except NaN. */
+export type ExcludeFalsies<T> = Exclude<T, false | '' | 0 | -0 | 0n | -0n | null | undefined>;
+
+/**
+ * Restrict type to only those types that can be falsy. Note that the whole `number` domain is included,
+ * because NaN currently does not have a corresponding literal type.
+ */
+export type RestrictToFalsies<T> = T & (false | '' | number | null | undefined);
