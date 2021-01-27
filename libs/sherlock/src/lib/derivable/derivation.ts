@@ -241,6 +241,10 @@ export class Derivation<V> extends BaseDerivation<V> implements Derivable<V> {
         (this as any)._deriver = undefined;
         (this as any)._args = undefined;
     }
+
+    get dependencyCount() {
+        return this[dependencies].length;
+    }
 }
 
 export function deriveMethod<V extends P, R, P>(

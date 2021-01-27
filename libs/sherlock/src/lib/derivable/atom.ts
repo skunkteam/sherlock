@@ -78,4 +78,6 @@ export class Atom<V> extends BaseDerivable<V> implements DerivableAtom<V> {
         this.version = oldVersion;
         markObservers(this, []);
     }
+
+    readonly dependencyCount = 0;
 }

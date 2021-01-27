@@ -1,13 +1,13 @@
-import { atom, _internal } from '@skunkteam/sherlock';
+import { atom, DerivableAtom } from '@skunkteam/sherlock';
 import { defer, of, Subject } from 'rxjs';
 import { fromObservable, toObservable } from './rxjs';
 
 describe('rxjs/rxjs', () => {
     describe('toObservable', () => {
-        let a$: _internal.Atom<string>;
+        let a$: DerivableAtom<string>;
 
         beforeEach(() => {
-            a$ = atom('a') as _internal.Atom<string>;
+            a$ = atom('a');
         });
 
         it('should complete the Observable immediately when the derivable is already final', () => {
@@ -96,9 +96,9 @@ describe('rxjs/rxjs', () => {
 
         it('should stop the internal reactor when the Observable is unobserved', () => {
             const sub = toObservable(a$).subscribe();
-            expect(a$[_internal.symbols.observers]).not.toBeEmpty();
+            expect(a$.observerCount).toBeGreaterThan(0);
             sub.unsubscribe();
-            expect(a$[_internal.symbols.observers]).toBeEmpty();
+            expect(a$.observerCount).toBe(0);
         });
 
         it('should support multiple subscriptions to the returned Observable', () => {

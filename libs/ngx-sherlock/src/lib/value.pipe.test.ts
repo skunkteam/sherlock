@@ -1,5 +1,5 @@
 import { ChangeDetectorRef } from '@angular/core';
-import { atom, Derivable, DerivableAtom, _internal } from '@skunkteam/sherlock';
+import { atom, DerivableAtom } from '@skunkteam/sherlock';
 import { ValuePipe } from './value.pipe';
 
 describe(ValuePipe, () => {
@@ -38,14 +38,14 @@ describe(ValuePipe, () => {
         it('should dispose of the existing reaction when reacting to a new derivable', () => {
             pipe.transform(emitter);
 
-            expect(getObservers(emitter)).toHaveLength(1);
+            expect(emitter.observerCount).toBe(1);
 
             const newEmitter = atom.unresolved();
             expect(pipe.transform(newEmitter)).toBe(undefined);
 
             emitter.set('newer value'); // this should not affect the pipe instance
-            expect(getObservers(emitter)).toBeEmpty();
-            expect(getObservers(newEmitter)).toHaveLength(1);
+            expect(emitter.observerCount).toBe(0);
+            expect(newEmitter.observerCount).toBe(1);
         });
 
         it('should request a change detection check upon receiving a new value', () => {
@@ -66,14 +66,10 @@ describe(ValuePipe, () => {
 
         it('should unsubscribe on the derivable', () => {
             pipe.transform(emitter);
-            expect(getObservers(emitter)).toHaveLength(1);
+            expect(emitter.observerCount).toBe(1);
 
             pipe.ngOnDestroy();
-            expect(getObservers(emitter)).toBeEmpty();
+            expect(emitter.observerCount).toBe(0);
         });
     });
 });
-
-function getObservers(d$: Derivable<unknown>): _internal.Observer[] {
-    return ((d$ as unknown) as _internal.TrackedObservable)[_internal.symbols.observers];
-}

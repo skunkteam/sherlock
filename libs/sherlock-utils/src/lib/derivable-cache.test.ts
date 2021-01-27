@@ -1,4 +1,4 @@
-import { atom, constant, Derivable, DerivableAtom, derive, unwrap, _internal } from '@skunkteam/sherlock';
+import { atom, constant, Derivable, DerivableAtom, derive, unwrap } from '@skunkteam/sherlock';
 import * as immutable from 'immutable';
 import { derivableCache, DerivableCache, MapImplementation } from './derivable-cache';
 import { template } from './template';
@@ -57,9 +57,9 @@ describe('sherlock-utils/derivableCache', () => {
             derivableFactory: key => atoms[key + a$.get()],
         });
 
-        const result = (cache(0).autoCache() as unknown) as _internal.Derivation<string>;
+        const result = cache(0).autoCache();
         result.get();
-        expect(result[_internal.symbols.dependencies]).toHaveLength(1);
+        expect(result.dependencyCount).toBe(1);
     });
 
     describe('(using the default JavaScript map implementation)', () => {

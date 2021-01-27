@@ -1,4 +1,3 @@
-import { observers } from '../../symbols';
 import { Atom } from '../atom';
 import { Factories } from '../base-derivable.tests';
 import { atom } from '../factories';
@@ -54,19 +53,19 @@ export function testFallbackTo(factories: Factories) {
             const fallback$ = new Atom(42);
             const b$ = a$.fallbackTo(fallback$);
 
-            expect(fallback$[observers]).toHaveLength(0);
+            expect(fallback$.observerCount).toBe(0);
             expect(b$.autoCache().get()).toBe(42);
-            expect(fallback$[observers]).toHaveLength(1);
+            expect(fallback$.observerCount).toBe(1);
 
             if (isSettableDerivable(a$)) {
                 a$.set('a value');
                 b$.get();
-                expect(fallback$[observers]).toHaveLength(0);
+                expect(fallback$.observerCount).toBe(0);
 
                 if (isDerivableAtom(a$)) {
                     a$.unset();
                     b$.get();
-                    expect(fallback$[observers]).toHaveLength(1);
+                    expect(fallback$.observerCount).toBe(1);
                 }
             }
         });

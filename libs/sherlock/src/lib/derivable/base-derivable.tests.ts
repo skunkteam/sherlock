@@ -1,6 +1,6 @@
 import { fromJS } from 'immutable';
 import { Derivable, DerivableAtom, SettableDerivable } from '../interfaces';
-import { dependencies, observers, unresolved } from '../symbols';
+import { unresolved } from '../symbols';
 import { config, ErrorWrapper, FinalWrapper } from '../utils';
 import { Atom } from './atom';
 import { BaseDerivable } from './base-derivable';
@@ -345,7 +345,24 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
 
             // If we don't isolate our side-effects from dependency tracking, derived$ would think it depended on the
             // connected$ atom, which is not true and prevents disconnect from ever being called.
-            expect(derived$[dependencies]).toHaveLength(isConstant ? 0 : 1);
+            expect(derived$.dependencyCount).toBe(isConstant ? 0 : 1);
+        });
+    });
+
+    describe('#observerCount', () => {
+        it('should report observerCount correctly', () => {
+            const d$ = factories.value('abc');
+            expect(d$.observerCount).toBe(0);
+            d$.get();
+            expect(d$.observerCount).toBe(0);
+            const stop1 = d$.react(() => 0);
+            expect(d$.observerCount).toBe(isConstant ? 0 : 1);
+            const stop2 = d$.react(() => 0);
+            expect(d$.observerCount).toBe(isConstant ? 0 : 2);
+            stop1();
+            expect(d$.observerCount).toBe(isConstant ? 0 : 1);
+            stop2();
+            expect(d$.observerCount).toBe(0);
         });
     });
 
@@ -382,7 +399,7 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
             try {
                 await d$.toPromise();
             } catch (e) {
-                expect(d$[observers]).toHaveLength(0);
+                expect(d$.observerCount).toBe(0);
                 return;
             }
             throw new Error('expected promise to reject');
