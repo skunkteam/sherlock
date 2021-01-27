@@ -141,7 +141,7 @@ export class Reactor<V> implements Observer {
             return;
         }
 
-        const maybeReact = (nextValue: State<V>) => () => {
+        const maybeReact = (nextValue: State<V>) => {
             if (nextValue !== unresolved && !equals(this._lastValue, nextValue)) {
                 this._lastValue = nextValue;
                 if (nextValue instanceof ErrorWrapper) {
@@ -154,10 +154,9 @@ export class Reactor<V> implements Observer {
 
         const nextState = this._parent[internalGetState]();
         if (nextState instanceof FinalWrapper) {
-            // nextValue = nextValue.value;
-            this._stop(maybeReact(nextState.value));
+            this._stop(() => maybeReact(nextState.value));
         } else {
-            maybeReact(nextState)();
+            maybeReact(nextState);
         }
     }
 

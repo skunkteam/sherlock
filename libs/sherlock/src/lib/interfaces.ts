@@ -208,7 +208,7 @@ export interface DerivableAtom<V> extends SettableDerivable<V> {
  * to create a new Lens.
  */
 export interface LensDescriptor<V, PS extends unknown[] = []> {
-    get(this: Derivable<V>, ...ps: PS): State<V>;
+    get(this: SettableDerivable<V>, ...ps: PS): State<V>;
     set(this: SettableDerivable<V>, newValue: V, ...ps: PS): void;
 }
 

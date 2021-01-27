@@ -1,12 +1,12 @@
-import { atom, constant, Derivable, DerivableAtom, derive, unwrap } from '@skunkteam/sherlock';
-import * as immutable from 'immutable';
-import { derivableCache, DerivableCache, MapImplementation } from './derivable-cache';
+import { atom, constant, Derivable, DerivableAtom, derive } from '@skunkteam/sherlock';
+import { derivableCache, DerivableCache } from './derivable-cache';
+import { fromPromise } from './from-promise';
 import { template } from './template';
 
 describe('sherlock-utils/derivableCache', () => {
     it('should support constants as output of the derivable factory', () => {
         const derivableFactory = jest.fn((nr: number) => constant(nr));
-        const identityCache = derivableCache<number, number>({ derivableFactory });
+        const identityCache = derivableCache(derivableFactory);
         derive(() => identityCache(1).get() + identityCache(2).get()).react(() => 0);
         expect(derivableFactory).toHaveBeenCalledTimes(2);
         identityCache(1).get();
@@ -14,11 +14,11 @@ describe('sherlock-utils/derivableCache', () => {
         expect(derivableFactory).toHaveBeenCalledTimes(2);
     });
 
-    it('should support derivables as input to the cache', () => {
+    it('should support being used inside flatMap', () => {
         const derivableFactory = jest.fn((v: string) => constant(v + v));
-        const repeated = derivableCache<string, string>({ derivableFactory });
+        const repeated = derivableCache(derivableFactory);
         const input$ = atom('abc');
-        const output$ = repeated(input$);
+        const output$ = input$.flatMap(repeated);
         let output = '';
         output$.react(v => (output = v));
 
@@ -34,7 +34,7 @@ describe('sherlock-utils/derivableCache', () => {
     });
 
     it('should reuse proxies as much as possible', () => {
-        const cache = derivableCache<string, string>({ derivableFactory: constant });
+        const cache = derivableCache<string, string>(constant);
         const proxy1 = cache('abc');
         const proxy2 = cache('abc');
 
@@ -43,39 +43,28 @@ describe('sherlock-utils/derivableCache', () => {
 
         proxy1.autoCache().get();
 
-        // But when connected we can automatically reuse proxies when using simple keys.
+        // But when connected we can automatically reuse proxies.
         expect(cache('abc')).toBe(proxy1);
-
-        // Not possible when using derivables as input of course
-        expect(cache(constant('abc'))).not.toBe(proxy1);
     });
 
     it('should keep the dependency tree clean', () => {
         const a$ = atom(0);
         const atoms = [atom('a'), atom('b'), atom('c')];
-        const cache = derivableCache<number, string>({
-            derivableFactory: key => atoms[key + a$.get()],
-        });
+        const cache = derivableCache((key: number) => atoms[key + a$.get()]);
 
         const result = cache(0).autoCache();
+        expect(a$.connected).toBeFalse();
+        expect(atoms.map(a => a.connected)).toEqual([false, false, false]);
+
         result.get();
-        expect(result.dependencyCount).toBe(1);
-    });
+        expect(a$.connected).toBeFalse();
+        expect(atoms.map(a => a.connected)).toEqual([true, false, false]);
 
-    it('should support a combination of derivable and non derivable inputs', () => {
-        const repeated = derivableCache({ derivableFactory: (v: string) => constant(v + v), delayedEviction: true });
-        const derivableInput$ = atom('abc');
-        const derivableOutput$ = repeated(derivableInput$);
+        // Total number of observers of cached values is 1, i.e. the autoCache reactor.
+        expect(cache.observerCount()).toBe(1);
 
-        expect(derivableOutput$.get()).toBe('abcabc');
-
-        const constOutput$ = repeated('abc');
-        expect(constOutput$.get()).toBe('abcabc');
-
-        derivableInput$.set('def');
-
-        expect(derivableOutput$.get()).toBe('defdef');
-        expect(constOutput$.get()).toBe('abcabc');
+        // The number of dependencies to our result is 2, i.e. the inner derivable and the injected dependency.
+        expect(result.dependencyCount).toBe(2);
     });
 
     describe('(using the default JavaScript map implementation)', () => {
@@ -84,7 +73,7 @@ describe('sherlock-utils/derivableCache', () => {
 
         beforeEach(() => {
             derivableFactory = jest.fn((k: string) => constant('result from ' + k));
-            resultCache = derivableCache({ derivableFactory });
+            resultCache = derivableCache(derivableFactory);
         });
 
         it('should do no special tricks when not connected', () => {
@@ -98,6 +87,9 @@ describe('sherlock-utils/derivableCache', () => {
             expect(derivableFactory.mock.calls[0]).toEqual(['key1']);
             expect(derivableFactory.mock.calls[1]).toEqual(['key1']);
             expect(derivableFactory.mock.calls[2]).toEqual(['key1']);
+
+            expect(resultCache.observerCount()).toBe(0);
+            expect(resultCache.connectedKeyCount()).toBe(0);
         });
 
         it('should error when trying to set the proxy when the source derivable is not settable', () => {
@@ -105,7 +97,7 @@ describe('sherlock-utils/derivableCache', () => {
         });
 
         it('should return a settable derivable when the derivable returns settable derivables', done => {
-            const mutableCache = derivableCache<string, string>({ derivableFactory: atom, delayedEviction: true });
+            const mutableCache = derivableCache<string, string>(atom, { delayedEviction: true });
             const sd1$ = mutableCache('abc');
             const sd2$ = mutableCache('abc');
             sd1$.swap(s => s + '!!!');
@@ -125,12 +117,15 @@ describe('sherlock-utils/derivableCache', () => {
             let stopConnection: () => void;
             beforeEach(() => {
                 input$ = atom(['key1', 'key2']);
-                output$ = input$.derive(keys => keys.map(resultCache).map(unwrap));
+                output$ = input$.derive(keys => keys.map(k => resultCache(k).get()));
                 stopConnection = output$.react(() => 0);
 
                 expect(derivableFactory).toHaveBeenCalledTimes(2);
                 derivableFactory.mockClear();
                 expect(output$.value).toEqual(['result from key1', 'result from key2']);
+
+                expect(resultCache.observerCount()).toBe(2);
+                expect([...resultCache.connectedKeys()]).toEqual(['key1', 'key2']);
             });
 
             it('should reuse derivations by key as long as they are connected', () => {
@@ -166,6 +161,9 @@ describe('sherlock-utils/derivableCache', () => {
                 expect(derivableFactory).toHaveBeenCalledTimes(1);
                 expect(derivableFactory).toHaveBeenCalledWith('key3');
 
+                expect(resultCache.observerCount()).toBe(3);
+                expect([...resultCache.connectedKeys()]).toEqual(['key1', 'key2', 'key3']);
+
                 expect(output$.value).toEqual([
                     'result from key1',
                     'result from key2',
@@ -191,7 +189,7 @@ describe('sherlock-utils/derivableCache', () => {
         });
     });
 
-    describe('(usecase: async work e.g. HTTP calls using custom map implementation)', () => {
+    describe('(usecase: async work e.g. HTTP calls using custom key mapping)', () => {
         interface Request {
             method: string;
             url: string;
@@ -200,22 +198,19 @@ describe('sherlock-utils/derivableCache', () => {
             code: number;
             body: string;
         }
-        let derivableFactory: jest.Mock;
-        let performCall: DerivableCache<Request, Response>;
+        let derivableFactory: jest.Mock<Derivable<Response>, [Request]>;
+        let performCall: DerivableCache<Request, Response, string>;
 
         beforeEach(() => {
-            derivableFactory = jest.fn((key: Request) => {
-                const result = atom.unresolved<Response>();
-                // Do some hard work (an HTTP call for example).
-                fetchItLater();
-                return result;
-
-                async function fetchItLater() {
-                    await Promise.resolve();
-                    result.set({ code: 200, body: `Result from ${key.method} to ${key.url}.` });
-                }
-            });
-            performCall = derivableCache({ derivableFactory, mapFactory: ImmutableMap.factory });
+            derivableFactory = jest.fn((input: Request) =>
+                fromPromise(
+                    new Promise(resolve =>
+                        // Do some hard work (an HTTP call for example).
+                        setTimeout(() => resolve({ code: 200, body: `Result from ${input.method} to ${input.url}.` })),
+                    ),
+                ),
+            );
+            performCall = derivableCache(derivableFactory, { mapKeys: r => `${r.method} ${r.url}` });
         });
 
         it('should allow inline construction of derivables without recreating them everytime the derivation is recalculated', async () => {
@@ -272,7 +267,7 @@ describe('sherlock-utils/derivableCache', () => {
     describe('(with delayedEviction on)', () => {
         it('should keep the cached entry after disconnection until end of tick', done => {
             const derivableFactory = jest.fn((s: string) => constant(s));
-            const cache = derivableCache<string, string>({ derivableFactory, delayedEviction: true });
+            const cache = derivableCache(derivableFactory, { delayedEviction: true });
 
             cache('abc').get();
             cache('abc').get();
@@ -288,19 +283,3 @@ describe('sherlock-utils/derivableCache', () => {
         });
     });
 });
-
-class ImmutableMap<K, V> implements MapImplementation<K, V> {
-    private map = immutable.Map<object, V>();
-    set(key: K, value: V) {
-        this.map = this.map.set(immutable.fromJS(key), value);
-    }
-    delete(key: K) {
-        this.map = this.map.delete(immutable.fromJS(key));
-    }
-    get(key: K) {
-        return this.map.get(immutable.fromJS(key));
-    }
-    static factory<K, V>() {
-        return new ImmutableMap<K, V>();
-    }
-}
