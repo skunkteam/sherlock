@@ -35,7 +35,7 @@ describe('derivable/map', () => {
 
     describe('(based on constant)', () => {
         testDerivable(a$ => {
-            a$.setFinal(a$.getState());
+            a$.makeFinal();
             return a$.map(d => d);
         }, 'final');
     });

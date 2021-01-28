@@ -296,7 +296,7 @@ export function testAccessors(factories: Factories, isConstant: boolean) {
             let a$ = factories.value<string>('value').autoCache();
             expect(a$.final).toBe(isConstant);
             if (isDerivableAtom(a$)) {
-                a$.setFinal('value');
+                a$.makeFinal();
             } else {
                 a$ = factories.value('value', true).autoCache();
             }

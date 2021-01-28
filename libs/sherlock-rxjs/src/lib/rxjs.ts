@@ -25,7 +25,7 @@ export function fromObservable<V>(observable: Subscribable<V>): Derivable<V> {
         const subscription = observable.subscribe({
             next: value => value$.set(value),
             error: err => value$.setFinal(new ErrorWrapper(err)),
-            complete: () => value$.setFinal(value$.getState()),
+            complete: () => value$.makeFinal(),
         });
         return () => subscription.unsubscribe();
     });

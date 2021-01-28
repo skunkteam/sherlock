@@ -55,7 +55,7 @@ export function testDerivableAtomSetters(factories: Factories) {
         });
 
         it('should not be possible to change the state back to normal', () => {
-            a$.setFinal('a');
+            a$.makeFinal();
             expect(() => a$.set('b')).toThrowError('cannot set a final derivable');
         });
     });

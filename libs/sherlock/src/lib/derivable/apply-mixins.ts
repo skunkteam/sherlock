@@ -16,6 +16,7 @@ import {
     getMethod,
     getOrMethod,
     isMethod,
+    makeFinalMethod,
     notMethod,
     orMethod,
     pluckMethod,
@@ -97,6 +98,7 @@ declare module './atom' {
         readonly unset: DerivableAtom<V>['unset'];
         readonly setError: DerivableAtom<V>['setError'];
         readonly setFinal: DerivableAtom<V>['setFinal'];
+        readonly makeFinal: DerivableAtom<V>['makeFinal'];
         readonly map: DerivableAtom<V>['map'];
         readonly mapState: DerivableAtom<V>['mapState'];
 
@@ -138,6 +140,7 @@ declare module './map' {
         readonly unset: DerivableAtom<V>['unset'];
         readonly setError: DerivableAtom<V>['setError'];
         readonly setFinal: DerivableAtom<V>['setFinal'];
+        readonly makeFinal: DerivableAtom<V>['makeFinal'];
         readonly map: DerivableAtom<V>['map'];
         readonly mapState: DerivableAtom<V>['mapState'];
 
@@ -158,6 +161,7 @@ declare module './map' {
         unset: { value: unsetMethod },
         setError: { value: setErrorMethod },
         setFinal: { value: setFinalMethod },
+        makeFinal: { value: makeFinalMethod },
     }),
 );
 Object.defineProperties(Lens.prototype, {

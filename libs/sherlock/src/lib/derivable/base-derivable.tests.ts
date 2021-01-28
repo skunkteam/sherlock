@@ -459,7 +459,7 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
                 expect(d$.final).toBeFalse();
                 stop();
 
-                b$.setFinal('b');
+                b$.makeFinal();
                 expect(d$.final).toBeFalse();
 
                 stop = d$.react(() => 0);
@@ -491,7 +491,7 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
                 a$.setFinal('a');
                 expect(reactor).not.toHaveBeenCalled();
 
-                b$.setFinal('b');
+                b$.makeFinal();
                 expect(reactor).toHaveBeenCalledTimes(1);
                 expect(reactor).toHaveBeenCalledWith(true, expect.toBeFunction());
 
