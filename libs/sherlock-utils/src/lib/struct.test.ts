@@ -2,26 +2,16 @@ import { atom } from '@skunkteam/sherlock';
 import { struct } from './struct';
 
 describe('sherlock-utils/struct', () => {
-    it('should throw on unexpected input', () => {
-        expect(() => struct(undefined as any)).toThrowError();
-        expect(() => struct(123 as any)).toThrowError();
-        expect(() => struct(new Date())).toThrowError();
-    });
-
-    it('should accept Derivables, literal Objects and Arrays', () => {
-        struct({});
-        struct([]);
-        struct(atom(123));
-    });
-
-    it('should copy any other value type as-is', () => {
+    it('should copy any value-type as-is', () => {
         const obj = {
             date: new Date(),
             number: 123,
             string: 'asdf',
             strings: ['asdf', 'sdfg'],
         };
-        expect(struct(obj).get()).toEqual(obj);
+        const result = struct(obj).get();
+        expect(result).toEqual(obj);
+        expect(result.date).toBe(obj.date);
     });
 
     it('should return a Derivables as is', () => {
@@ -35,7 +25,7 @@ describe('sherlock-utils/struct', () => {
         const number3$ = number1$.derive(n => n + number2$.get());
 
         const number$s = [number1$, number2$, number3$];
-        const numbers$ = struct<typeof number$s, number>(number$s);
+        const numbers$ = struct(number$s);
 
         expect(numbers$.get()).toEqual([1, 2, 3]);
 
@@ -47,7 +37,7 @@ describe('sherlock-utils/struct', () => {
         const name$ = atom('Edwin');
         const tel$ = atom('0612345678');
         const person = { name: name$, tel: tel$ };
-        const person$ = struct<typeof person, string>(person);
+        const person$ = struct(person);
 
         expect(person$.get()).toEqual({ name: 'Edwin', tel: '0612345678' });
 
@@ -72,7 +62,7 @@ describe('sherlock-utils/struct', () => {
                 },
             ],
         };
-        const nested$ = struct(obj);
+        const nested$ = struct(obj).autoCache();
 
         expect(nested$.get()).toEqual({
             name: 'Edwin',
