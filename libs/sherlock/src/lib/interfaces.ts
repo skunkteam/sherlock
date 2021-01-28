@@ -198,6 +198,7 @@ export interface DerivableAtom<V> extends SettableDerivable<V> {
     unset(): void;
     setError(err: unknown): void;
     setFinal(state: State<V>): void;
+    makeFinal(): void;
     map<R>(get: (baseValue: V) => MaybeFinalState<R>): Derivable<R>;
     map<R>(get: (baseValue: V) => MaybeFinalState<R>, set: (newValue: R, oldBaseValue?: V) => V): DerivableAtom<R>;
     mapState<R>(get: (baseState: State<V>) => MaybeFinalState<R>): Derivable<R>;

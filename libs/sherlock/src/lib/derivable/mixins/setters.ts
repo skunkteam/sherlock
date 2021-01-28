@@ -13,3 +13,7 @@ export function setErrorMethod<V>(this: DerivableAtom<V>, err: unknown) {
 export function setFinalMethod<V>(this: DerivableAtom<V>, value: V) {
     this.set(FinalWrapper.wrap(value));
 }
+
+export function makeFinalMethod<V>(this: DerivableAtom<V>) {
+    this.final || this.setFinal(this.getState());
+}
