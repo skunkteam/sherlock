@@ -1,6 +1,6 @@
-import { atom, derive, _internal } from '@skunkteam/sherlock';
+import { atom, derive } from '@skunkteam/sherlock';
 import { peek, peekState, peekValue } from './peek';
-import { fromStateObject, StateObject, toStateObject } from './state';
+import { fromStateObject, toStateObject } from './state';
 
 describe('sherlock-utils/peek', () => {
     it('should return the current value of the provided Derivable without observations', () => {
@@ -42,10 +42,8 @@ describe('sherlock-utils/peekValue', () => {
 });
 
 function checkNoObservations<T>(fn: () => T) {
-    const derivation = (derive(() => toStateObject(fn())).autoCache() as unknown) as _internal.Derivation<
-        StateObject<T>
-    >;
+    const derivation = derive(() => toStateObject(fn())).autoCache();
     const result = derivation.get();
-    expect(derivation[_internal.symbols.dependencies]).toHaveLength(0);
+    expect(derivation.dependencyCount).toBe(0);
     return fromStateObject(result);
 }

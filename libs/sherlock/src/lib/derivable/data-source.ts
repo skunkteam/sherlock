@@ -124,4 +124,6 @@ export abstract class PullDataSource<V> extends BaseDerivable<V> implements Sett
     get settable() {
         return !!this.acceptNewValue;
     }
+
+    readonly dependencyCount = 0;
 }

@@ -242,6 +242,10 @@ export class Derivation<V, PS extends unknown[] = []> extends BaseDerivation<V> 
         (this as any)._deriver = undefined;
         (this as any)._args = undefined;
     }
+
+    get dependencyCount() {
+        return this[dependencies].length;
+    }
 }
 
 export function deriveMethod<V, R, PS extends unknown[]>(
