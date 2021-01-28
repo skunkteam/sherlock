@@ -66,6 +66,10 @@ export class Mapping<B, V> extends BaseDerivation<V> implements Derivable<V> {
         (this as any)._base = undefined;
         (this as any)._pureGetter = undefined;
     }
+
+    get dependencyCount() {
+        return +this.connected;
+    }
 }
 
 export class BiMapping<B, V> extends Mapping<B, V> implements SettableDerivable<V> {

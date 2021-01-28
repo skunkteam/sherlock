@@ -110,6 +110,28 @@ describe('derivable/derive', () => {
         });
         expect(derivation$.get()).toBe(1);
     });
+
+    it('should keep dependencyCount up to date', () => {
+        const a$ = atom('a');
+        const b$ = atom('b');
+        const selector$ = atom(false);
+        const d$ = derive(() => a$.get() + (selector$.get() ? b$.get() : ''));
+        expect(d$.dependencyCount).toBe(0);
+        d$.get();
+        expect(d$.dependencyCount).toBe(0);
+        const stop1 = d$.react(() => 0);
+        expect(d$.dependencyCount).toBe(2);
+        const stop2 = d$.react(() => 0);
+        expect(d$.dependencyCount).toBe(2);
+        selector$.set(true);
+        expect(d$.dependencyCount).toBe(3);
+        selector$.set(false);
+        expect(d$.dependencyCount).toBe(2);
+        stop1();
+        expect(d$.dependencyCount).toBe(2);
+        stop2();
+        expect(d$.dependencyCount).toBe(0);
+    });
 });
 
 export function testAutocache(factory: (a$: Derivable<string>, deriver: (v: string) => string) => Derivable<string>) {

@@ -56,6 +56,11 @@ export interface Derivable<V> {
     readonly connected: boolean;
     readonly connected$: Derivable<boolean>;
 
+    /** The number of current observers of this Derivable, always `0` when not connected. */
+    readonly observerCount: number;
+    /** The number of current dependencies of this Derivable, always `0` for atoms and for derivations when not connected. */
+    readonly dependencyCount: number;
+
     /**
      * Indicates whether the `set()` method is implemented and whether it will accept a value.
      */

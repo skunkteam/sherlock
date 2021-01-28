@@ -22,18 +22,18 @@ export function testAccessors(factories: Factories, isConstant: boolean) {
 
         it(`should ${isConstant ? 'not ' : ''}be recorded inside a derivation'`, () => {
             const value$ = $(factories.value(123));
-            expect(value$[observers]).toHaveLength(0);
+            expect(value$.observerCount).toBe(0);
             const derived$ = $(value$.derive(value => value + 876));
-            expect(value$[observers]).toHaveLength(0);
+            expect(value$.observerCount).toBe(0);
 
             // Simulate being observed to force derived$ to go into connected state.
             addObserver(derived$, {} as any);
             derived$.get();
 
             if (isConstant) {
-                expect(value$[observers]).toHaveLength(0);
+                expect(value$.observerCount).toBe(0);
             } else {
-                expect(value$[observers]).toHaveLength(1);
+                expect(value$.observerCount).toBe(1);
                 expect(value$[observers][0]).toBe(derived$);
             }
         });
@@ -82,18 +82,18 @@ export function testAccessors(factories: Factories, isConstant: boolean) {
 
         it(`should ${isConstant ? 'not ' : ''}be recorded inside a derivation'`, () => {
             const value$ = $(factories.value(123));
-            expect(value$[observers]).toHaveLength(0);
+            expect(value$.observerCount).toBe(0);
             const derived$ = $(value$.derive(value => value + 876));
-            expect(value$[observers]).toHaveLength(0);
+            expect(value$.observerCount).toBe(0);
 
             // Simulate being observed to force derived$ to go into connected state.
             addObserver(derived$, {} as any);
             derived$.getOr('whatever');
 
             if (isConstant) {
-                expect(value$[observers]).toHaveLength(0);
+                expect(value$.observerCount).toBe(0);
             } else {
-                expect(value$[observers]).toHaveLength(1);
+                expect(value$.observerCount).toBe(1);
                 expect(value$[observers][0]).toBe(derived$);
             }
         });
@@ -177,18 +177,18 @@ export function testAccessors(factories: Factories, isConstant: boolean) {
 
         it(`should ${isConstant ? 'not ' : ''}be recorded inside a derivation'`, () => {
             const value$ = $(factories.value(123));
-            expect(value$[observers]).toHaveLength(0);
+            expect(value$.observerCount).toBe(0);
             const derived$ = $(value$.derive(value => value + 876));
-            expect(value$[observers]).toHaveLength(0);
+            expect(value$.observerCount).toBe(0);
 
             // Simulate being observed to force derived$ to go into connected state.
             addObserver(derived$, {} as any);
             derived$.value;
 
             if (isConstant) {
-                expect(value$[observers]).toHaveLength(0);
+                expect(value$.observerCount).toBe(0);
             } else {
-                expect(value$[observers]).toHaveLength(1);
+                expect(value$.observerCount).toBe(1);
                 expect(value$[observers][0]).toBe(derived$);
             }
         });

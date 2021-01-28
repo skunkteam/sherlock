@@ -229,6 +229,28 @@ describe('derivable/map', () => {
         expect(deriver).toHaveBeenCalledTimes(2);
     });
 
+    it('should keep dependencyCount up to date', () => {
+        const a$ = atom('a');
+        const b$ = atom('b');
+        const selector$ = atom(false);
+        const d$ = selector$.map(selector => a$.get() + (selector ? b$.get() : ''));
+        expect(d$.dependencyCount).toBe(0);
+        d$.get();
+        expect(d$.dependencyCount).toBe(0);
+        const stop1 = d$.react(() => 0);
+        expect(d$.dependencyCount).toBe(1);
+        const stop2 = d$.react(() => 0);
+        expect(d$.dependencyCount).toBe(1);
+        selector$.set(true);
+        expect(d$.dependencyCount).toBe(1);
+        selector$.set(false);
+        expect(d$.dependencyCount).toBe(1);
+        stop1();
+        expect(d$.dependencyCount).toBe(1);
+        stop2();
+        expect(d$.dependencyCount).toBe(0);
+    });
+
     it('should disconnect when no longer used', () => {
         const a$ = atom(1);
         const m$ = a$.map(v => v);
