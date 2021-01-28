@@ -1,4 +1,4 @@
-import { Derivable, MaybeFinalState, State } from '../interfaces';
+import { Derivable, MaybeFinalState, State, UnwrappableTuple } from '../interfaces';
 import {
     dependencies,
     dependencyVersions,
@@ -154,7 +154,7 @@ export let derivationStackDepth = 0;
  * Derivation is the implementation of derived state. Automatically tracks other Derivables that are used in the deriver function
  * and updates when needed.
  */
-export class Derivation<V> extends BaseDerivation<V> implements Derivable<V> {
+export class Derivation<V, PS extends unknown[] = []> extends BaseDerivation<V> implements Derivable<V> {
     /**
      * Create a new Derivation using the deriver function.
      *
@@ -165,12 +165,12 @@ export class Derivation<V> extends BaseDerivation<V> implements Derivable<V> {
          * The deriver function that is used to calculate the value of this derivation.
          * @internal
          */
-        private readonly _deriver: (this: Derivable<V>, ...args: any[]) => MaybeFinalState<V>,
+        private readonly _deriver: (this: Derivable<V>, ...args: PS) => MaybeFinalState<V>,
         /**
          * Arguments that will be passed unwrapped to the deriver function.
          * @internal
          */
-        protected readonly _args?: any[],
+        protected readonly _args?: UnwrappableTuple<PS>,
     ) {
         super();
     }
@@ -207,7 +207,8 @@ export class Derivation<V> extends BaseDerivation<V> implements Derivable<V> {
     protected _callDeriver() {
         ++derivationStackDepth;
         try {
-            const value = this._args ? this._deriver(...this._args.map(unwrap)) : this._deriver();
+            const args = (this._args?.map(unwrap) as PS) ?? [];
+            const value = this._deriver(...args);
             return allDependenciesAreFinal() ? FinalWrapper.wrap(value) : value;
         } catch (e) {
             if (e === unresolved) {
@@ -247,10 +248,10 @@ export class Derivation<V> extends BaseDerivation<V> implements Derivable<V> {
     }
 }
 
-export function deriveMethod<V extends P, R, P>(
+export function deriveMethod<V, R, PS extends unknown[]>(
     this: Derivable<V>,
-    f: (v: V, ...ps: P[]) => R,
-    ...ps: Array<P | Derivable<P>>
+    f: (v: V, ...ps: PS) => R,
+    ...ps: UnwrappableTuple<PS>
 ): Derivable<R> {
     return new Derivation(f, [this, ...ps]);
 }
