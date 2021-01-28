@@ -1,4 +1,12 @@
-import { Derivable, DerivableAtom, LensDescriptor, MaybeFinalState, SettableDerivable } from '../interfaces';
+import {
+    Derivable,
+    DerivableAtom,
+    LensDescriptor,
+    MaybeFinalState,
+    SettableDerivable,
+    UnwrappableTuple,
+    UnwrapTuple,
+} from '../interfaces';
 import { unresolved as unresolvedSymbol } from '../symbols';
 import { ErrorWrapper, FinalWrapper } from '../utils';
 import { Atom } from './atom';
@@ -43,16 +51,11 @@ constant.error = function error<V>(err: unknown): Derivable<V> {
  *
  * @param deriver the deriver function
  */
-export function derive<R>(f: () => MaybeFinalState<R>): Derivable<R>;
-export function derive<R, P1>(f: (p1: P1) => MaybeFinalState<R>, p1: P1 | Derivable<P1>): Derivable<R>;
-export function derive<R, P1, P2>(
-    f: (p1: P1, p2: P2) => MaybeFinalState<R>,
-    p1: P1 | Derivable<P1>,
-    p2: P2 | Derivable<P2>,
-): Derivable<R>;
-export function derive<R, P>(f: (...ps: P[]) => MaybeFinalState<R>, ...ps: Array<P | Derivable<P>>): Derivable<R>;
-export function derive<R, P>(f: (...ps: P[]) => MaybeFinalState<R>, ...ps: Array<P | Derivable<P>>): Derivable<R> {
-    return new Derivation(f, ps.length ? ps : undefined);
+export function derive<R, PS extends unknown[] = []>(
+    deriver: (...ps: UnwrapTuple<PS>) => MaybeFinalState<R>,
+    ...ps: PS
+): Derivable<R> {
+    return new Derivation(deriver as (...args: any[]) => MaybeFinalState<R>, ps.length ? ps : undefined);
 }
 
 /**
@@ -61,14 +64,9 @@ export function derive<R, P>(f: (...ps: P[]) => MaybeFinalState<R>, ...ps: Array
  *
  * @param descriptor the get and set functions
  */
-export function lens<V>(descriptor: LensDescriptor<V, never>): SettableDerivable<V>;
-export function lens<V, P1>(descriptor: LensDescriptor<V, P1>, p1: P1 | Derivable<P1>): SettableDerivable<V>;
-export function lens<V, P1, P2>(
-    descriptor: LensDescriptor<V, P1 | P2>,
-    p1: P1 | Derivable<P1>,
-    p2: P2 | Derivable<P2>,
-): SettableDerivable<V>;
-export function lens<V, P>(descriptor: LensDescriptor<V, P>, ...ps: Array<P | Derivable<P>>): SettableDerivable<V>;
-export function lens<V, P>(descriptor: LensDescriptor<V, P>, ...ps: Array<P | Derivable<P>>): SettableDerivable<V> {
+export function lens<V, PS extends unknown[] = []>(
+    descriptor: LensDescriptor<V, PS>,
+    ...ps: UnwrappableTuple<PS>
+): SettableDerivable<V> {
     return new Lens(descriptor, ps.length ? ps : undefined);
 }
