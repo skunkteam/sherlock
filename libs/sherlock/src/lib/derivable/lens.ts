@@ -1,4 +1,4 @@
-import { LensDescriptor, SettableDerivable } from '../interfaces';
+import { Derivable, LensDescriptor, SettableDerivable } from '../interfaces';
 import { atomic } from '../transaction';
 import { augmentStack } from '../utils';
 import { Derivation } from './derivation';
@@ -10,12 +10,12 @@ import { safeUnwrap } from './unwrap';
  * transform (set) function. The set function is always called inside a transaction (but will not create a new
  * transaction if one is already active) to prevent inconsistent state when an error occurs.
  */
-export class Lens<V> extends Derivation<V> implements SettableDerivable<V> {
+export class Lens<V, PS extends unknown[] = []> extends Derivation<V, PS> implements SettableDerivable<V> {
     /**
      * The setter that was provided in the constructor.
      * @internal
      */
-    private _setter: (newValue: V, ...args: any[]) => void;
+    private _setter: (newValue: V, ...args: PS) => void;
 
     /**
      * Create a new Lens using a get and a set function. The get is used as a normal deriver function
@@ -23,8 +23,8 @@ export class Lens<V> extends Derivation<V> implements SettableDerivable<V> {
      *
      * @param param0 the get and set functions
      */
-    constructor({ get, set }: LensDescriptor<V, any>, args?: any[]) {
-        super(get, args);
+    constructor({ get, set }: LensDescriptor<V, any>, args?: PS) {
+        super(get as (this: Derivable<V>, ...args: PS) => V, args);
         this._setter = set;
     }
 
@@ -39,10 +39,7 @@ export class Lens<V> extends Derivation<V> implements SettableDerivable<V> {
         if (this.finalized) {
             throw augmentStack(new Error('cannot set a final derivable'), this);
         }
-        if (this._args) {
-            this._setter(newValue, ...this._args.map(safeUnwrap));
-        } else {
-            this._setter(newValue);
-        }
+        const args = (this._args?.map(safeUnwrap) as PS) ?? [];
+        this._setter(newValue, ...args);
     }
 }
