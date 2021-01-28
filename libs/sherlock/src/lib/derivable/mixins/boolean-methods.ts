@@ -1,19 +1,19 @@
-import { Derivable } from '../../interfaces';
+import { Derivable, ExcludeFalsies, RestrictToFalsies } from '../../interfaces';
 import { equals } from '../../utils';
 import { isDerivable } from '../typeguards';
 
-export function andMethod<V, W>(this: Derivable<V>, other: Derivable<W> | W): Derivable<W | V> {
+export function andMethod<V, W>(this: Derivable<V>, other: Derivable<W> | W): Derivable<RestrictToFalsies<V> | W> {
     if (isDerivable(other)) {
         return this.derive(v => v && other.get());
     }
     return this.map(v => v && other);
 }
 
-export function orMethod<V, W>(this: Derivable<V>, other: Derivable<W> | W): Derivable<W | V> {
+export function orMethod<V, W>(this: Derivable<V>, other: Derivable<W> | W): Derivable<ExcludeFalsies<V> | W> {
     if (isDerivable(other)) {
-        return this.derive(v => v || other.get());
+        return this.derive(v => (v as ExcludeFalsies<V>) || other.get());
     }
-    return this.map(v => v || other);
+    return this.map(v => (v as ExcludeFalsies<V>) || other);
 }
 
 export function notMethod(this: Derivable<unknown>): Derivable<boolean> {

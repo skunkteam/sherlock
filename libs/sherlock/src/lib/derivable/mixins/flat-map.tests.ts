@@ -1,5 +1,5 @@
 import { assertDerivableAtom, assertSettable, Factories } from '../base-derivable.tests';
-import { isDerivableAtom } from '../typeguards';
+import { isDerivableAtom, isSettableDerivable } from '../typeguards';
 
 export function testFlatMap(factories: Factories, isSettable: boolean, isAtom: boolean) {
     describe('#flatmap', () => {
@@ -17,6 +17,27 @@ export function testFlatMap(factories: Factories, isSettable: boolean, isAtom: b
             expect(d$.get()).toBe('some value');
             expect(d$.get()).toBe('some value');
             expect(deriver).toHaveBeenCalledTimes(alreadyFinal ? 1 : 3);
+        });
+
+        it('should support mixing Derivables with non-Derivable values', () => {
+            const deriver = jest.fn(v => v || factories.value('it was falsey'));
+            const base$ = factories.value('some value');
+            const d$ = base$.flatMap(deriver);
+            expect(d$.get()).toBe('some value');
+            expect(deriver).toHaveBeenCalledTimes(1);
+            expect(deriver).toHaveBeenLastCalledWith('some value');
+
+            if (isSettableDerivable(base$)) {
+                base$.set('other value');
+                expect(d$.get()).toBe('other value');
+                expect(deriver).toHaveBeenCalledTimes(2);
+                expect(deriver).toHaveBeenLastCalledWith('other value');
+
+                base$.set('');
+                expect(d$.get()).toBe('it was falsey');
+                expect(deriver).toHaveBeenCalledTimes(3);
+                expect(deriver).toHaveBeenLastCalledWith('');
+            }
         });
 
         isSettable &&
@@ -81,8 +102,7 @@ export function testFlatMap(factories: Factories, isSettable: boolean, isAtom: b
         it('should error when the inner derivable errors', () => {
             const base$ = factories.value('my value');
             const inner$ = factories.error<string>('my error');
-            const deriver = jest.fn(() => inner$);
-            const d$ = base$.flatMap(deriver);
+            const d$ = base$.flatMap(() => inner$);
             expect(d$.error).toBe('my error');
             expect(d$.autoCache().error).toBe('my error');
         });
@@ -95,12 +115,23 @@ export function testFlatMap(factories: Factories, isSettable: boolean, isAtom: b
                 expect(d$.autoCache().final).toBeFalse();
                 expect(d$.get()).toBe('inner value');
                 inner$.setFinal('final inner value');
-                expect(d$.final).toBe(base$.final);
+                expect(d$.final).toBeFalse();
                 expect(d$.get()).toBe('final inner value');
 
                 base$.setFinal('final outer value');
                 expect(d$.final).toBeTrue();
                 expect(d$.get()).toBe('final inner value');
+            });
+
+        isAtom &&
+            it('should be final when base derivable is final with a deriver that returns a non-Derivable value', () => {
+                const base$ = assertDerivableAtom(factories.value('a value'));
+                const d$ = base$.flatMap(value => `received ${value}`);
+                expect(d$.autoCache().final).toBeFalse();
+                expect(d$.get()).toBe('received a value');
+                base$.setFinal('other value');
+                expect(d$.final).toBeTrue();
+                expect(d$.get()).toBe('received other value');
             });
     });
 }
