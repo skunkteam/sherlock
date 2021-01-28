@@ -43,7 +43,7 @@ export function derivableCache<K, V>(opts: DerivableCacheOptions<K, V>): Derivab
     const cache = (opts.mapFactory || defaultMapFactory)();
 
     const { delayedEviction, derivableFactory } = opts;
-    const descriptor: LensDescriptor<V, K> = {
+    const descriptor: LensDescriptor<V, [K]> = {
         get(key) {
             const cachedDerivable = cache.get(key);
             // If the cache has a hit for the current key, we know it is already connected (through another proxy).
@@ -57,7 +57,7 @@ export function derivableCache<K, V>(opts: DerivableCacheOptions<K, V>): Derivab
             // is not registered as an observed value, which means we cannot track the usage of our newly created derivable.
             // Therefore introduce a non-final atom (`atom(0)`) in the derivation:
             const derivable = isSettableDerivable(newDerivable)
-                ? lens({ get: () => newDerivable.get(), set: v => newDerivable.set(v) }, nonFinalAtom)
+                ? lens<V, [number]>({ get: () => newDerivable.get(), set: v => newDerivable.set(v) }, nonFinalAtom)
                 : derive(() => newDerivable.get(), nonFinalAtom);
 
             if (delayedEviction) {

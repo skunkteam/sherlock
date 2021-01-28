@@ -12,3 +12,4 @@ export const observers = Symbol('observers');
 export const rollback = Symbol('rollback');
 export const sherlockInstances = Symbol('sherlockInstances');
 export const unresolved = Symbol('unresolved');
+export type unresolved = typeof unresolved;
