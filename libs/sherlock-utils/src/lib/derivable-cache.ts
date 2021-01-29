@@ -82,15 +82,18 @@ export function derivableCache<K, V>(opts: DerivableCacheOptions<K, V>): Derivab
         },
     };
 
-    return key => {
-        if (!isDerivable(key)) {
-            const cacheItem = cache.get(key);
-            if (cacheItem) {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                return cacheItem[CACHED_PROXY]!;
-            }
+    function derivableCache(key: Unwrappable<K>): SettableDerivable<V> {
+        if (isDerivable(key)) {
+            return key.flatMap(derivableCache);
+        }
+        const cacheItem = cache.get(key);
+        if (cacheItem) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return cacheItem[CACHED_PROXY]!;
         }
 
         return lens(descriptor, key);
-    };
+    }
+
+    return derivableCache;
 }

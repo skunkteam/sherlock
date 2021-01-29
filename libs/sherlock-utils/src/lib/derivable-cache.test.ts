@@ -62,6 +62,22 @@ describe('sherlock-utils/derivableCache', () => {
         expect(result.dependencyCount).toBe(1);
     });
 
+    it('should support a combination of derivable and non derivable inputs', () => {
+        const repeated = derivableCache({ derivableFactory: (v: string) => constant(v + v), delayedEviction: true });
+        const derivableInput$ = atom('abc');
+        const derivableOutput$ = repeated(derivableInput$);
+
+        expect(derivableOutput$.get()).toBe('abcabc');
+
+        const constOutput$ = repeated('abc');
+        expect(constOutput$.get()).toBe('abcabc');
+
+        derivableInput$.set('def');
+
+        expect(derivableOutput$.get()).toBe('defdef');
+        expect(constOutput$.get()).toBe('abcabc');
+    });
+
     describe('(using the default JavaScript map implementation)', () => {
         let derivableFactory: jest.Mock;
         let resultCache: DerivableCache<string, string>;
