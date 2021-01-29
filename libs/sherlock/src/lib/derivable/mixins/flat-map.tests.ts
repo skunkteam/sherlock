@@ -40,6 +40,37 @@ export function testFlatMap(factories: Factories, isSettable: boolean, isAtom: b
             }
         });
 
+        !isSettable &&
+            it('should throw an error when trying to set a non-settable Derivable', () => {
+                // The runtime does not know whether it is settable or not, so it has to be settable by default.
+                const d$ = assertSettable(factories.value('old value').flatMap(factories.value));
+                expect(() => d$.set('new value')).toThrow('The resulting Derivable from flatMap is not settable');
+            });
+
+        isSettable &&
+            it('should support setting the resulting Derivable', () => {
+                const settables = ['a', 'b', 'c'].map(v => assertSettable(factories.value(v)));
+                const switcher$ = assertSettable(factories.value(0));
+                const d$ = switcher$.flatMap(n => settables[n]);
+                expect(d$.get()).toBe('a');
+                d$.set('q');
+                expect(d$.get()).toBe('q');
+                expect(settables[0].get()).toBe('q');
+
+                d$.autoCache().get();
+                switcher$.set(1);
+                expect(d$.get()).toBe('b');
+                d$.set('r');
+                expect(d$.get()).toBe('r');
+                expect(settables[1].get()).toBe('r');
+
+                // and once without getting first
+                switcher$.set(2);
+                d$.set('s');
+                expect(d$.get()).toBe('s');
+                expect(settables[2].get()).toBe('s');
+            });
+
         isSettable &&
             it('should only run the deriver when the base derivable changes, not when the inner derivable fires', () => {
                 const base$ = assertSettable(factories.value('some value'));

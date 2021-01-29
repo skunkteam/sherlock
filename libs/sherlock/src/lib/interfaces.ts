@@ -76,6 +76,7 @@ export interface Derivable<V> {
     map<R>(f: (v: V) => MaybeFinalState<R>): Derivable<R>;
     mapState<R>(f: (v: State<V>) => MaybeFinalState<R>): Derivable<R>;
 
+    flatMap<R>(f: (v: V) => SettableDerivable<R>): SettableDerivable<R>;
     flatMap<R>(f: (v: V) => Unwrappable<R>): Derivable<R>;
 
     take(options: Partial<TakeOptions<V>>): Derivable<V>;
