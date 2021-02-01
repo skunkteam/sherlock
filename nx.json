@@ -18,6 +18,7 @@
     "projects": {
         "sherlock": { "tags": [] },
         "sherlock-utils": { "tags": [] },
-        "ngx-sherlock": { "tags": [] }
+        "ngx-sherlock": { "tags": [] },
+        "ngx-sherfire": { "tags": [] }
     }
 }
