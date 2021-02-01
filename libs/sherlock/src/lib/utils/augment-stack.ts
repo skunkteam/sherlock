@@ -1,4 +1,4 @@
-import { MaybeFinalState } from '../interfaces';
+import type { MaybeFinalState } from '../interfaces';
 import { clone } from './clone';
 import { config } from './config';
 import { ErrorWrapper } from './error-wrapper';

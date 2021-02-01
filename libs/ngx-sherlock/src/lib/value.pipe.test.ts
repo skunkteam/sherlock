@@ -1,4 +1,4 @@
-import { ChangeDetectorRef } from '@angular/core';
+import type { ChangeDetectorRef } from '@angular/core';
 import { atom, DerivableAtom } from '@skunkteam/sherlock';
 import { ValuePipe } from './value.pipe';
 

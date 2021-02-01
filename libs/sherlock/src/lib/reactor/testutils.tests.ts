@@ -1,4 +1,4 @@
-import { Derivable, ReactorOptions } from '../interfaces';
+import type { Derivable, ReactorOptions } from '../interfaces';
 
 let currentReactorTest: { reactions: number; value: unknown };
 export function react<V>(d: Derivable<V>, opts?: Partial<ReactorOptions<V>>) {

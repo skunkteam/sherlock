@@ -1,4 +1,4 @@
-import { Derivable, LensDescriptor, SettableDerivable } from '../interfaces';
+import type { Derivable, LensDescriptor, SettableDerivable, UnwrapTuple } from '../interfaces';
 import { atomic } from '../transaction';
 import { augmentStack } from '../utils';
 import { Derivation } from './derivation';
@@ -24,7 +24,7 @@ export class Lens<V, PS extends unknown[] = []> extends Derivation<V, PS> implem
      * @param param0 the get and set functions
      */
     constructor({ get, set }: LensDescriptor<V, any>, args?: PS) {
-        super(get as (this: Derivable<V>, ...args: PS) => V, args);
+        super(get as (this: Derivable<V>, ...args: UnwrapTuple<PS>) => V, args);
         this._setter = set;
     }
 

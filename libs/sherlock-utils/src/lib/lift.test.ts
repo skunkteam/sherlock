@@ -1,4 +1,4 @@
-import { constant } from '@skunkteam/sherlock';
+import { constant, ErrorWrapper, FinalWrapper, unresolved } from '@skunkteam/sherlock';
 import { lift } from './lift';
 
 describe('sherlock-utils/lift', () => {
@@ -28,5 +28,11 @@ describe('sherlock-utils/lift', () => {
         const h = lift(triadic);
         expect(h(a$, n$, b$).get()).toBe('triadic (a,123,b)');
         expect(h('a', n$, b$).get()).toBe('triadic (a,123,b)');
+    });
+
+    it('should support non-value states', () => {
+        expect(lift(() => unresolved)().resolved).toBeFalse();
+        expect(lift(() => new ErrorWrapper('error'))().error).toBe('error');
+        expect(lift(() => FinalWrapper.wrap('value'))().final).toBeTrue;
     });
 });

@@ -1,9 +1,12 @@
+import type { State } from '../../interfaces';
+import { unresolved } from '../../symbols';
+import { ErrorWrapper } from '../../utils';
 import { Atom } from '../atom';
-import { Factories } from '../base-derivable.tests';
+import type { Factories } from '../base-derivable.tests';
 import { atom } from '../factories';
 import { isDerivableAtom, isSettableDerivable } from '../typeguards';
 
-export function testFallbackTo(factories: Factories) {
+export function testFallbackTo(factories: Factories, isConstant: boolean) {
     describe('#fallbackTo', () => {
         it('fallback to the result of the provided function', () => {
             const a$ = factories.unresolved<string>();
@@ -25,6 +28,21 @@ export function testFallbackTo(factories: Factories) {
                 }
             }
         });
+
+        !isConstant &&
+            it('should allow falling back to unresolved or errored', () => {
+                const a$ = factories.unresolved<string>();
+                let fallback: State<string> = 'fallback';
+                const b$ = a$.fallbackTo(() => fallback);
+                expect(b$.value).toBe('fallback');
+                expect(b$.error).toBeUndefined();
+                fallback = unresolved;
+                expect(b$.value).toBeUndefined();
+                expect(b$.error).toBeUndefined();
+                fallback = new ErrorWrapper('error');
+                expect(b$.value).toBeUndefined();
+                expect(b$.error).toBe('error');
+            });
 
         it('fallback to the value of the provided derivable', () => {
             const a$ = factories.unresolved<string>();

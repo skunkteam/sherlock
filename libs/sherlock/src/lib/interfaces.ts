@@ -1,5 +1,5 @@
-import { unresolved } from './symbols';
-import { ErrorWrapper, FinalWrapper } from './utils';
+import type { unresolved } from './symbols';
+import type { ErrorWrapper, FinalWrapper } from './utils';
 
 /**
  * Derivable is the base interface of all variants of Sherlock Derivables.
@@ -32,7 +32,7 @@ export interface Derivable<V> {
      *
      * @param fallback fallback to use when the derivable is unresolved
      */
-    fallbackTo<T>(fallback: Fallback<T>): Derivable<V | T>;
+    fallbackTo<T>(fallback: Fallback<State<T>>): Derivable<V | T>;
 
     /**
      * Get the current value of the derivable when applicable, otherwise returns undefined (when in error state or unresolved).
@@ -47,7 +47,7 @@ export interface Derivable<V> {
 
     readonly final: boolean;
 
-    readonly creationStack?: string;
+    readonly creationStack: string | undefined;
 
     /**
      * Indicates whether the derivation is actively used to power a reactor, either directly or indirectly with other derivations in
@@ -185,7 +185,7 @@ export interface SettableDerivable<V> extends Derivable<V> {
      *
      * @param f the swap function
      */
-    swap<PS extends unknown[]>(f: (v: V, ...ps: UnwrapTuple<PS>) => V, ...ps: PS): void;
+    swap<PS extends unknown[]>(f: (v: V, ...ps: SafeUnwrapTuple<PS>) => V, ...ps: PS): void;
 }
 
 export interface DerivableAtom<V> extends SettableDerivable<V> {
@@ -277,7 +277,9 @@ export type Unwrap<T> = T extends Derivable<infer U> ? U : T;
 
 export type UnwrappableTuple<T extends unknown[]> = { [K in keyof T]: Unwrappable<T[K]> };
 
-export type UnwrapTuple<T extends Unwrappable<unknown>[]> = { [K in keyof T]: Unwrap<T[K]> };
+export type UnwrapTuple<T extends unknown[]> = { [K in keyof T]: Unwrap<T[K]> };
+
+export type SafeUnwrapTuple<T extends unknown[]> = { [K in keyof T]: Unwrap<T[K]> | undefined };
 
 export type Fallback<T> = Unwrappable<T> | (() => T);
 

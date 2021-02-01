@@ -17,7 +17,7 @@ export function testSwap(factories: Factories) {
             expect(a$.get()).toBe('a!');
         });
 
-        function add(a: string, b: string) {
+        function add(a: string, b?: string) {
             return a + b;
         }
         it('should pass any additional parameters to the swap function', () => {

@@ -1,4 +1,4 @@
-import { DerivableAtom } from '../../interfaces';
+import type { DerivableAtom } from '../../interfaces';
 import { unresolved } from '../../symbols';
 import { ErrorWrapper, FinalWrapper } from '../../utils';
 

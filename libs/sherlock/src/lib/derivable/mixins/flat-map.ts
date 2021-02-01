@@ -1,4 +1,4 @@
-import { Derivable, SettableDerivable, Unwrappable } from '../../interfaces';
+import type { Derivable, SettableDerivable, Unwrappable } from '../../interfaces';
 import { augmentStack } from '../../utils';
 import { lens } from '../factories';
 import { isSettableDerivable } from '../typeguards';

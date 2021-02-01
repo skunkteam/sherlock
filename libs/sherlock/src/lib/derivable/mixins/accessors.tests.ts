@@ -1,4 +1,4 @@
-import { SettableDerivable } from '../../interfaces';
+import type { SettableDerivable } from '../../interfaces';
 import { internalGetState, observers } from '../../symbols';
 import { addObserver } from '../../tracking';
 import { $, Factories } from '../base-derivable.tests';

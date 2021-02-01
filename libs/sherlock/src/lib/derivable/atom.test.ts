@@ -1,5 +1,5 @@
 import { Seq } from 'immutable';
-import { Derivable } from '../interfaces';
+import type { Derivable } from '../interfaces';
 import { react, shouldHaveReactedOnce, shouldNotHaveReacted } from '../reactor/testutils.tests';
 import { txn } from '../transaction/transaction.tests';
 import { Atom } from './atom';

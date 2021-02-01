@@ -1,4 +1,4 @@
-import { Derivable } from '../interfaces';
+import type { Derivable } from '../interfaces';
 import { clone } from './clone';
 
 export const config = {

@@ -1,4 +1,4 @@
-import { MaybeFinalState, SettableDerivable, State } from '../interfaces';
+import type { MaybeFinalState, SettableDerivable, State } from '../interfaces';
 import { connect, disconnect, emptyCache, internalGetState, rollback } from '../symbols';
 import { independentTracking, recordObservation } from '../tracking';
 import { markObservers, processChangedState, registerForRollback } from '../transaction';

@@ -1,8 +1,8 @@
-import { Derivable, MaybeFinalState, SettableDerivable, State } from '../interfaces';
+import type { Derivable, MaybeFinalState, SettableDerivable, State } from '../interfaces';
 import { connect, disconnect, finalize, unresolved } from '../symbols';
 import { addObserver, independentTracking, removeObserver } from '../tracking';
 import { augmentStack, ErrorWrapper, FinalWrapper } from '../utils';
-import { BaseDerivable } from './base-derivable';
+import type { BaseDerivable } from './base-derivable';
 import { BaseDerivation } from './derivation';
 
 export class Mapping<B, V> extends BaseDerivation<V> implements Derivable<V> {

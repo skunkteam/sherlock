@@ -21,12 +21,17 @@ export type {
     DerivableAtom,
     Fallback,
     LensDescriptor,
+    MaybeFinalState,
     ReactorOptions,
+    SafeUnwrapTuple,
     SettableDerivable,
     State,
     TakeOptionValue,
     ToPromiseOptions,
+    Unwrap,
     Unwrappable,
+    UnwrappableTuple,
+    UnwrapTuple,
 } from './lib/interfaces';
 export { unresolved } from './lib/symbols';
 export { atomic, atomically, inTransaction, transact, transaction } from './lib/transaction';

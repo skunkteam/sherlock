@@ -1,4 +1,4 @@
-import { Derivable, MaybeFinalState, TakeOptions, TakeOptionValue } from '../../interfaces';
+import type { Derivable, MaybeFinalState, TakeOptions, TakeOptionValue } from '../../interfaces';
 import { unresolved } from '../../symbols';
 import { equals, ErrorWrapper, FinalWrapper } from '../../utils';
 import { Atom } from '../atom';
