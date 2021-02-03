@@ -1,5 +1,5 @@
 import { fromJS, Seq } from 'immutable';
-import { DerivableAtom, SettableDerivable } from '../../interfaces';
+import type { DerivableAtom, SettableDerivable } from '../../interfaces';
 import { Atom } from '../atom';
 import { assertSettable, Factories } from '../base-derivable.tests';
 import { atom, constant } from '../factories';

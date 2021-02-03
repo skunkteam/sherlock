@@ -1,4 +1,4 @@
-import { Derivable, DerivableAtom, SettableDerivable } from '../interfaces';
+import type { Derivable, DerivableAtom, SettableDerivable } from '../interfaces';
 import { Atom } from './atom';
 import { BaseDerivable } from './base-derivable';
 import { BiMapping } from './map';

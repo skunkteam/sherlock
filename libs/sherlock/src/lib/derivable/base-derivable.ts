@@ -1,4 +1,4 @@
-import { Derivable, MaybeFinalState, SettableDerivable } from '../interfaces';
+import type { Derivable, MaybeFinalState, SettableDerivable } from '../interfaces';
 import { autoCacheMode, connect, disconnect, finalize, internalGetState, observers } from '../symbols';
 import {
     independentTracking,
@@ -72,9 +72,14 @@ export abstract class BaseDerivable<V> implements TrackedObservable, Derivable<V
      */
     abstract readonly version: number;
 
-    connected = false;
+    /** @internal */
+    _connected = false;
+    get connected() {
+        return this._connected;
+    }
     /** @internal */
     _connected$?: SettableDerivable<boolean> = undefined;
+
     [connect]() {
         this.finalized || setConnectionStatus(this, true);
     }
@@ -105,7 +110,7 @@ BaseDerivable.prototype.autoCache = function autoCache() {
 };
 
 function setConnectionStatus(bs: BaseDerivable<unknown>, status: boolean) {
-    bs.connected = status;
+    bs._connected = status;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     bs._connected$ && independentTracking(() => bs._connected$!.set(status));
 }

@@ -1,6 +1,6 @@
 import { atom, Atom, BaseDerivable, constant, derive } from '../derivable';
 import { $ } from '../derivable/base-derivable.tests';
-import { Derivable, SettableDerivable } from '../interfaces';
+import type { Derivable, SettableDerivable } from '../interfaces';
 import { atomically } from '../transaction';
 import { config } from '../utils';
 import { Reactor } from './reactor';

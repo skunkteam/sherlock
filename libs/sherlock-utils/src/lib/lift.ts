@@ -1,4 +1,4 @@
-import { Derivable, _internal } from '@skunkteam/sherlock';
+import { Derivable, derive, MaybeFinalState, unwrap, UnwrappableTuple } from '@skunkteam/sherlock';
 
 /**
  * Lifts the function f into a function over Derivables returning a Derivable, for example:
@@ -10,15 +10,10 @@ import { Derivable, _internal } from '@skunkteam/sherlock';
  *
  * @param f the function to lift into a function over Derivables
  */
-export function lift<R>(f: () => R): () => Derivable<R>;
-export function lift<P1, R>(f: (p1: P1) => R): (p1: MD<P1>) => Derivable<R>;
-export function lift<P1, P2, R>(f: (p1: P1, p2: P2) => R): (p1: MD<P1>, p2: MD<P2>) => Derivable<R>;
-export function lift<P1, P2, P3, R>(
-    f: (p1: P1, p2: P2, p3: P3) => R,
-): (p1: MD<P1>, p2: MD<P2>, p3: MD<P3>) => Derivable<R>;
-
-export function lift<P, R>(f: (...ps: P[]) => R): (...ps: Array<P | Derivable<P>>) => Derivable<R> {
-    return (...ps: Array<P | Derivable<P>>) => new _internal.Derivation(f, ps);
+export function lift<PS extends unknown[], R>(
+    f: (...ps: PS) => MaybeFinalState<R>,
+): (...ps: UnwrappableTuple<PS>) => Derivable<R> {
+    return (...ps: UnwrappableTuple<PS>) => derive(() => f(...(ps.map(unwrap) as PS)));
 }
 
-export type MD<P> = P | Derivable<P>;
+export type DerivableTuple<T extends unknown[]> = { [K in keyof T]: Derivable<T[K]> };

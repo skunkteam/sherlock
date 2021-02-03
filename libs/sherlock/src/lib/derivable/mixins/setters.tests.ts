@@ -1,4 +1,4 @@
-import { DerivableAtom } from '../../interfaces';
+import type { DerivableAtom } from '../../interfaces';
 import { assertDerivableAtom, Factories } from '../base-derivable.tests';
 
 export function testDerivableAtomSetters(factories: Factories) {

@@ -1,4 +1,4 @@
-import { Unwrappable } from '../interfaces';
+import type { Unwrappable } from '../interfaces';
 import { BaseDerivable } from './base-derivable';
 
 /**

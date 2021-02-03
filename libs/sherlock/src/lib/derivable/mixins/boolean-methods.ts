@@ -1,4 +1,4 @@
-import { Derivable, ExcludeFalsies, RestrictToFalsies } from '../../interfaces';
+import type { Derivable, ExcludeFalsies, RestrictToFalsies } from '../../interfaces';
 import { equals } from '../../utils';
 import { isDerivable } from '../typeguards';
 

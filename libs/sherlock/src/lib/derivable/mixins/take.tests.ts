@@ -1,4 +1,4 @@
-import { Derivable, DerivableAtom, SettableDerivable, State, TakeOptions } from '../../interfaces';
+import type { Derivable, DerivableAtom, SettableDerivable, State, TakeOptions } from '../../interfaces';
 import { unresolved } from '../../symbols';
 import { txn } from '../../transaction/transaction.tests';
 import { ErrorWrapper } from '../../utils';

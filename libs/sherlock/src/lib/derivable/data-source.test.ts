@@ -1,11 +1,11 @@
-import { Derivable, MaybeFinalState } from '../interfaces';
+import type { Derivable, MaybeFinalState } from '../interfaces';
 import { react, shouldHaveReactedOnce, shouldNotHaveReacted } from '../reactor/testutils.tests';
 import { connect, dependencies, disconnect } from '../symbols';
 import { basicTransactionsTests } from '../transaction/transaction.tests';
 import { config, FinalWrapper } from '../utils';
 import { testDerivable } from './base-derivable.tests';
 import { PullDataSource } from './data-source';
-import { Derivation } from './derivation';
+import type { Derivation } from './derivation';
 import { atom } from './factories';
 
 describe('derivable/data-source', () => {

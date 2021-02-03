@@ -1,4 +1,4 @@
-import { Derivable, MaybeFinalState, State, UnwrappableTuple } from '../interfaces';
+import type { Derivable, MaybeFinalState, State, UnwrapTuple } from '../interfaces';
 import {
     dependencies,
     dependencyVersions,
@@ -165,12 +165,12 @@ export class Derivation<V, PS extends unknown[] = []> extends BaseDerivation<V> 
          * The deriver function that is used to calculate the value of this derivation.
          * @internal
          */
-        private readonly _deriver: (this: Derivable<V>, ...args: PS) => MaybeFinalState<V>,
+        private readonly _deriver: (this: Derivable<V>, ...args: UnwrapTuple<PS>) => MaybeFinalState<V>,
         /**
          * Arguments that will be passed unwrapped to the deriver function.
          * @internal
          */
-        protected readonly _args?: UnwrappableTuple<PS>,
+        protected readonly _args?: PS,
     ) {
         super();
     }
@@ -207,7 +207,7 @@ export class Derivation<V, PS extends unknown[] = []> extends BaseDerivation<V> 
     protected _callDeriver() {
         ++derivationStackDepth;
         try {
-            const args = (this._args?.map(unwrap) as PS) ?? [];
+            const args = (this._args?.map(unwrap) as UnwrapTuple<PS>) ?? [];
             const value = this._deriver(...args);
             return allDependenciesAreFinal() ? FinalWrapper.wrap(value) : value;
         } catch (e) {
@@ -250,8 +250,8 @@ export class Derivation<V, PS extends unknown[] = []> extends BaseDerivation<V> 
 
 export function deriveMethod<V, R, PS extends unknown[]>(
     this: Derivable<V>,
-    f: (v: V, ...ps: PS) => R,
-    ...ps: UnwrappableTuple<PS>
+    f: (v: V, ...ps: UnwrapTuple<PS>) => MaybeFinalState<R>,
+    ...ps: PS
 ): Derivable<R> {
-    return new Derivation(f, [this, ...ps]);
+    return new Derivation<R, [Derivable<V>, ...PS]>(f, [this, ...ps]);
 }

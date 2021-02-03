@@ -1,5 +1,5 @@
 import { finalize, mark, observers, rollback } from '../symbols';
-import { Finalizer, Observable, TrackedObservable, TrackedReactor } from '../tracking';
+import type { Finalizer, Observable, TrackedObservable, TrackedReactor } from '../tracking';
 
 let currentTransaction: Transaction | undefined;
 

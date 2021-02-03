@@ -1,10 +1,10 @@
-import { SettableDerivable } from '../../interfaces';
+import type { SafeUnwrapTuple, SettableDerivable } from '../../interfaces';
 import { safeUnwrap } from '../unwrap';
 
-export function swapMethod<V>(
+export function swapMethod<V, PS extends unknown[]>(
     this: SettableDerivable<V>,
-    f: (oldValue: V | undefined, ...args: any[]) => V,
-    ...args: any[]
+    f: (oldValue: V | undefined, ...args: SafeUnwrapTuple<PS>) => V,
+    ...args: PS
 ) {
-    this.set(f(this.value, ...args.map(safeUnwrap)));
+    this.set(f(this.value, ...(args.map(safeUnwrap) as SafeUnwrapTuple<PS>)));
 }

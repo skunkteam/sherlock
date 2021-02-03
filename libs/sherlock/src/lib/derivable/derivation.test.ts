@@ -1,4 +1,4 @@
-import { Derivable, SettableDerivable } from '../interfaces';
+import type { Derivable, SettableDerivable } from '../interfaces';
 import { unresolved } from '../symbols';
 import { config } from '../utils';
 import { testDerivable } from './base-derivable.tests';

@@ -1,5 +1,5 @@
 import { atom, derive, lens } from './derivable';
-import { Derivable, SettableDerivable } from './interfaces';
+import type { Derivable, SettableDerivable } from './interfaces';
 
 const string$ = atom('value' as const);
 const number$ = atom(1 as const);

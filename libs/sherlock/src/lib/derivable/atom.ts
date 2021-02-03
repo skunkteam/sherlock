@@ -1,4 +1,4 @@
-import { DerivableAtom, MaybeFinalState, State } from '../interfaces';
+import type { DerivableAtom, MaybeFinalState, State } from '../interfaces';
 import { finalize, internalGetState, rollback } from '../symbols';
 import { markFinal, recordObservation } from '../tracking';
 import { markObservers, processChangedState, registerForRollback } from '../transaction';

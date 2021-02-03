@@ -1,5 +1,5 @@
 import { derive } from '../derivable';
-import { SettableDerivable } from '../interfaces';
+import type { SettableDerivable } from '../interfaces';
 import { FinalWrapper } from '../utils';
 import { transact } from './transaction';
 

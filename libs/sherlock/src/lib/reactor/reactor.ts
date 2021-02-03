@@ -1,5 +1,5 @@
 import { BaseDerivable } from '../derivable';
-import { ReactorOptions, State, ToPromiseOptions } from '../interfaces';
+import type { ReactorOptions, State, ToPromiseOptions } from '../interfaces';
 import { emptyCache, internalGetState, mark, unresolved } from '../symbols';
 import { addObserver, independentTracking, Observer, removeObserver } from '../tracking';
 import { augmentStack, equals, ErrorWrapper, FinalWrapper, prepareCreationStack, uniqueId } from '../utils';

@@ -1,9 +1,9 @@
 import { fromJS } from 'immutable';
-import { Derivable, DerivableAtom, SettableDerivable } from '../interfaces';
+import type { Derivable, DerivableAtom, SettableDerivable } from '../interfaces';
 import { unresolved } from '../symbols';
 import { config, ErrorWrapper, FinalWrapper } from '../utils';
 import { Atom } from './atom';
-import { BaseDerivable } from './base-derivable';
+import type { BaseDerivable } from './base-derivable';
 import { Derivation } from './derivation';
 import { atom, constant, derive } from './factories';
 import { Mapping } from './map';
@@ -64,7 +64,7 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
 
     testAccessors(factories, isConstant);
     testBooleanFuncs(factories);
-    testFallbackTo(factories);
+    testFallbackTo(factories, isConstant);
     testFlatMap(factories, isSettable, isAtom);
     testPluck(factories, isSettable, isAtom);
     testTake(factories, isSettable, noRollbackSupport, isAtom);
@@ -319,6 +319,11 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
     });
 
     describe('#connected$', () => {
+        it('should cache the returned derivable', () => {
+            const d$ = factories.value('a certain value');
+            expect(d$.connected$).toBe(d$.connected$);
+        });
+
         it('should keep observers updated on connected state', () => {
             const d$ = factories.value('a certain value');
             let connected = false;
@@ -536,7 +541,7 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
     describe('(nested derivables)', () => {
         it('should just work', () => {
             const a$$ = atom(undefined as Derivable<number> | undefined);
-            const a$ = a$$.derive(v => v && v.get());
+            const a$ = a$$.derive(v => v?.get());
 
             expect(a$.get()).toBeUndefined();
 

@@ -1,4 +1,4 @@
-import { Derivable, DerivableAtom, Fallback, SettableDerivable } from '../interfaces';
+import type { Derivable, DerivableAtom, SettableDerivable } from '../interfaces';
 import { Atom } from './atom';
 import { BaseDerivable } from './base-derivable';
 import { PullDataSource } from './data-source';
@@ -32,138 +32,95 @@ import {
 } from './mixins';
 
 declare module './base-derivable' {
-    export interface BaseDerivable<V> {
-        get(): V;
-        getOr<T>(t: Fallback<T>): V | T;
-
-        readonly value: Derivable<V>['value'];
-        readonly resolved: Derivable<V>['resolved'];
-        readonly settable: Derivable<V>['settable'];
-        readonly final: Derivable<V>['final'];
-
-        readonly errored: Derivable<V>['errored'];
-        readonly error: Derivable<V>['error'];
-
-        readonly connected$: Derivable<V>['connected$'];
-
-        readonly derive: Derivable<V>['derive'];
-        readonly map: Derivable<V>['map'];
-        readonly mapState: Derivable<V>['mapState'];
-        readonly flatMap: Derivable<V>['flatMap'];
-        readonly pluck: Derivable<V>['pluck'];
-        readonly fallbackTo: Derivable<V>['fallbackTo'];
-
-        readonly take: Derivable<V>['take'];
-
-        readonly and: Derivable<V>['and'];
-        readonly or: Derivable<V>['or'];
-        readonly not: Derivable<V>['not'];
-        readonly is: Derivable<V>['is'];
-    }
+    export interface BaseDerivable<V> extends Derivable<V> {}
 }
+BaseDerivable.prototype.get = getMethod;
+BaseDerivable.prototype.getOr = getOrMethod;
+BaseDerivable.prototype.derive = deriveMethod;
+BaseDerivable.prototype.map = mapMethod;
+BaseDerivable.prototype.mapState = mapStateMethod;
+BaseDerivable.prototype.flatMap = flatMapMethod;
+BaseDerivable.prototype.pluck = pluckMethod;
+BaseDerivable.prototype.fallbackTo = fallbackToMethod;
+BaseDerivable.prototype.take = takeMethod;
+BaseDerivable.prototype.and = andMethod;
+BaseDerivable.prototype.or = orMethod;
+BaseDerivable.prototype.not = notMethod;
+BaseDerivable.prototype.is = isMethod;
 
-Object.defineProperties(BaseDerivable.prototype, {
-    get: { value: getMethod },
-    getOr: { value: getOrMethod },
+Object.defineProperty(BaseDerivable.prototype, 'settable', { value: false });
 
-    value: { get: valueGetter },
-    resolved: { get: resolvedGetter },
-    settable: { value: false },
-    final: { get: finalGetter },
-
-    errored: { get: erroredGetter },
-    error: { get: errorGetter },
-
-    connected$: { get: connected$Getter },
-
-    derive: { value: deriveMethod },
-    map: { value: mapMethod },
-    mapState: { value: mapStateMethod },
-    flatMap: { value: flatMapMethod },
-    pluck: { value: pluckMethod },
-    fallbackTo: { value: fallbackToMethod },
-
-    take: { value: takeMethod },
-
-    and: { value: andMethod },
-    or: { value: orMethod },
-    not: { value: notMethod },
-    is: { value: isMethod },
-});
+baseDerivableGetter('value', valueGetter);
+baseDerivableGetter('resolved', resolvedGetter);
+baseDerivableGetter('final', finalGetter);
+baseDerivableGetter('errored', erroredGetter);
+baseDerivableGetter('error', errorGetter);
+baseDerivableGetter('connected$', connected$Getter);
 
 declare module './atom' {
-    export interface Atom<V> {
+    export interface Atom<V> extends DerivableAtom<V> {
         value: SettableDerivable<V>['value'];
 
-        readonly unset: DerivableAtom<V>['unset'];
-        readonly setError: DerivableAtom<V>['setError'];
-        readonly setFinal: DerivableAtom<V>['setFinal'];
-        readonly makeFinal: DerivableAtom<V>['makeFinal'];
         readonly map: DerivableAtom<V>['map'];
         readonly mapState: DerivableAtom<V>['mapState'];
 
-        readonly swap: SettableDerivable<V>['swap'];
-        readonly pluck: SettableDerivable<V>['pluck'];
+        pluck: SettableDerivable<V>['pluck'];
     }
 }
 
 declare module './data-source' {
-    export interface PullDataSource<V> {
+    export interface PullDataSource<V> extends SettableDerivable<V> {
         value: SettableDerivable<V>['value'];
 
         readonly map: SettableDerivable<V>['map'];
         readonly mapState: SettableDerivable<V>['mapState'];
 
-        readonly swap: SettableDerivable<V>['swap'];
-        readonly pluck: SettableDerivable<V>['pluck'];
+        pluck: SettableDerivable<V>['pluck'];
     }
 }
 
 declare module './lens' {
-    export interface Lens<V> {
+    export interface Lens<V> extends SettableDerivable<V> {
         value: SettableDerivable<V>['value'];
 
         readonly map: SettableDerivable<V>['map'];
         readonly mapState: SettableDerivable<V>['mapState'];
 
-        readonly swap: SettableDerivable<V>['swap'];
-        readonly pluck: SettableDerivable<V>['pluck'];
-        readonly settable: true;
+        pluck: SettableDerivable<V>['pluck'];
     }
 }
 
 declare module './map' {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    export interface BiMapping<B, V> {
+    export interface BiMapping<B, V> extends DerivableAtom<V> {
         value: SettableDerivable<V>['value'];
 
-        readonly unset: DerivableAtom<V>['unset'];
-        readonly setError: DerivableAtom<V>['setError'];
-        readonly setFinal: DerivableAtom<V>['setFinal'];
-        readonly makeFinal: DerivableAtom<V>['makeFinal'];
         readonly map: DerivableAtom<V>['map'];
         readonly mapState: DerivableAtom<V>['mapState'];
 
-        readonly swap: SettableDerivable<V>['swap'];
-        readonly pluck: SettableDerivable<V>['pluck'];
+        pluck: SettableDerivable<V>['pluck'];
     }
 }
 
-[Atom, PullDataSource, BiMapping, Lens].forEach(c =>
-    Object.defineProperties(c.prototype, {
-        value: { get: valueGetter, set: valueSetter },
-        swap: { value: swapMethod },
-        pluck: { value: settablePluckMethod },
-    }),
-);
-[Atom, BiMapping].forEach(c =>
-    Object.defineProperties(c.prototype, {
-        unset: { value: unsetMethod },
-        setError: { value: setErrorMethod },
-        setFinal: { value: setFinalMethod },
-        makeFinal: { value: makeFinalMethod },
-    }),
-);
-Object.defineProperties(Lens.prototype, {
-    settable: { value: true },
+[Atom, PullDataSource, BiMapping, Lens].forEach(c => {
+    c.prototype.swap = swapMethod;
+    c.prototype.pluck = settablePluckMethod;
+    Object.defineProperty(c.prototype, 'value', { get: valueGetter, set: valueSetter });
 });
+
+[Atom, BiMapping].forEach(c => {
+    c.prototype.unset = unsetMethod;
+    c.prototype.setError = setErrorMethod;
+    c.prototype.setFinal = setFinalMethod;
+    c.prototype.makeFinal = makeFinalMethod;
+});
+
+Object.defineProperty(Lens.prototype, 'settable', { value: true });
+
+// Use a separate functions to define getters for BaseDerivable for correct type-checking (until we get HKT in TypeScript).
+function baseDerivableGetter<K extends keyof BaseDerivable<unknown>>(
+    key: K,
+    get: <V>(this: BaseDerivable<V>) => BaseDerivable<V>[K],
+) {
+    Object.defineProperty(BaseDerivable.prototype, key, { get });
+}
