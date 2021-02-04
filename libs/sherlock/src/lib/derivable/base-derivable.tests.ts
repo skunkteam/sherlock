@@ -1,7 +1,7 @@
 import { fromJS } from 'immutable';
 import type { Derivable, DerivableAtom, SettableDerivable } from '../interfaces';
 import { unresolved } from '../symbols';
-import { config, ErrorWrapper, FinalWrapper } from '../utils';
+import { config, error, final } from '../utils';
 import { Atom } from './atom';
 import type { BaseDerivable } from './base-derivable';
 import { Derivation } from './derivation';
@@ -50,16 +50,12 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
         typeof factory === 'object'
             ? factory
             : {
-                  error: <V>(error: unknown, final?: boolean) =>
-                      factory(
-                          final
-                              ? new Atom<V>(FinalWrapper.wrap(new ErrorWrapper(error)))
-                              : new Atom<V>(new ErrorWrapper(error)),
-                      ),
-                  unresolved: <V>(final?: boolean) =>
-                      factory(final ? new Atom<V>(FinalWrapper.wrap(unresolved)) : new Atom<V>(unresolved)),
-                  value: <V>(value: V, final?: boolean) =>
-                      factory(final ? new Atom(FinalWrapper.wrap(value)) : new Atom(value)),
+                  error: <V>(err: unknown, makeFinal?: boolean) =>
+                      factory(makeFinal ? new Atom<V>(final(error(err))) : new Atom<V>(error(err))),
+                  unresolved: <V>(makeFinal?: boolean) =>
+                      factory(makeFinal ? new Atom<V>(final(unresolved)) : new Atom<V>(unresolved)),
+                  value: <V>(value: V, makeFinal?: boolean) =>
+                      factory(makeFinal ? new Atom(final(value)) : new Atom(value)),
               };
 
     testAccessors(factories, isConstant);
@@ -480,7 +476,7 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
             it('should throw when trying to set a new value', () => {
                 // Make sure we are not final to begin with, otherwise some factories might create a derivable without a setter.
                 const a$ = assertSettable(factories.value('first value'));
-                a$.set((FinalWrapper.wrap('final value') as unknown) as string);
+                a$.set((final('final value') as unknown) as string);
                 a$.autoCache().value;
                 expect(() => a$.set('not possible')).toThrowError('cannot set a final derivable');
             });

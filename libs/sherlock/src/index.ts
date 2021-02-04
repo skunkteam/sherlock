@@ -35,7 +35,7 @@ export type {
 } from './lib/interfaces';
 export { unresolved } from './lib/symbols';
 export { atomic, atomically, inTransaction, transact, transaction } from './lib/transaction';
-export { config, ErrorWrapper, FinalWrapper } from './lib/utils';
+export { config, error, ErrorWrapper, final, FinalWrapper } from './lib/utils';
 
 export const utils = {
     clone,

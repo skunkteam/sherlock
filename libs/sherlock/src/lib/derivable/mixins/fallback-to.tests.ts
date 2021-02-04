@@ -1,6 +1,6 @@
 import type { State } from '../../interfaces';
 import { unresolved } from '../../symbols';
-import { ErrorWrapper } from '../../utils';
+import { error } from '../../utils';
 import { Atom } from '../atom';
 import type { Factories } from '../base-derivable.tests';
 import { atom } from '../factories';
@@ -39,7 +39,7 @@ export function testFallbackTo(factories: Factories, isConstant: boolean) {
                 fallback = unresolved;
                 expect(b$.value).toBeUndefined();
                 expect(b$.error).toBeUndefined();
-                fallback = new ErrorWrapper('error');
+                fallback = error('error');
                 expect(b$.value).toBeUndefined();
                 expect(b$.error).toBe('error');
             });

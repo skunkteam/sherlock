@@ -2,7 +2,7 @@ import type { MaybeFinalState, SettableDerivable, State } from '../interfaces';
 import { connect, disconnect, emptyCache, internalGetState, rollback } from '../symbols';
 import { independentTracking, recordObservation } from '../tracking';
 import { markObservers, processChangedState, registerForRollback } from '../transaction';
-import { augmentStack, equals, ErrorWrapper, FinalWrapper } from '../utils';
+import { augmentStack, equals, error, FinalWrapper } from '../utils';
 import { BaseDerivable } from './base-derivable';
 
 export abstract class PullDataSource<V> extends BaseDerivable<V> implements SettableDerivable<V> {
@@ -91,7 +91,7 @@ export abstract class PullDataSource<V> extends BaseDerivable<V> implements Sett
         try {
             return this.calculateCurrentValue();
         } catch (e) {
-            return new ErrorWrapper(augmentStack(e, this));
+            return error(augmentStack(e, this));
         }
     }
 

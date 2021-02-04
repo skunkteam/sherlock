@@ -1,4 +1,4 @@
-import { Derivable, DerivableAtom, ErrorWrapper, ReactorOptions, State, unresolved } from '@skunkteam/sherlock';
+import { Derivable, DerivableAtom, error, ErrorWrapper, ReactorOptions, State, unresolved } from '@skunkteam/sherlock';
 
 export type StateObject<V> =
     | { value: V; errored: false; resolved: true }
@@ -22,7 +22,7 @@ export function toStateObject<V>(state: State<V>): StateObject<V> {
 
 export function fromStateObject<V>(state: StateObject<V>): State<V> {
     if (state.errored) {
-        return new ErrorWrapper(state.error);
+        return error(state.error);
     }
     if (state.resolved) {
         return state.value;

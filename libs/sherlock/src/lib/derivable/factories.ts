@@ -8,12 +8,12 @@ import type {
     UnwrapTuple,
 } from '../interfaces';
 import { unresolved as unresolvedSymbol } from '../symbols';
-import { ErrorWrapper, FinalWrapper } from '../utils';
+import { error, final } from '../utils';
 import { Atom } from './atom';
 import { Derivation } from './derivation';
 import { Lens } from './lens';
 
-const finalUnresolved = FinalWrapper.wrap(unresolvedSymbol);
+const finalUnresolved = final(unresolvedSymbol);
 
 /**
  * Construct a new atom with the provided initial value.
@@ -26,8 +26,8 @@ export function atom<V>(value: V): DerivableAtom<V> {
 atom.unresolved = function unresolved<V>(): DerivableAtom<V> {
     return new Atom<V>(unresolvedSymbol);
 };
-atom.error = function error<V>(err: unknown): DerivableAtom<V> {
-    return new Atom<V>(new ErrorWrapper(err));
+atom.error = function createError<V>(err: unknown): DerivableAtom<V> {
+    return new Atom<V>(error(err));
 };
 atom.final = constant;
 
@@ -37,13 +37,13 @@ atom.final = constant;
  * @param value the immutable value of this Constant
  */
 export function constant<V>(value: V): Derivable<V> {
-    return new Atom<V>(FinalWrapper.wrap(value));
+    return new Atom<V>(final(value));
 }
 constant.unresolved = function unresolved<V>(): Derivable<V> {
     return new Atom<V>(finalUnresolved);
 };
-constant.error = function error<V>(err: unknown): Derivable<V> {
-    return new Atom<V>(FinalWrapper.wrap(new ErrorWrapper(err)));
+constant.error = function createError<V>(err: unknown): Derivable<V> {
+    return new Atom<V>(final(error(err)));
 };
 
 /**

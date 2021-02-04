@@ -1,6 +1,6 @@
 import { derive } from '../derivable';
 import type { SettableDerivable } from '../interfaces';
-import { FinalWrapper } from '../utils';
+import { final } from '../utils';
 import { transact } from './transaction';
 
 export function basicTransactionsTests(atomFactory: <V>(v: V) => SettableDerivable<V>, shouldRollbackValue: boolean) {
@@ -118,7 +118,7 @@ export function basicTransactionsTests(atomFactory: <V>(v: V) => SettableDerivab
             txn(() => {
                 a$.set('b');
                 txn(abort => {
-                    a$.set(FinalWrapper.wrap('c') as any);
+                    a$.set(final('c') as any);
                     expect(d$.value).toBe('c!');
                     expect(a$.final).toBeTrue();
                     expect(d$.final).toBeTrue();
@@ -133,7 +133,7 @@ export function basicTransactionsTests(atomFactory: <V>(v: V) => SettableDerivab
             txn(abort => {
                 a$.set('b');
                 txn(() => {
-                    a$.set(FinalWrapper.wrap('c') as any);
+                    a$.set(final('c') as any);
                     expect(d$.value).toBe('c!');
                     expect(a$.final).toBeTrue();
                     expect(d$.final).toBeTrue();

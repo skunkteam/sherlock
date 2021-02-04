@@ -10,7 +10,7 @@ export class FinalWrapper<V> {
     }
 
     static map<V, T>(value: V | FinalWrapper<V>, fn: (value: V) => T | FinalWrapper<T>): T | FinalWrapper<T> {
-        return value instanceof FinalWrapper ? FinalWrapper.wrap(fn(value.value)) : fn(value);
+        return value instanceof FinalWrapper ? final(fn(value.value)) : fn(value);
     }
 
     private constructor(readonly value: V) {}
@@ -18,4 +18,8 @@ export class FinalWrapper<V> {
     equals(other: unknown) {
         return this === other || (other instanceof FinalWrapper && equals(this.value, other.value));
     }
+}
+
+export function final<V>(value: V | FinalWrapper<V>): FinalWrapper<V> {
+    return FinalWrapper.wrap(value);
 }

@@ -1,4 +1,4 @@
-import { constant, ErrorWrapper, FinalWrapper, unresolved } from '@skunkteam/sherlock';
+import { constant, error, final, unresolved } from '@skunkteam/sherlock';
 import { lift } from './lift';
 
 describe('sherlock-utils/lift', () => {
@@ -32,7 +32,7 @@ describe('sherlock-utils/lift', () => {
 
     it('should support non-value states', () => {
         expect(lift(() => unresolved)().resolved).toBeFalse();
-        expect(lift(() => new ErrorWrapper('error'))().error).toBe('error');
-        expect(lift(() => FinalWrapper.wrap('value'))().final).toBeTrue;
+        expect(lift(() => error('error'))().error).toBe('error');
+        expect(lift(() => final('value'))().final).toBeTrue;
     });
 });
