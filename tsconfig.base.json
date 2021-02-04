@@ -26,7 +26,6 @@
         "paths": {
             "@skunkteam/sherlock": ["libs/sherlock/src/index.ts"],
             "@skunkteam/sherlock-utils": ["libs/sherlock-utils/src/index.ts"],
-            "@skunkteam/sherlock-rxjs": ["libs/sherlock-rxjs/src/index.ts"],
             "@skunkteam/ngx-sherlock": ["libs/ngx-sherlock/src/index.ts"]
         }
     },

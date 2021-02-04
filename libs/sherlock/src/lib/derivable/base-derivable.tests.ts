@@ -1,5 +1,7 @@
 import { fromJS } from 'immutable';
 import type { Derivable, DerivableAtom, SettableDerivable } from '../interfaces';
+import { testReact } from '../reactor/reactor.test';
+import { testRxjsInterop } from '../reactor/rxjs-interop.tests';
 import { unresolved } from '../symbols';
 import { config, ErrorWrapper, FinalWrapper } from '../utils';
 import { Atom } from './atom';
@@ -71,6 +73,7 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
 
     if (isSettable) {
         testSwap(factories);
+        testReact(factories, isAtom);
     } else {
         it('should not be settable', () => {
             expect(isSettableDerivable(factories.value(0))).toBe(false);
@@ -79,6 +82,7 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
 
     if (isAtom) {
         testDerivableAtomSetters(factories);
+        testRxjsInterop(factories);
     } else {
         it('should not be a derivable atom', () => {
             expect(isDerivableAtom(factories.value(0))).toBe(false);
