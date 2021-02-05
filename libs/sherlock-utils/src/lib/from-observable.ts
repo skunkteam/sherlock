@@ -1,11 +1,11 @@
-import { Derivable, ErrorWrapper } from '@skunkteam/sherlock';
+import { Derivable, error } from '@skunkteam/sherlock';
 import { fromEventPattern } from './from-event-pattern';
 
 export function fromObservable<V>(observable: Subscribable<V>): Derivable<V> {
     return fromEventPattern(value$ => {
         const subscription = observable.subscribe({
             next: value => value$.set(value),
-            error: err => value$.setFinal(new ErrorWrapper(err)),
+            error: err => value$.setFinal(error(err)),
             complete: () => value$.makeFinal(),
         });
         return () => subscription.unsubscribe();
