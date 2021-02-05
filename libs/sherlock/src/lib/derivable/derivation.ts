@@ -206,18 +206,21 @@ export class Derivation<V, PS extends unknown[] = []> extends BaseDerivation<V> 
      */
     protected _callDeriver() {
         ++derivationStackDepth;
+        let result: MaybeFinalState<V>;
         try {
             const args = (this._args?.map(unwrap) as UnwrapTuple<PS>) ?? [];
             const value = this._deriver(...args);
-            return allDependenciesAreFinal() ? final(value) : value;
+            result = value;
         } catch (e) {
             if (e === unresolved) {
-                return unresolved;
+                result = unresolved;
+            } else {
+                result = error(augmentStack(e, this));
             }
-            return error(augmentStack(e, this));
         } finally {
             --derivationStackDepth;
         }
+        return allDependenciesAreFinal() ? final(result) : result;
     }
 
     /** @internal */
