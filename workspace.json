@@ -28,7 +28,7 @@
                         "packageJson": "libs/sherlock/package.json",
                         "main": "libs/sherlock/src/index.ts",
                         "assets": ["libs/sherlock/*.md"],
-                        "updateBuildableProjectDepsInPackageJson": true
+                        "buildableProjectDepsInPackageJsonType": "peerDependencies"
                     }
                 }
             }
@@ -61,39 +61,7 @@
                         "packageJson": "libs/sherlock-utils/package.json",
                         "main": "libs/sherlock-utils/src/index.ts",
                         "assets": ["libs/sherlock-utils/*.md"],
-                        "updateBuildableProjectDepsInPackageJson": true
-                    }
-                }
-            }
-        },
-        "sherlock-rxjs": {
-            "root": "libs/sherlock-rxjs",
-            "sourceRoot": "libs/sherlock-rxjs/src",
-            "projectType": "library",
-            "targets": {
-                "lint": {
-                    "executor": "@nrwl/linter:eslint",
-                    "options": {
-                        "lintFilePatterns": ["libs/sherlock-rxjs/**/*.ts"]
-                    }
-                },
-                "test": {
-                    "executor": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/sherlock-rxjs"],
-                    "options": {
-                        "jestConfig": "libs/sherlock-rxjs/jest.config.js",
-                        "passWithNoTests": true
-                    }
-                },
-                "build": {
-                    "executor": "@nrwl/node:package",
-                    "outputs": ["{options.outputPath}"],
-                    "options": {
-                        "outputPath": "dist/libs/sherlock-rxjs",
-                        "tsConfig": "libs/sherlock-rxjs/tsconfig.lib.json",
-                        "packageJson": "libs/sherlock-rxjs/package.json",
-                        "main": "libs/sherlock-rxjs/src/index.ts",
-                        "assets": ["libs/sherlock-rxjs/*.md"]
+                        "buildableProjectDepsInPackageJsonType": "peerDependencies"
                     }
                 }
             }
@@ -108,7 +76,8 @@
                     "executor": "@nrwl/angular:package",
                     "options": {
                         "tsConfig": "libs/ngx-sherlock/tsconfig.lib.json",
-                        "project": "libs/ngx-sherlock/ng-package.json"
+                        "project": "libs/ngx-sherlock/ng-package.json",
+                        "buildableProjectDepsInPackageJsonType": "peerDependencies"
                     },
                     "configurations": {
                         "production": {

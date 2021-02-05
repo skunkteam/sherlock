@@ -1,536 +1,36 @@
-import { atom, Atom, BaseDerivable, constant, derive } from '../derivable';
-import { $ } from '../derivable/base-derivable.tests';
-import type { Derivable, SettableDerivable } from '../interfaces';
+import { atom, BaseDerivable, constant, derive } from '../derivable';
+import { $, assertDerivableAtom, assertSettable, Factories } from '../derivable/base-derivable.tests';
+import type { Derivable, DerivableAtom, SettableDerivable } from '../interfaces';
 import { atomically } from '../transaction';
 import { config } from '../utils';
 import { Reactor } from './reactor';
 import { react, shouldHaveReactedOnce, shouldNotHaveReacted } from './testutils.tests';
 
-describe('reactor/reactor', () => {
-    let a$: Atom<string>;
-
-    beforeEach(() => {
-        a$ = new Atom('a');
-    });
-
-    it('should simply start unconditionally without any options specified', () => {
-        react(a$);
-
-        shouldHaveReactedOnce('a');
-
-        a$.set('b');
-
-        shouldHaveReactedOnce('b');
-    });
-
-    it('should start when the `from` condition becomes true', () => {
-        const from = atom(false);
-        react(a$, { from });
-
-        shouldNotHaveReacted();
-
-        from.set(true);
-
-        shouldHaveReactedOnce('a');
-
-        a$.set('b');
-
-        shouldHaveReactedOnce('b');
-    });
-
-    it('should stop forever when the `until` condition becomes true', () => {
-        const until = atom(false);
-        react(a$, { until });
-
-        shouldHaveReactedOnce('a');
-
-        a$.set('b');
-
-        shouldHaveReactedOnce('b');
-
-        until.set(true);
-        a$.set('c');
-
-        shouldNotHaveReacted();
-
-        until.set(false);
-        a$.set('d');
-
-        shouldNotHaveReacted();
-    });
-
-    it('should stop forever when the returned finisher is called', () => {
-        const afterShutdown = jest.fn();
-        const finish = react(a$, { afterShutdown });
-
-        shouldHaveReactedOnce('a');
-
-        a$.set('b');
-
-        shouldHaveReactedOnce('b');
-
-        expect(afterShutdown).not.toHaveBeenCalled();
-        finish();
-        expect(afterShutdown).toHaveBeenCalled();
-
-        a$.set('c');
-
-        shouldNotHaveReacted();
-    });
-
-    it('should stop forever when the provided stop callback is called', () => {
-        let value = '';
-        a$.react((v, stop) => (value = v) === 'b' && stop());
-
-        expect(value).toBe('a');
-
-        a$.set('b');
-        expect(value).toBe('b');
-
-        a$.set('c');
-        expect(value).toBe('b');
-    });
-
-    it('should start and stop when the `when` condition becomes true and false respectively', () => {
-        const when = atom(false);
-        react(a$, { when });
-
-        shouldNotHaveReacted();
-
-        when.set(true);
-
-        shouldHaveReactedOnce('a');
-
-        a$.set('b');
-
-        shouldHaveReactedOnce('b');
-
-        when.set(false);
-        a$.set('c');
-
-        shouldNotHaveReacted();
-
-        when.set(true);
-
-        shouldHaveReactedOnce('c');
-    });
-
-    it('should support changing the atom and the input to `when` atomically', () => {
-        react(a$, { when: d => d.is('b') });
-
-        shouldNotHaveReacted();
-
-        a$.set('b');
-
-        // Reacts once because no previous value has been seen by the reactor.
-        shouldHaveReactedOnce('b');
-
-        a$.set('a');
-
-        // Doesn't react, because when is now false.
-        shouldNotHaveReacted();
-
-        a$.set('b');
-
-        // Doesn't react, because the new value equals the previous value that was seen by the reactor.
-        shouldNotHaveReacted();
-    });
-
-    it('should accept a function as `from` option', () => {
-        react(a$, { from: d => d.is('b') });
-
-        shouldNotHaveReacted();
-
-        a$.set('b');
-
-        shouldHaveReactedOnce('b');
-
-        a$.set('c');
-
-        shouldHaveReactedOnce('c');
-    });
-
-    it('should accept a function as `when` option', () => {
-        react(a$, { when: d => d.is('c').or(d.is('e')) });
-
-        shouldNotHaveReacted();
-
-        a$.set('b');
-        shouldNotHaveReacted();
-
-        a$.set('c');
-
-        shouldHaveReactedOnce('c');
-
-        a$.set('d');
-
-        shouldNotHaveReacted();
-
-        a$.set('e');
-
-        shouldHaveReactedOnce('e');
-    });
-
-    it('should accept a function as `until` option', () => {
-        react(a$, { until: d => d.is('c') });
-
-        shouldHaveReactedOnce('a');
-
-        a$.set('b');
-
-        shouldHaveReactedOnce('b');
-
-        a$.set('c');
-
-        shouldNotHaveReacted();
-    });
-
-    it('should support a change and `until` becoming true atomically', () => {
-        const until = atom(false);
-        react(a$, { until });
-
-        shouldHaveReactedOnce('a');
-
-        atomically(() => {
-            a$.set('b');
-            until.set(true);
-        });
-
-        shouldNotHaveReacted();
-    });
-
-    it('should support a change and the finish callback being called atomically', () => {
-        const finish = react(a$);
-
-        shouldHaveReactedOnce('a');
-
-        atomically(() => {
-            a$.set('b');
-            finish();
-        });
-
-        shouldNotHaveReacted();
-    });
-
-    it('should not be possible to trigger a reaction twice by forcing different values into the `when` option', () => {
-        const when = atom(false);
-        react(a$, { when });
-
-        shouldNotHaveReacted();
-
-        when.set(true);
-
-        shouldHaveReactedOnce('a');
-
-        when.set(1 as any);
-
-        shouldNotHaveReacted();
-    });
-
-    it('should support simple boolean values for the `from`, `when` and `until` option', () => {
-        react(a$, { from: false });
-        a$.set('b');
-        shouldNotHaveReacted();
-
-        react(a$, { when: false });
-        a$.set('c');
-        shouldNotHaveReacted();
-
-        react(a$, { until: true });
-        a$.set('d');
-        shouldNotHaveReacted();
-    });
-
-    describe('with the combined use of `from`, `when` and `until` options', () => {
-        let from: SettableDerivable<boolean>;
-        let when: SettableDerivable<boolean>;
-        let until: SettableDerivable<boolean>;
+export function testReact(factories: Factories, isAtom: boolean) {
+    describe('#react', () => {
+        let a$: SettableDerivable<string>;
 
         beforeEach(() => {
-            from = atom<boolean>(false);
-            when = atom<boolean>(false);
-            until = atom<boolean>(false);
+            a$ = assertSettable(factories.value('a'));
         });
 
-        it('should support all 3 options', () => {
-            react(a$, { from, when, until });
-
-            shouldNotHaveReacted();
-
-            from.set(true);
-
-            shouldNotHaveReacted(); // `when` is still false
-
-            when.set(true);
+        it('should simply start unconditionally without any options specified', () => {
+            react(a$);
 
             shouldHaveReactedOnce('a');
 
             a$.set('b');
 
             shouldHaveReactedOnce('b');
-
-            when.set(false);
-            a$.set('c');
-
-            shouldNotHaveReacted();
-
-            when.set(true);
-
-            shouldHaveReactedOnce('c');
-
-            until.set(true);
-            a$.set('d');
-
-            shouldNotHaveReacted();
         });
 
-        it('should support `from` being true from the start', () => {
-            from.set(true);
-
-            react(a$, { from, when, until });
-
-            shouldNotHaveReacted();
-
-            when.set(true);
-
-            shouldHaveReactedOnce('a');
-
-            from.set(false);
-            a$.set('b');
-
-            shouldHaveReactedOnce('b');
-        });
-
-        it('should support `until` being true from the start', () => {
-            until.set(true);
-
-            react(a$, { from, when, until });
-
-            shouldNotHaveReacted();
-
-            from.set(true);
-            when.set(true);
-
-            shouldNotHaveReacted();
-        });
-
-        it('should support the finisher being called before `from` becomes true', () => {
-            const finish = react(a$, { from, when, until });
-            finish();
-
-            shouldNotHaveReacted();
-
-            from.set(true);
-            when.set(true);
-
-            shouldNotHaveReacted();
-        });
-
-        it('should support `when` being true from the start', () => {
-            when.set(true);
-
-            react(a$, { from, when, until });
-
-            shouldNotHaveReacted();
-
-            from.set(true);
-
-            shouldHaveReactedOnce('a');
-
-            when.set(false);
-            a$.set('b');
-
-            shouldNotHaveReacted();
-        });
-
-        it('should support `from` and `when` being true from the start', () => {
-            from.set(true);
-            when.set(true);
-
-            react(a$, { from, when, until });
-
-            shouldHaveReactedOnce('a');
-
-            when.set(false);
-            a$.set('b');
-
-            shouldNotHaveReacted();
-        });
-
-        it('should support `from` and `until` being true from the start', () => {
-            from.set(true);
-            until.set(true);
-
-            react(a$, { from, when, until });
-
-            shouldNotHaveReacted();
-
-            when.set(true);
-
-            shouldNotHaveReacted();
-        });
-
-        it('should support `when` and `until` being true from the start', () => {
-            when.set(true);
-            until.set(true);
-
-            react(a$, { from, when, until });
-
-            shouldNotHaveReacted();
-
-            from.set(true);
-
-            shouldNotHaveReacted();
-        });
-
-        it('should support `when` and `until` becoming true atomically', () => {
-            react(a$, { when, until });
-
-            shouldNotHaveReacted();
-
-            atomically(() => {
-                when.set(true);
-                until.set(true);
-            });
-
-            shouldNotHaveReacted();
-        });
-    });
-
-    it('should support the `skipFirst` option, skipping the first reaction', () => {
-        react(a$, { skipFirst: true });
-
-        shouldNotHaveReacted();
-
-        a$.set('b');
-
-        shouldHaveReactedOnce('b');
-
-        a$.set('c');
-
-        shouldHaveReactedOnce('c');
-    });
-
-    it('should support the `once` option, stopping after one reaction', () => {
-        react(a$, { once: true });
-
-        shouldHaveReactedOnce('a');
-
-        a$.set('b');
-
-        shouldNotHaveReacted();
-    });
-
-    it('should never react twice when `once` is `true`', () => {
-        const reactor = jest.fn();
-        a$.react(
-            v => {
-                reactor(v);
-                a$.set(v + '!');
-            },
-            { once: true },
-        );
-
-        expect(reactor).toHaveBeenCalledTimes(1);
-        expect(reactor).toHaveBeenCalledWith('a');
-    });
-
-    it('should support combining `skipFirst` and `once`, skipping 1 and taking 1', () => {
-        react(a$, { skipFirst: true, once: true });
-
-        shouldNotHaveReacted();
-
-        a$.set('b');
-
-        shouldHaveReactedOnce('b');
-
-        a$.set('c');
-
-        shouldNotHaveReacted();
-    });
-
-    it('should support combining `skipFirst`, `when` and `once`', () => {
-        const when = atom(false);
-        react(a$, { when, skipFirst: true, once: true });
-
-        shouldNotHaveReacted();
-
-        when.set(true);
-
-        shouldNotHaveReacted();
-
-        a$.set('b');
-
-        shouldHaveReactedOnce('b');
-
-        a$.set('c');
-
-        shouldNotHaveReacted();
-    });
-
-    it('should support starting a new reaction on a derivation after a previous reaction stopped', () => {
-        const until = atom(false);
-        const d$ = a$.derive(v => v);
-        react(d$, { until });
-
-        shouldHaveReactedOnce('a');
-
-        a$.set('b');
-
-        shouldHaveReactedOnce('b');
-
-        until.set(true);
-        until.set(false);
-
-        shouldNotHaveReacted();
-
-        react(d$, { until });
-
-        shouldHaveReactedOnce('b');
-
-        a$.set('c');
-
-        shouldHaveReactedOnce('c');
-    });
-
-    describe('with unresolved values', () => {
-        it('should not react until resolved', () => {
-            a$.unset();
-
-            react(a$);
-
-            shouldNotHaveReacted();
-
-            a$.set('a');
-
-            shouldHaveReactedOnce('a');
-        });
-
-        it('should not react when the derivable resolves again to the same value as before', () => {
-            react(a$);
-            shouldHaveReactedOnce('a');
-
-            a$.unset();
-
-            shouldNotHaveReacted();
-
-            a$.set('a');
-
-            shouldNotHaveReacted();
-        });
-
-        it('should start when the `from` condition becomes true and the value is resolved', () => {
+        it('should start when the `from` condition becomes true', () => {
             const from = atom(false);
             react(a$, { from });
 
             shouldNotHaveReacted();
 
-            a$.unset();
             from.set(true);
-
-            shouldNotHaveReacted();
-
-            a$.set('a');
 
             shouldHaveReactedOnce('a');
 
@@ -539,24 +39,72 @@ describe('reactor/reactor', () => {
             shouldHaveReactedOnce('b');
         });
 
-        it('should respect the `when` condition but still only react on real values', () => {
+        it('should stop forever when the `until` condition becomes true', () => {
+            const until = atom(false);
+            react(a$, { until });
+
+            shouldHaveReactedOnce('a');
+
+            a$.set('b');
+
+            shouldHaveReactedOnce('b');
+
+            until.set(true);
+            a$.set('c');
+
+            shouldNotHaveReacted();
+
+            until.set(false);
+            a$.set('d');
+
+            shouldNotHaveReacted();
+        });
+
+        it('should stop forever when the returned finisher is called', () => {
+            const afterShutdown = jest.fn();
+            const finish = react(a$, { afterShutdown });
+
+            shouldHaveReactedOnce('a');
+
+            a$.set('b');
+
+            shouldHaveReactedOnce('b');
+
+            expect(afterShutdown).not.toHaveBeenCalled();
+            finish();
+            expect(afterShutdown).toHaveBeenCalled();
+
+            a$.set('c');
+
+            shouldNotHaveReacted();
+        });
+
+        it('should stop forever when the provided stop callback is called', () => {
+            let value = '';
+            a$.react((v, stop) => (value = v) === 'b' && stop());
+
+            expect(value).toBe('a');
+
+            a$.set('b');
+            expect(value).toBe('b');
+
+            a$.set('c');
+            expect(value).toBe('b');
+        });
+
+        it('should start and stop when the `when` condition becomes true and false respectively', () => {
             const when = atom(false);
             react(a$, { when });
 
             shouldNotHaveReacted();
 
-            a$.unset();
             when.set(true);
-
-            shouldNotHaveReacted();
-
-            a$.set('a');
 
             shouldHaveReactedOnce('a');
 
-            a$.unset();
+            a$.set('b');
 
-            shouldNotHaveReacted();
+            shouldHaveReactedOnce('b');
 
             when.set(false);
             a$.set('c');
@@ -571,8 +119,6 @@ describe('reactor/reactor', () => {
         it('should support changing the atom and the input to `when` atomically', () => {
             react(a$, { when: d => d.is('b') });
 
-            a$.unset();
-
             shouldNotHaveReacted();
 
             a$.set('b');
@@ -580,7 +126,7 @@ describe('reactor/reactor', () => {
             // Reacts once because no previous value has been seen by the reactor.
             shouldHaveReactedOnce('b');
 
-            a$.unset();
+            a$.set('a');
 
             // Doesn't react, because when is now false.
             shouldNotHaveReacted();
@@ -591,50 +137,8 @@ describe('reactor/reactor', () => {
             shouldNotHaveReacted();
         });
 
-        it('should support unresolved values for the `from`, `when` and `until` option', () => {
-            react(a$, { from: constant.unresolved() });
-            a$.set('b');
-            shouldNotHaveReacted();
-
-            react(a$, { when: constant.unresolved() });
-            a$.set('c');
-            shouldNotHaveReacted();
-
-            react(a$, { until: constant.unresolved() });
-            a$.set('d');
-            shouldNotHaveReacted();
-        });
-
-        it('should wait until all options are resolved before starting the reaction', () => {
-            const from = atom.unresolved<boolean>();
-            const when = atom.unresolved<boolean>();
-            const until = atom.unresolved<boolean>();
-
-            react(a$, { from, when, until });
-
-            shouldNotHaveReacted();
-
-            from.set(true);
-
-            shouldNotHaveReacted();
-
-            when.set(true);
-
-            shouldNotHaveReacted();
-
-            until.set(false);
-
-            shouldHaveReactedOnce('a');
-        });
-
-        it('should support the `skipFirst` option, skipping the first real value', () => {
-            a$.unset();
-
-            react(a$, { skipFirst: true });
-
-            shouldNotHaveReacted();
-
-            a$.set('a');
+        it('should accept a function as `from` option', () => {
+            react(a$, { from: d => d.is('b') });
 
             shouldNotHaveReacted();
 
@@ -647,72 +151,576 @@ describe('reactor/reactor', () => {
             shouldHaveReactedOnce('c');
         });
 
-        it('should support the `once` option, stopping after the first real value', () => {
-            a$.unset();
-
-            react(a$, { once: true });
+        it('should accept a function as `when` option', () => {
+            react(a$, { when: d => d.is('c').or(d.is('e')) });
 
             shouldNotHaveReacted();
 
-            a$.set('a');
+            a$.set('b');
+            shouldNotHaveReacted();
+
+            a$.set('c');
+
+            shouldHaveReactedOnce('c');
+
+            a$.set('d');
+
+            shouldNotHaveReacted();
+
+            a$.set('e');
+
+            shouldHaveReactedOnce('e');
+        });
+
+        it('should accept a function as `until` option', () => {
+            react(a$, { until: d => d.is('c') });
 
             shouldHaveReactedOnce('a');
 
-            a$.unset();
+            a$.set('b');
+
+            shouldHaveReactedOnce('b');
+
+            a$.set('c');
+
+            shouldNotHaveReacted();
+        });
+
+        it('should support a change and `until` becoming true atomically', () => {
+            const until = atom(false);
+            react(a$, { until });
+
+            shouldHaveReactedOnce('a');
+
+            atomically(() => {
+                a$.set('b');
+                until.set(true);
+            });
+
+            shouldNotHaveReacted();
+        });
+
+        it('should support a change and the finish callback being called atomically', () => {
+            const finish = react(a$);
+
+            shouldHaveReactedOnce('a');
+
+            atomically(() => {
+                a$.set('b');
+                finish();
+            });
+
+            shouldNotHaveReacted();
+        });
+
+        it('should not be possible to trigger a reaction twice by forcing different values into the `when` option', () => {
+            const when = atom(false);
+            react(a$, { when });
+
+            shouldNotHaveReacted();
+
+            when.set(true);
+
+            shouldHaveReactedOnce('a');
+
+            when.set(1 as any);
+
+            shouldNotHaveReacted();
+        });
+
+        it('should support simple boolean values for the `from`, `when` and `until` option', () => {
+            react(a$, { from: false });
+            a$.set('b');
+            shouldNotHaveReacted();
+
+            react(a$, { when: false });
+            a$.set('c');
+            shouldNotHaveReacted();
+
+            react(a$, { until: true });
+            a$.set('d');
+            shouldNotHaveReacted();
+        });
+
+        describe('with the combined use of `from`, `when` and `until` options', () => {
+            let from: SettableDerivable<boolean>;
+            let when: SettableDerivable<boolean>;
+            let until: SettableDerivable<boolean>;
+
+            beforeEach(() => {
+                from = atom<boolean>(false);
+                when = atom<boolean>(false);
+                until = atom<boolean>(false);
+            });
+
+            it('should support all 3 options', () => {
+                react(a$, { from, when, until });
+
+                shouldNotHaveReacted();
+
+                from.set(true);
+
+                shouldNotHaveReacted(); // `when` is still false
+
+                when.set(true);
+
+                shouldHaveReactedOnce('a');
+
+                a$.set('b');
+
+                shouldHaveReactedOnce('b');
+
+                when.set(false);
+                a$.set('c');
+
+                shouldNotHaveReacted();
+
+                when.set(true);
+
+                shouldHaveReactedOnce('c');
+
+                until.set(true);
+                a$.set('d');
+
+                shouldNotHaveReacted();
+            });
+
+            it('should support `from` being true from the start', () => {
+                from.set(true);
+
+                react(a$, { from, when, until });
+
+                shouldNotHaveReacted();
+
+                when.set(true);
+
+                shouldHaveReactedOnce('a');
+
+                from.set(false);
+                a$.set('b');
+
+                shouldHaveReactedOnce('b');
+            });
+
+            it('should support `until` being true from the start', () => {
+                until.set(true);
+
+                react(a$, { from, when, until });
+
+                shouldNotHaveReacted();
+
+                from.set(true);
+                when.set(true);
+
+                shouldNotHaveReacted();
+            });
+
+            it('should support the finisher being called before `from` becomes true', () => {
+                const finish = react(a$, { from, when, until });
+                finish();
+
+                shouldNotHaveReacted();
+
+                from.set(true);
+                when.set(true);
+
+                shouldNotHaveReacted();
+            });
+
+            it('should support `when` being true from the start', () => {
+                when.set(true);
+
+                react(a$, { from, when, until });
+
+                shouldNotHaveReacted();
+
+                from.set(true);
+
+                shouldHaveReactedOnce('a');
+
+                when.set(false);
+                a$.set('b');
+
+                shouldNotHaveReacted();
+            });
+
+            it('should support `from` and `when` being true from the start', () => {
+                from.set(true);
+                when.set(true);
+
+                react(a$, { from, when, until });
+
+                shouldHaveReactedOnce('a');
+
+                when.set(false);
+                a$.set('b');
+
+                shouldNotHaveReacted();
+            });
+
+            it('should support `from` and `until` being true from the start', () => {
+                from.set(true);
+                until.set(true);
+
+                react(a$, { from, when, until });
+
+                shouldNotHaveReacted();
+
+                when.set(true);
+
+                shouldNotHaveReacted();
+            });
+
+            it('should support `when` and `until` being true from the start', () => {
+                when.set(true);
+                until.set(true);
+
+                react(a$, { from, when, until });
+
+                shouldNotHaveReacted();
+
+                from.set(true);
+
+                shouldNotHaveReacted();
+            });
+
+            it('should support `when` and `until` becoming true atomically', () => {
+                react(a$, { when, until });
+
+                shouldNotHaveReacted();
+
+                atomically(() => {
+                    when.set(true);
+                    until.set(true);
+                });
+
+                shouldNotHaveReacted();
+            });
+        });
+
+        it('should support the `skipFirst` option, skipping the first reaction', () => {
+            react(a$, { skipFirst: true });
+
+            shouldNotHaveReacted();
+
+            a$.set('b');
+
+            shouldHaveReactedOnce('b');
+
+            a$.set('c');
+
+            shouldHaveReactedOnce('c');
+        });
+
+        it('should support the `once` option, stopping after one reaction', () => {
+            react(a$, { once: true });
+
+            shouldHaveReactedOnce('a');
+
             a$.set('b');
 
             shouldNotHaveReacted();
         });
-    });
 
-    class TestReactor<V> extends Reactor<V> {
-        constructor(p: BaseDerivable<V>, r: (value: V) => void) {
-            super(
-                p,
-                e => {
-                    throw e;
+        it('should never react twice when `once` is `true`', () => {
+            const reactor = jest.fn();
+            a$.react(
+                v => {
+                    reactor(v);
+                    a$.set(v + '!');
                 },
-                r,
+                { once: true },
             );
-        }
-    }
 
-    it('should not generate a stacktrace on instantiation', () => {
-        expect(new TestReactor($(a$), () => 0).creationStack).toBeUndefined();
-    });
-
-    describe('in debug mode', () => {
-        beforeAll(() => {
-            config.debugMode = true;
-        });
-        afterAll(() => {
-            config.debugMode = false;
+            expect(reactor).toHaveBeenCalledTimes(1);
+            expect(reactor).toHaveBeenCalledWith('a');
         });
 
-        beforeEach(() => {
-            jest.spyOn(console, 'error').mockReturnValue();
+        it('should support combining `skipFirst` and `once`, skipping 1 and taking 1', () => {
+            react(a$, { skipFirst: true, once: true });
+
+            shouldNotHaveReacted();
+
+            a$.set('b');
+
+            shouldHaveReactedOnce('b');
+
+            a$.set('c');
+
+            shouldNotHaveReacted();
         });
 
-        it('should generate a stacktrace on instantiation', () => {
-            expect(new TestReactor($(a$), () => 0).creationStack).toBeString();
+        it('should support combining `skipFirst`, `when` and `once`', () => {
+            const when = atom(false);
+            react(a$, { when, skipFirst: true, once: true });
+
+            shouldNotHaveReacted();
+
+            when.set(true);
+
+            shouldNotHaveReacted();
+
+            a$.set('b');
+
+            shouldHaveReactedOnce('b');
+
+            a$.set('c');
+
+            shouldNotHaveReacted();
         });
 
-        it('should augment the error with the recorded stacktrace', () => {
-            const reactor = new TestReactor($(a$), () => {
-                throw new Error('the Error');
+        it('should support starting a new reaction on a derivation after a previous reaction stopped', () => {
+            const until = atom(false);
+            const d$ = a$.derive(v => v);
+            react(d$, { until });
+
+            shouldHaveReactedOnce('a');
+
+            a$.set('b');
+
+            shouldHaveReactedOnce('b');
+
+            until.set(true);
+            until.set(false);
+
+            shouldNotHaveReacted();
+
+            react(d$, { until });
+
+            shouldHaveReactedOnce('b');
+
+            a$.set('c');
+
+            shouldHaveReactedOnce('c');
+        });
+
+        isAtom &&
+            describe('with unresolved values', () => {
+                let atom$: DerivableAtom<string>;
+                beforeEach(() => {
+                    atom$ = assertDerivableAtom(a$);
+                });
+
+                it('should not react until resolved', () => {
+                    atom$.unset();
+
+                    react(atom$);
+
+                    shouldNotHaveReacted();
+
+                    atom$.set('a');
+
+                    shouldHaveReactedOnce('a');
+                });
+
+                it('should not react when the derivable resolves again to the same value as before', () => {
+                    react(atom$);
+                    shouldHaveReactedOnce('a');
+
+                    atom$.unset();
+
+                    shouldNotHaveReacted();
+
+                    atom$.set('a');
+
+                    shouldNotHaveReacted();
+                });
+
+                it('should start when the `from` condition becomes true and the value is resolved', () => {
+                    const from = atom(false);
+                    react(atom$, { from });
+
+                    shouldNotHaveReacted();
+
+                    atom$.unset();
+                    from.set(true);
+
+                    shouldNotHaveReacted();
+
+                    atom$.set('a');
+
+                    shouldHaveReactedOnce('a');
+
+                    atom$.set('b');
+
+                    shouldHaveReactedOnce('b');
+                });
+
+                it('should respect the `when` condition but still only react on real values', () => {
+                    const when = atom(false);
+                    react(atom$, { when });
+
+                    shouldNotHaveReacted();
+
+                    atom$.unset();
+                    when.set(true);
+
+                    shouldNotHaveReacted();
+
+                    atom$.set('a');
+
+                    shouldHaveReactedOnce('a');
+
+                    atom$.unset();
+
+                    shouldNotHaveReacted();
+
+                    when.set(false);
+                    atom$.set('c');
+
+                    shouldNotHaveReacted();
+
+                    when.set(true);
+
+                    shouldHaveReactedOnce('c');
+                });
+
+                it('should support changing the atom and the input to `when` atomically', () => {
+                    react(atom$, { when: d => d.is('b') });
+
+                    atom$.unset();
+
+                    shouldNotHaveReacted();
+
+                    atom$.set('b');
+
+                    // Reacts once because no previous value has been seen by the reactor.
+                    shouldHaveReactedOnce('b');
+
+                    atom$.unset();
+
+                    // Doesn't react, because when is now false.
+                    shouldNotHaveReacted();
+
+                    atom$.set('b');
+
+                    // Doesn't react, because the new value equals the previous value that was seen by the reactor.
+                    shouldNotHaveReacted();
+                });
+
+                it('should support unresolved values for the `from`, `when` and `until` option', () => {
+                    react(atom$, { from: constant.unresolved() });
+                    atom$.set('b');
+                    shouldNotHaveReacted();
+
+                    react(atom$, { when: constant.unresolved() });
+                    atom$.set('c');
+                    shouldNotHaveReacted();
+
+                    react(atom$, { until: constant.unresolved() });
+                    atom$.set('d');
+                    shouldNotHaveReacted();
+                });
+
+                it('should wait until all options are resolved before starting the reaction', () => {
+                    const from = atom.unresolved<boolean>();
+                    const when = atom.unresolved<boolean>();
+                    const until = atom.unresolved<boolean>();
+
+                    react(atom$, { from, when, until });
+
+                    shouldNotHaveReacted();
+
+                    from.set(true);
+
+                    shouldNotHaveReacted();
+
+                    when.set(true);
+
+                    shouldNotHaveReacted();
+
+                    until.set(false);
+
+                    shouldHaveReactedOnce('a');
+                });
+
+                it('should support the `skipFirst` option, skipping the first real value', () => {
+                    atom$.unset();
+
+                    react(atom$, { skipFirst: true });
+
+                    shouldNotHaveReacted();
+
+                    atom$.set('a');
+
+                    shouldNotHaveReacted();
+
+                    atom$.set('b');
+
+                    shouldHaveReactedOnce('b');
+
+                    atom$.set('c');
+
+                    shouldHaveReactedOnce('c');
+                });
+
+                it('should support the `once` option, stopping after the first real value', () => {
+                    atom$.unset();
+
+                    react(atom$, { once: true });
+
+                    shouldNotHaveReacted();
+
+                    atom$.set('a');
+
+                    shouldHaveReactedOnce('a');
+
+                    atom$.unset();
+                    atom$.set('b');
+
+                    shouldNotHaveReacted();
+                });
             });
-            try {
-                reactor._start();
-            } catch (e) {
-                reactor._stop();
-                expect(e.stack).toContain('the Error');
-                expect(e.stack).toContain(reactor.creationStack);
-                return;
+
+        class TestReactor<V> extends Reactor<V> {
+            constructor(p: BaseDerivable<V>, r: (value: V) => void) {
+                super(
+                    p,
+                    e => {
+                        throw e;
+                    },
+                    r,
+                );
             }
-            throw new Error('Reactor did not throw');
+        }
+
+        it('should not generate a stacktrace on instantiation', () => {
+            expect(new TestReactor($(a$), () => 0).creationStack).toBeUndefined();
+        });
+
+        describe('in debug mode', () => {
+            beforeAll(() => {
+                config.debugMode = true;
+            });
+            afterAll(() => {
+                config.debugMode = false;
+            });
+
+            beforeEach(() => {
+                jest.spyOn(console, 'error').mockReturnValue();
+            });
+
+            it('should generate a stacktrace on instantiation', () => {
+                expect(new TestReactor($(a$), () => 0).creationStack).toBeString();
+            });
+
+            it('should augment the error with the recorded stacktrace', () => {
+                const reactor = new TestReactor($(a$), () => {
+                    throw new Error('the Error');
+                });
+                try {
+                    reactor._start();
+                } catch (e) {
+                    reactor._stop();
+                    expect(e.stack).toContain('the Error');
+                    expect(e.stack).toContain(reactor.creationStack);
+                    return;
+                }
+                throw new Error('Reactor did not throw');
+            });
         });
     });
-});
+}
 
 describe('reactor/reactor with cycles', () => {
     it('should throw on infinite cycles', () => {

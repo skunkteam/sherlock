@@ -11,7 +11,6 @@ npm run build
 read -p "Press enter to continue to NPM publish"
 
 npm publish dist/libs/sherlock --access public
-npm publish dist/libs/sherlock-rxjs --access public
 npm publish dist/libs/sherlock-utils --access public
 npm publish dist/libs/ngx-sherlock --access public
 
