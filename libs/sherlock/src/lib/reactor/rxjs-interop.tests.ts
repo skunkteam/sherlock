@@ -261,30 +261,9 @@ export function testRxjsInterop(factories: Factories) {
 
                     test('until unsubscribe', () => {
                         unsubscribe();
-                        a$.set('c');
+                        a$.setFinal('c');
                         expect(completeCb).not.toHaveBeenCalled();
                     });
-                });
-
-                it('should support only an error callback', () => {
-                    const cb = jest.fn();
-                    subscribe(undefined, cb);
-                    a$.set('whatever');
-                    a$.setError('the first error');
-                    expect(cb).toBeCalledTimes(1);
-                    expect(cb).toBeCalledWith('the first error');
-                    // RxJS stops subscription here
-                    a$.setError('the second error');
-                    expect(cb).toBeCalledTimes(1);
-                });
-
-                it('should support only a complete callback', () => {
-                    const cb = jest.fn();
-                    subscribe(undefined, undefined, cb);
-                    a$.set('whatever');
-                    expect(cb).toBeCalledTimes(0);
-                    a$.setFinal('whatever');
-                    expect(cb).toBeCalledTimes(1);
                 });
             },
         );
