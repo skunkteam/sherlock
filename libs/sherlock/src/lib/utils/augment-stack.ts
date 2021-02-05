@@ -1,8 +1,8 @@
 import type { MaybeFinalState } from '../interfaces';
 import { clone } from './clone';
 import { config } from './config';
-import { ErrorWrapper } from './error-wrapper';
-import { FinalWrapper } from './final-wrapper';
+import { error, ErrorWrapper } from './error-wrapper';
+import { final, FinalWrapper } from './final-wrapper';
 
 export interface ObjectWithCreationStack {
     creationStack?: string;
@@ -22,11 +22,11 @@ export function augmentState<V>(state: MaybeFinalState<V>, obj: ObjectWithCreati
     if (state instanceof FinalWrapper) {
         const newValue = augmentState<V>(state.value, obj);
         if (newValue !== state.value) {
-            return FinalWrapper.wrap(newValue);
+            return final(newValue);
         }
     }
     if (obj.creationStack && state instanceof ErrorWrapper) {
-        return new ErrorWrapper(augmentStack(state.error, obj));
+        return error(augmentStack(state.error, obj));
     }
     return state;
 }

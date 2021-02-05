@@ -1,17 +1,17 @@
 import type { DerivableAtom } from '../../interfaces';
 import { unresolved } from '../../symbols';
-import { ErrorWrapper, FinalWrapper } from '../../utils';
+import { error, final } from '../../utils';
 
 export function unsetMethod<V>(this: DerivableAtom<V>) {
     this.set(unresolved);
 }
 
 export function setErrorMethod<V>(this: DerivableAtom<V>, err: unknown) {
-    this.set(new ErrorWrapper(err));
+    this.set(error(err));
 }
 
 export function setFinalMethod<V>(this: DerivableAtom<V>, value: V) {
-    this.set(FinalWrapper.wrap(value));
+    this.set(final(value));
 }
 
 export function makeFinalMethod<V>(this: DerivableAtom<V>) {

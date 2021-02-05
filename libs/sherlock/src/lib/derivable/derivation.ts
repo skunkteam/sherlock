@@ -21,7 +21,7 @@ import {
     TrackedReactor,
 } from '../tracking';
 import { markObservers, registerForRollback } from '../transaction';
-import { augmentStack, equals, ErrorWrapper, FinalWrapper } from '../utils';
+import { augmentStack, equals, error, final, FinalWrapper } from '../utils';
 import { BaseDerivable } from './base-derivable';
 import { unwrap } from './unwrap';
 
@@ -215,12 +215,12 @@ export class Derivation<V, PS extends unknown[] = []> extends BaseDerivation<V> 
             if (e === unresolved) {
                 result = unresolved;
             } else {
-                result = new ErrorWrapper(augmentStack(e, this));
+                result = error(augmentStack(e, this));
             }
         } finally {
             --derivationStackDepth;
         }
-        return allDependenciesAreFinal() ? FinalWrapper.wrap(result) : result;
+        return allDependenciesAreFinal() ? final(result) : result;
     }
 
     /** @internal */

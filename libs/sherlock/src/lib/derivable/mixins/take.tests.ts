@@ -1,7 +1,7 @@
 import type { Derivable, DerivableAtom, SettableDerivable, State, TakeOptions } from '../../interfaces';
 import { unresolved } from '../../symbols';
 import { txn } from '../../transaction/transaction.tests';
-import { ErrorWrapper } from '../../utils';
+import { error } from '../../utils';
 import { assertDerivableAtom, assertSettable, Factories } from '../base-derivable.tests';
 import { atom, constant } from '../factories';
 import { isDerivableAtom, isSettableDerivable } from '../typeguards';
@@ -47,7 +47,7 @@ export function testTake(factories: Factories, isSettable: boolean, noRollbackSu
                 });
 
                 it('should propagate errors once `from` becomes true (once)', () => {
-                    const a$ = factories.value(new ErrorWrapper('my error'));
+                    const a$ = factories.value(error('my error'));
                     const from = atom(false);
                     const f$ = a$.take({ from });
                     expect(f$.error).toBeUndefined();
@@ -112,7 +112,7 @@ export function testTake(factories: Factories, isSettable: boolean, noRollbackSu
                     });
 
                 it('should propagate errors until `until` becomes true', () => {
-                    const a$ = factories.value(new ErrorWrapper('an error'));
+                    const a$ = factories.value(error('an error'));
                     const until = atom(false);
                     const f$ = a$.take({ until });
                     expect(f$.error).toBe('an error');
@@ -350,8 +350,8 @@ export function testTake(factories: Factories, isSettable: boolean, noRollbackSu
                         }
 
                         a$.setError('error');
-                        shouldHaveReactedOnce(new ErrorWrapper('error'));
-                        shouldNotHaveReacted(new ErrorWrapper('error'));
+                        shouldHaveReactedOnce(error('error'));
+                        shouldNotHaveReacted(error('error'));
                     });
 
                     it('should disconnect from the `from` derivable when it becomes true', () => {
@@ -432,7 +432,7 @@ export function testTake(factories: Factories, isSettable: boolean, noRollbackSu
 
                         if (isDerivableAtom(a$)) {
                             a$.setError('my error');
-                            shouldHaveReactedOnce(new ErrorWrapper('my error'));
+                            shouldHaveReactedOnce(error('my error'));
                         }
 
                         a$.set('b');
@@ -570,7 +570,7 @@ export function testTake(factories: Factories, isSettable: boolean, noRollbackSu
 
                         if (isDerivableAtom(a$)) {
                             a$.setError('my error');
-                            shouldHaveReactedOnce(new ErrorWrapper('my error'));
+                            shouldHaveReactedOnce(error('my error'));
                         }
 
                         a$.set('b');
@@ -714,10 +714,10 @@ export function testTake(factories: Factories, isSettable: boolean, noRollbackSu
 
                         if (isDerivableAtom(a$)) {
                             a$.setError('my error');
-                            shouldHaveReactedOnce(new ErrorWrapper('my error'));
+                            shouldHaveReactedOnce(error('my error'));
 
                             a$.setError('another error');
-                            shouldHaveReactedOnce(new ErrorWrapper('another error'));
+                            shouldHaveReactedOnce(error('another error'));
                         }
 
                         a$.set('a');
@@ -834,11 +834,11 @@ export function testTake(factories: Factories, isSettable: boolean, noRollbackSu
                             shouldHaveReactedOnce('b');
 
                             assertDerivableAtom(a$).setError('my error');
-                            shouldHaveReactedOnce(new ErrorWrapper('my error'));
+                            shouldHaveReactedOnce(error('my error'));
 
                             assertDerivableAtom(a$).setError('my other error');
                             a$.set('a');
-                            shouldNotHaveReacted(new ErrorWrapper('my error'));
+                            shouldNotHaveReacted(error('my error'));
                         });
 
                     it('should work together with `once`', () => {
@@ -1038,7 +1038,7 @@ export function testTake(factories: Factories, isSettable: boolean, noRollbackSu
                         currentTest!.reactions++;
                         currentTest!.value = v;
                     };
-                    currentStopper = f$.react(reaction, { onError: err => reaction(new ErrorWrapper(err)) });
+                    currentStopper = f$.react(reaction, { onError: err => reaction(error(err)) });
                     return f$;
                 }
 

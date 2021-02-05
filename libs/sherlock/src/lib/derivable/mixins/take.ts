@@ -1,15 +1,15 @@
 import type { Derivable, MaybeFinalState, TakeOptions, TakeOptionValue } from '../../interfaces';
 import { unresolved } from '../../symbols';
-import { equals, ErrorWrapper, FinalWrapper } from '../../utils';
+import { equals, ErrorWrapper, final, FinalWrapper } from '../../utils';
 import { Atom } from '../atom';
 import { Derivation } from '../derivation';
 import { isDerivable } from '../typeguards';
 import { unwrap } from '../unwrap';
 
-const true$ = new Atom(FinalWrapper.wrap(true));
-const false$ = new Atom(FinalWrapper.wrap(false));
+const true$ = new Atom(final(true));
+const false$ = new Atom(final(false));
 const skipped = Symbol('skipped');
-const finalSkipped = FinalWrapper.wrap(skipped);
+const finalSkipped = final(skipped);
 
 export function takeMethod<V>(
     this: Derivable<V>,
@@ -40,7 +40,7 @@ export function takeMethod<V>(
         }
         if (until$ && until$.get()) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return resultingState(FinalWrapper.wrap(previousState$!._value));
+            return resultingState(final(previousState$!._value));
         }
         if (when$ && !when$.getOr(false)) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -58,9 +58,7 @@ export function takeMethod<V>(
             skipFirstState$.set(finalSkipped);
         }
         return resultingState(
-            (once && isValue(state)) || (stopOnError && state instanceof ErrorWrapper)
-                ? FinalWrapper.wrap(state)
-                : state,
+            (once && isValue(state)) || (stopOnError && state instanceof ErrorWrapper) ? final(state) : state,
         );
     });
 }
@@ -83,9 +81,7 @@ function toMaybeDerivable<V>(
         option = new Derivation(() => fn(derivable)).derive(unwrap);
     }
     if (isDerivable(option)) {
-        return finalValue !== undefined
-            ? option.mapState<boolean>(v => (v === finalValue ? FinalWrapper.wrap(v) : v))
-            : option;
+        return finalValue !== undefined ? option.mapState<boolean>(v => (v === finalValue ? final(v) : v)) : option;
     }
     return knownConstant;
 }

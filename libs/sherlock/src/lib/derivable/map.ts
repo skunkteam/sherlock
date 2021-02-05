@@ -1,7 +1,7 @@
 import type { Derivable, MaybeFinalState, SettableDerivable, State } from '../interfaces';
 import { connect, disconnect, finalize, unresolved } from '../symbols';
 import { addObserver, independentTracking, removeObserver } from '../tracking';
-import { augmentStack, ErrorWrapper, FinalWrapper } from '../utils';
+import { augmentStack, error, ErrorWrapper, FinalWrapper } from '../utils';
 import type { BaseDerivable } from './base-derivable';
 import { BaseDerivation } from './derivation';
 
@@ -38,7 +38,7 @@ export class Mapping<B, V> extends BaseDerivation<V> implements Derivable<V> {
                 return FinalWrapper.map<State<B>, State<V>>(baseValue, v => this._pureGetter(v));
             });
         } catch (e) {
-            return new ErrorWrapper(augmentStack(e, this));
+            return error(augmentStack(e, this));
         }
     }
 
