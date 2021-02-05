@@ -480,6 +480,15 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
             }
         });
 
+        it('should also detect final unresolved state when connected', () => {
+            const a$ = factories.unresolved(true);
+            const d$ = derive(() => a$.get());
+            expect(d$.final).toBeFalse();
+            // Derivations need to be connected to detect final state.
+            d$.react(() => 0)();
+            expect(d$.final).toBeTrue();
+        });
+
         isSettable &&
             it('should throw when trying to set a new value', () => {
                 // Make sure we are not final to begin with, otherwise some factories might create a derivable without a setter.
