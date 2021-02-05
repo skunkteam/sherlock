@@ -24,14 +24,12 @@ export interface DerivableReactorExtension<V> {
     toPromise(options?: Partial<ToPromiseOptions<V>>): Promise<V>;
 }
 
-/* eslint-disable @typescript-eslint/no-empty-interface */
 declare module '../interfaces' {
     export interface Derivable<V> extends DerivableReactorExtension<V> {}
 }
 declare module '../derivable/base-derivable' {
     export interface BaseDerivable<V> extends DerivableReactorExtension<V> {}
 }
-/* eslint-enable @typescript-eslint/no-empty-interface */
 
 BaseDerivable.prototype.react = function react(reaction, options) {
     return independentTracking(() => Reactor.create(this, reaction, options));

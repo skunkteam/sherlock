@@ -164,7 +164,7 @@ _More documentation coming soon_
 
 _More documentation coming soon_
 
-## Interoperability with RxJS using sherlock-rxjs
+## Interoperability with RxJS out of the box
 
 _Coming soon_
 
