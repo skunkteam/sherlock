@@ -16,6 +16,7 @@
                     { "type": "element", "prefix": "sherlock", "style": "kebab-case" }
                 ],
                 "@typescript-eslint/no-empty-interface": "off",
+                "@typescript-eslint/no-namespace": "off",
                 "@typescript-eslint/member-ordering": "off"
             }
         },
