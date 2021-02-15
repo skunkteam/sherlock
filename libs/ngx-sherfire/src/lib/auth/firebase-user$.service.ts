@@ -3,7 +3,7 @@ import type { Derivable } from '@skunkteam/sherlock';
 import type firebase from 'firebase';
 import 'firebase/auth';
 import { NgxSherfireModule } from '../ngx-sherfire.module';
-import { createUser$ } from './create-user$';
+import { createFirebaseUser$ } from './create-firebase-user$';
 import { FirebaseAuth } from './firebase-auth.service';
 
 export interface FirebaseUser$
@@ -16,5 +16,5 @@ export interface FirebaseUser$
 export class FirebaseUser$ {}
 
 export function firebaseUser$Factory(): FirebaseUser$ {
-    return createUser$(inject(NgZone), inject(FirebaseAuth));
+    return createFirebaseUser$(inject(NgZone), inject(FirebaseAuth));
 }
