@@ -100,6 +100,41 @@
                     }
                 }
             }
+        },
+        "ngx-sherfire": {
+            "projectType": "library",
+            "root": "libs/ngx-sherfire",
+            "sourceRoot": "libs/ngx-sherfire/src",
+            "prefix": "sherlock",
+            "targets": {
+                "build": {
+                    "executor": "@nrwl/angular:package",
+                    "options": {
+                        "tsConfig": "libs/ngx-sherfire/tsconfig.lib.json",
+                        "project": "libs/ngx-sherfire/ng-package.json",
+                        "buildableProjectDepsInPackageJsonType": "peerDependencies"
+                    },
+                    "configurations": {
+                        "production": {
+                            "tsConfig": "libs/ngx-sherfire/tsconfig.lib.prod.json"
+                        }
+                    }
+                },
+                "lint": {
+                    "executor": "@nrwl/linter:eslint",
+                    "options": {
+                        "lintFilePatterns": ["libs/ngx-sherfire/src/**/*.ts", "libs/ngx-sherfire/src/**/*.html"]
+                    }
+                },
+                "test": {
+                    "executor": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/ngx-sherfire"],
+                    "options": {
+                        "jestConfig": "libs/ngx-sherfire/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
         }
     },
     "cli": {

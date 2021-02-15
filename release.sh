@@ -13,6 +13,7 @@ read -p "Press enter to continue to NPM publish"
 npm publish dist/libs/sherlock --access public
 npm publish dist/libs/sherlock-utils --access public
 npm publish dist/libs/ngx-sherlock --access public
+npm publish dist/libs/ngx-sherfire --access public
 
 echo "Run:"
 echo "git push --follow-tags origin main"
