@@ -66,8 +66,8 @@ describe(NgxSherfireModule, () => {
                 expect(isDerivable(firebaseUser$)).toBeTrue();
 
                 expect(onIdTokenChanged).not.toBeCalled();
-                let user: Unwrap<typeof firebaseUser$> | undefined;
-                const stop = firebaseUser$.react(u => (user = u));
+                let userInfo: Unwrap<typeof firebaseUser$> | undefined;
+                const stop = firebaseUser$.react(u => (userInfo = u));
                 expect(onIdTokenChanged).toBeCalledTimes(1);
 
                 const [[cb]] = onIdTokenChanged.mock.calls;
@@ -76,13 +76,13 @@ describe(NgxSherfireModule, () => {
                 }
 
                 // reactor has not fired because we don't know yet whether we are logged in or not.
-                expect(user).toBeUndefined();
+                expect(userInfo).toBeUndefined();
                 expect(firebaseUser$.resolved).toBeFalse();
 
                 // Firebase responds saying that the user is not logged in.
                 cb(null);
 
-                expect(user).toBeNull();
+                expect(userInfo).toBeNull();
                 expect(firebaseUser$.resolved).toBeTrue();
 
                 // Apparently, the user now logged in...
@@ -90,14 +90,14 @@ describe(NgxSherfireModule, () => {
                 cb(sampleUser);
 
                 // UI should not respond yet, we are still in the process of receiving more info
-                expect(user).toBeNull();
+                expect(userInfo).toBeNull();
                 expect(firebaseUser$.resolved).toBeFalse();
 
                 expect(sampleUser.getIdTokenResult).toBeCalledTimes(1);
 
                 await new Promise(resolve => setTimeout(resolve, 0));
 
-                expect(user).toEqual({ user: sampleUser, idtoken: { token: 'the token' } });
+                expect(userInfo).toEqual({ user: sampleUser, idtoken: { token: 'the token' } });
 
                 expect(unsubscribe).not.toBeCalled();
                 expect(firebaseUser$.resolved).toBeTrue();
@@ -111,12 +111,12 @@ describe(NgxSherfireModule, () => {
                 sampleUser.getIdTokenResult.mockResolvedValue({ token: 'other token' } as any);
                 firebaseAuth.currentUser = sampleUser;
 
-                let user: Unwrap<typeof firebaseUser$> | undefined;
-                firebaseUser$.react(u => (user = u));
+                let userInfo: Unwrap<typeof firebaseUser$> | undefined;
+                firebaseUser$.react(u => (userInfo = u));
                 expect(onIdTokenChanged).toBeCalledTimes(1);
 
                 // reactor has not fired because we don't know yet whether we are logged in or not...
-                expect(user).toBeUndefined();
+                expect(userInfo).toBeUndefined();
                 expect(firebaseUser$.resolved).toBeFalse();
 
                 // but we have a synchronous currentUser that is being checked.
@@ -124,7 +124,39 @@ describe(NgxSherfireModule, () => {
 
                 await new Promise(resolve => setTimeout(resolve, 0));
 
-                expect(user).toEqual({ user: sampleUser, idtoken: { token: 'other token' } });
+                expect(userInfo).toEqual({ user: sampleUser, idtoken: { token: 'other token' } });
+            });
+
+            test('on idtoken change', async () => {
+                sampleUser.getIdTokenResult.mockResolvedValueOnce({ token: 'the first token' } as any);
+                firebaseAuth.currentUser = sampleUser;
+
+                let userInfo: Unwrap<typeof firebaseUser$> | undefined;
+                firebaseUser$.react(u => (userInfo = u));
+                expect(onIdTokenChanged).toBeCalledTimes(1);
+                const [[cb]] = onIdTokenChanged.mock.calls;
+                if (typeof cb !== 'function') {
+                    fail('expected callback to onIdTokenChanged to be a function');
+                }
+
+                // Resolve the getIdTokenResult promise
+                await new Promise(resolve => setTimeout(resolve, 0));
+
+                expect(userInfo).toEqual({ user: sampleUser, idtoken: { token: 'the first token' } });
+                expect(firebaseUser$.resolved).toBeTrue();
+
+                sampleUser.getIdTokenResult.mockResolvedValueOnce({ token: 'the second token' } as any);
+                cb(sampleUser);
+
+                // UI should not respond yet, we are still in the process of receiving more info
+                expect(userInfo).toEqual({ user: sampleUser, idtoken: { token: 'the first token' } });
+                expect(firebaseUser$.resolved).toBeFalse();
+
+                expect(sampleUser.getIdTokenResult).toBeCalledTimes(2);
+
+                await new Promise(resolve => setTimeout(resolve, 0));
+
+                expect(userInfo).toEqual({ user: sampleUser, idtoken: { token: 'the second token' } });
             });
 
             test('on error', () => {
