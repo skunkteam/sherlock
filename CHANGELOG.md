@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.0.0-rc.1](https://github.com/skunkteam/sherlock/compare/v6.0.0-rc.0...v6.0.0-rc.1) (2021-02-16)
+
+### Bug Fixes
+
+-   **ngx-sherfire:** ensure FirebaseUser$ updates even when User object is reused by Firebase SDK ([#17](https://github.com/skunkteam/sherlock/issues/17)) ([18f4073](https://github.com/skunkteam/sherlock/commit/18f407374af766e4c76a9327167316fad403f5c9))
+
 ## [6.0.0-rc.0](https://github.com/skunkteam/sherlock/compare/v5.0.0...v6.0.0-rc.0) (2021-02-15)
 
 ### ⚠ BREAKING CHANGES
