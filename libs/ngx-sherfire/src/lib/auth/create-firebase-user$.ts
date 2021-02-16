@@ -6,13 +6,14 @@ import type { FirebaseAuth } from './firebase-auth.service';
 import type { FirebaseUser$ } from './firebase-user$.service';
 
 export function createFirebaseUser$(zone: NgZone, auth: FirebaseAuth): FirebaseUser$ {
-    return fromEventPattern<firebase.User | null>(value$ =>
+    // Wrapped in an object to allow Firebase to reuse the User object (which they do).
+    return fromEventPattern<{ user: firebase.User | null }>(value$ =>
         auth.onIdTokenChanged(
-            user => zone.run(() => value$.set(user)),
+            user => zone.run(() => value$.set({ user })),
             err => zone.run(() => value$.setFinal(error(err))),
             () => zone.run(() => value$.makeFinal()),
         ),
     )
-        .fallbackTo(() => auth.currentUser ?? unresolved)
-        .flatMap(user => user && fromPromise(user.getIdTokenResult().then(idtoken => ({ user, idtoken }))));
+        .fallbackTo(() => (auth.currentUser ? { user: auth.currentUser } : unresolved))
+        .flatMap(({ user }) => user && fromPromise(user.getIdTokenResult().then(idtoken => ({ user, idtoken }))));
 }
