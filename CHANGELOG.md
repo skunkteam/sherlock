@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.0.1](https://github.com/skunkteam/sherlock/compare/v6.0.0...v6.0.1) (2021-02-18)
+
+### Bug Fixes
+
+-   **ngx-sherfire:** use firebase production build instead of development build ([#18](https://github.com/skunkteam/sherlock/issues/18)) ([f84ce4c](https://github.com/skunkteam/sherlock/commit/f84ce4c785430a4f68173e542db671b5b851320c))
+
 ## [6.0.0](https://github.com/skunkteam/sherlock/compare/v6.0.0-rc.1...v6.0.0) (2021-02-17)
 
 ## [6.0.0-rc.1](https://github.com/skunkteam/sherlock/compare/v6.0.0-rc.0...v6.0.0-rc.1) (2021-02-16)
