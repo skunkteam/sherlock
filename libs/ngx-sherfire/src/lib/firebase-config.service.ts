@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import type firebase from 'firebase';
+import type firebase from 'firebase/app';
 
 @Injectable()
 export class FirebaseConfig {

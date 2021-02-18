@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 import { NgxSherfireModule } from '../ngx-sherfire.module';
 import { FirebaseFirestore } from './firebase-firestore.service';
 

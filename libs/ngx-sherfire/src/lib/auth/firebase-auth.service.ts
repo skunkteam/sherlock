@@ -1,5 +1,5 @@
 import { inject, Injectable, NgZone } from '@angular/core';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 import 'firebase/auth';
 import { FirebaseApp } from '../app';
 import { NgxSherfireModule } from '../ngx-sherfire.module';

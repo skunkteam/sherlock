@@ -1,7 +1,6 @@
 import { inject, Injectable, NgZone } from '@angular/core';
 import type { Derivable } from '@skunkteam/sherlock';
-import type firebase from 'firebase';
-import 'firebase/auth';
+import type firebase from 'firebase/app';
 import { NgxSherfireModule } from '../ngx-sherfire.module';
 import { createFirebaseUser$ } from './create-firebase-user$';
 import { FirebaseAuth } from './firebase-auth.service';
