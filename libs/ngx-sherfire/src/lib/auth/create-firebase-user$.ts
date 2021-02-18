@@ -1,7 +1,7 @@
 import type { NgZone } from '@angular/core';
 import { error, unresolved } from '@skunkteam/sherlock';
 import { fromEventPattern, fromPromise } from '@skunkteam/sherlock-utils';
-import type firebase from 'firebase';
+import type firebase from 'firebase/app';
 import type { FirebaseAuth } from './firebase-auth.service';
 import type { FirebaseUser$ } from './firebase-user$.service';
 

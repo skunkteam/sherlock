@@ -1,7 +1,7 @@
 import type { NgZone } from '@angular/core';
 import { Derivable, lens, SettableDerivable } from '@skunkteam/sherlock';
 import { derivableCache } from '@skunkteam/sherlock-utils';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 import 'firebase/firestore';
 import { snapshot$ } from './snapshot';
 

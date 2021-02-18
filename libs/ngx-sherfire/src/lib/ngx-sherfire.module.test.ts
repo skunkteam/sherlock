@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { isDerivable, Unwrap } from '@skunkteam/sherlock';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 import { FirebaseApp } from './app';
 import { FirebaseAuth, FirebaseUser$ } from './auth';
 import type { FirebaseConfig } from './firebase-config.service';

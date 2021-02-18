@@ -1,7 +1,7 @@
 import type { NgZone } from '@angular/core';
 import { Derivable, error } from '@skunkteam/sherlock';
 import { fromEventPattern } from '@skunkteam/sherlock-utils';
-import type firebase from 'firebase';
+import type firebase from 'firebase/app';
 
 export function snapshot$<R extends Ref>(ref: R & Snapshottable<R>, zone: NgZone): Derivable<Snapshot<R>> {
     return fromEventPattern<Snapshot<R>>(value$ =>
