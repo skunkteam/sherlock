@@ -35,6 +35,17 @@ describe(ValuePipe, () => {
             expect(pipe.transform(emitter, 'sync')).toBe('here I am!');
         });
 
+        it('should never throw on errored derivables', () => {
+            emitter.setError('the error, oh no!');
+            jest.spyOn(console, 'error')
+                .mockReturnValueOnce()
+                .mockImplementation(() => {
+                    throw new Error('should only occur once!');
+                });
+            expect(pipe.transform(emitter)).toBeUndefined();
+            expect(pipe.transform(emitter, 'sync')).toBeUndefined();
+        });
+
         it('should dispose of the existing reaction when reacting to a new derivable', () => {
             pipe.transform(emitter);
 
