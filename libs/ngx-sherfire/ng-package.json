@@ -6,7 +6,7 @@
         "umdModuleIds": {
             "@skunkteam/sherlock": "sherlock",
             "@skunkteam/sherlock-utils": "sherlockUtils",
-            "firebase": "firebase"
+            "firebase/app": "firebase"
         }
     }
 }

@@ -1,22 +1,15 @@
-import { Injectable } from '@angular/core';
 import type firebase from 'firebase/app';
 
-@Injectable()
-export class FirebaseConfig {
-    apiKey!: string;
-    authDomain!: string;
-    databaseURL!: string;
-    projectId!: string;
+export abstract class FirebaseConfig {
+    abstract apiKey: string;
+    abstract authDomain: string;
+    abstract databaseURL: string;
+    abstract projectId: string;
     // locationId: string;
-    storageBucket!: string;
-    messagingSenderId!: string;
-    appId!: string;
+    abstract storageBucket: string;
+    abstract messagingSenderId: string;
+    abstract appId: string;
 
-    firestoreSettings?: firebase.firestore.Settings;
-    firestoreEmulator?: { host: string; port: number };
-
-    // istanbul ignore next
-    private constructor() {
-        // this class should not be constructed directly
-    }
+    abstract firestoreSettings?: firebase.firestore.Settings;
+    abstract firestoreEmulator?: { host: string; port: number };
 }

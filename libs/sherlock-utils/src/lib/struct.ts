@@ -38,7 +38,7 @@ function deepUnwrap(obj: any): any {
 export type StructUnwrap<T> = T extends Derivable<infer V>
     ? V
     : T extends Record<string, unknown>
-    ? { [K in keyof T]: StructUnwrap<T[K]> }
-    : T extends unknown[]
-    ? { [K in keyof T]: StructUnwrap<T[K]> }
+    ? { readonly [K in keyof T]: StructUnwrap<T[K]> }
+    : T extends readonly unknown[]
+    ? { readonly [K in keyof T]: StructUnwrap<T[K]> }
     : T;

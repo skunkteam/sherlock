@@ -88,4 +88,33 @@ describe('sherlock-utils/struct', () => {
             ],
         });
     });
+
+    it('should infer the correct types', () => {
+        const a$ = atom('a');
+        const b$ = a$.derive(v => v.length);
+        const object = { a$, b$ };
+        const readonlyObject = { a$, b$ } as const;
+        const array = [a$, b$];
+        const readonlyArray = [a$, b$] as const;
+        const d$ = struct({ object, readonlyObject, array, readonlyArray });
+
+        const result = d$.get();
+
+        type ExpectedType = {
+            object: { a$: string; b$: number };
+            readonlyObject: { a$: string; b$: number };
+            array: readonly (string | number)[];
+            readonlyArray: readonly [string, number];
+        };
+
+        assignableTo<ExpectedType>(result);
+        assignableTo<typeof result>({} as ExpectedType);
+        // @ts-expect-error check that resul is not `any`
+        assignableTo<typeof result>(0 as unknown);
+    });
 });
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function assignableTo<T>(_val: T) {
+    // nothing here
+}
