@@ -37,7 +37,9 @@ export class ValuePipe implements PipeTransform, OnDestroy {
 
     private readonly input$ = atom.unresolved<Derivable<unknown>>();
     private readonly output$ = this.input$.derive(unwrap);
-    private readonly stop = this.output$.react(() => this.changeDetector.markForCheck());
+    private readonly stop = this.output$.react(() => this.changeDetector.markForCheck(), {
+        onError: error => console.error('Error in input-derivable to ValuePipe:', error),
+    });
 
     ngOnDestroy() {
         this.stop();
@@ -47,6 +49,10 @@ export class ValuePipe implements PipeTransform, OnDestroy {
     transform<T>(value: Derivable<T>, mode?: 'async'): T | undefined;
     transform<T>(value: Derivable<T>, mode: 'sync' | 'async' = 'async'): T | undefined {
         this.input$.set(value);
+        if (this.output$.errored) {
+            // Simply return undefined on error, the reactor above will log the error.
+            return undefined;
+        }
         if (mode === 'sync') {
             return this.output$.get() as T;
         }
