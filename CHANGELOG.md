@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.0.2](https://github.com/skunkteam/sherlock/compare/v6.0.1...v6.0.2) (2021-03-22)
+
+### Bug Fixes
+
+-   **ngx-sherlock:** fix behavior of ValuePipe on errored derivables ([#20](https://github.com/skunkteam/sherlock/issues/20)) ([4050b23](https://github.com/skunkteam/sherlock/commit/4050b2388224389453786738140b9db95382b37e))
+-   **sherlock-utils:** fix typings-bug in `struct` where readonly arrays are not unwrapped in result type ([#19](https://github.com/skunkteam/sherlock/issues/19)) ([5c978c3](https://github.com/skunkteam/sherlock/commit/5c978c36f4b8860787e6022a2b451746ab5aff69))
+
 ### [6.0.1](https://github.com/skunkteam/sherlock/compare/v6.0.0...v6.0.1) (2021-02-18)
 
 ### Bug Fixes
