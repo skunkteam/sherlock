@@ -109,7 +109,7 @@ describe('sherlock-utils/struct', () => {
 
         assignableTo<ExpectedType>(result);
         assignableTo<typeof result>({} as ExpectedType);
-        // @ts-expect-error check that resul is not `any`
+        // @ts-expect-error check that result is not `any`
         assignableTo<typeof result>(0 as unknown);
     });
 });
