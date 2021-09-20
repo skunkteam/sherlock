@@ -26,8 +26,8 @@ import { atom, Derivable, SettableDerivable } from '@skunkteam/sherlock';
  */
 export function DerivableInput() {
     return <Key extends PropertyKey>(proto: Record<Key, Derivable<unknown>>, key: Key) => {
-        const inputKey = `_${key}Input$`;
-        const flatKey = `_${key}Flattened$`;
+        const inputKey = Symbol(`_${key}Input$`);
+        const flatKey = Symbol(`_${key}Flattened$`);
 
         Object.defineProperty(proto, key, {
             set(val) {
@@ -37,7 +37,7 @@ export function DerivableInput() {
                 return (this[flatKey] ??= getInput$(this).flatMap(d => d));
             },
         });
-        function getInput$(instance: Record<PropertyKey, SettableDerivable<Derivable<unknown>>>) {
+        function getInput$(instance: Record<typeof inputKey, SettableDerivable<Derivable<unknown>>>) {
             return (instance[inputKey] ??= atom.unresolved<Derivable<unknown>>());
         }
     };
