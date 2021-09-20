@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.1.0](https://github.com/skunkteam/sherlock/compare/v6.0.2...v6.1.0) (2021-09-20)
+
+### Features
+
+-   **ngx-sherlock:** Add `@DerivableInput()` to ngx-sherlock ([#22](https://github.com/skunkteam/sherlock/issues/22)) ([7b34076](https://github.com/skunkteam/sherlock/commit/7b34076e198d9bf31e9706fe60c1b9db66db722e))
+
 ### [6.0.2](https://github.com/skunkteam/sherlock/compare/v6.0.1...v6.0.2) (2021-03-22)
 
 ### Bug Fixes
