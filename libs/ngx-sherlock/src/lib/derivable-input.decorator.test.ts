@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { atom, SettableDerivable } from '@skunkteam/sherlock';
+import { template } from '@skunkteam/sherlock-utils';
 import { DerivableInput } from './derivable-input.decorator';
 import { NgxSherlockModule } from './ngx-sherlock.module';
 
@@ -13,7 +14,7 @@ describe(DerivableInput, () => {
     class TestComponent {
         @Input() @DerivableInput() input$!: SettableDerivable<string>;
 
-        readonly mapped$ = this.input$.map(s => `Hello ${s}!`).fallbackTo('Got nothing!');
+        readonly mapped$ = template`Hello ${this.input$}!`.fallbackTo('Got nothing!');
     }
 
     let fixture: ComponentFixture<TestComponent>;
@@ -28,13 +29,14 @@ describe(DerivableInput, () => {
     });
 
     test('basic use', async () => {
+        const innerDerivable = component.input$;
         expect(component.input$.resolved).toBeFalse();
         fixture.detectChanges();
         expect(fixture.nativeElement.textContent).toBe('Got nothing!');
 
         const myAtom = atom.unresolved<string>();
         component.input$ = myAtom;
-
+        expect(component.input$).toBe(innerDerivable);
         expect(component.input$.resolved).toBeFalse();
         fixture.detectChanges();
         expect(fixture.nativeElement.textContent).toBe('Got nothing!');
@@ -46,10 +48,9 @@ describe(DerivableInput, () => {
     });
 
     test('settable', () => {
-        const myAtom = atom.unresolved<string>();
+        const myAtom = atom('you');
         component.input$ = myAtom;
 
-        myAtom.set('you');
         expect(component.input$.get()).toBe('you');
         fixture.detectChanges();
         expect(fixture.nativeElement.textContent).toBe('Hello you!');
@@ -63,14 +64,17 @@ describe(DerivableInput, () => {
     });
 
     test('switching inputs', () => {
+        const innerDerivable = component.input$;
         const myAtom = atom.unresolved<string>();
         component.input$ = myAtom;
+        expect(component.input$).toBe(innerDerivable);
 
         myAtom.set('you');
         expect(component.input$.get()).toBe('you');
 
         const myNewAtom = atom('me');
         component.input$ = myNewAtom;
+        expect(component.input$).toBe(innerDerivable);
 
         expect(component.input$.get()).toBe('me');
         fixture.detectChanges();
@@ -87,6 +91,7 @@ describe(DerivableInput, () => {
         const component2 = fixture2.componentInstance;
 
         expect(Object.getPrototypeOf(component2)).toBe(Object.getPrototypeOf(component));
+        expect(component.input$).not.toBe(component2.input$);
 
         const firstAtom = atom('foo');
         const secondAtom = atom('bar');
