@@ -7,7 +7,7 @@ import { augmentStack, equals, ErrorWrapper, FinalWrapper, prepareCreationStack,
 // Adds the react and toPromise methods to Derivables.
 export interface DerivableReactorExtension<V> {
     /**
-     * React on changes of the this derivable. Will continue to run indefinitely until either garbage collected or limited by
+     * React on changes of the derivable. Will continue to run indefinitely until either garbage collected or limited by
      * the provided lifecycle options. Returns a callback function that can be used to stop the reactor indefinitely.
      *
      * @param reaction function to call on each reaction
@@ -49,7 +49,7 @@ BaseDerivable.prototype.toPromise = function toPromise(options) {
 };
 
 /**
- * The maximum recursion depth for a single Reactor. Is used to fail faster than JavaScripts "Maximum call stack size
+ * The maximum recursion depth for a single Reactor. Is used to fail faster than JavaScript's "Maximum call stack size
  * exceeded" and provide better error messages.
  */
 const MAX_REACTION_DEPTH = 100;
