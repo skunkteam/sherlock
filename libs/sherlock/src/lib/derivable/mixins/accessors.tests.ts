@@ -274,6 +274,37 @@ export function testAccessors(factories: Factories, isConstant: boolean) {
         });
     });
 
+    describe('#resolved$ and #errored$', () => {
+        it('should return a Derivable that yields the errored status', () => {
+            const a$ = factories.error<string>(0);
+            // Check cached getter:
+            expect(a$.resolved$).toBe(a$.resolved$);
+            expect(a$.errored$).toBe(a$.errored$);
+            let resolved: boolean | undefined;
+            let errored: boolean | undefined;
+            a$.resolved$.react(v => (resolved = v));
+            a$.errored$.react(v => (errored = v));
+            expect(resolved).toBe(true);
+            expect(errored).toBe(true);
+            if (isSettableDerivable(a$)) {
+                a$.set('abc');
+                expect(resolved).toBe(true);
+                expect(errored).toBe(false);
+                if (isDerivableAtom(a$)) {
+                    a$.setError(0);
+                    expect(resolved).toBe(true);
+                    expect(errored).toBe(true);
+                    a$.unset();
+                    expect(resolved).toBe(false);
+                    expect(errored).toBe(false);
+                }
+            }
+            const b$ = factories.value('with value');
+            expect(b$.resolved$.get()).toBe(true);
+            expect(b$.errored$.get()).toBe(false);
+        });
+    });
+
     describe('#error', () => {
         it('should return the error when applicable', () => {
             const a$ = factories.error<string>(0);
