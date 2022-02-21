@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.2.0](https://github.com/skunkteam/sherlock/compare/v6.1.0...v6.2.0) (2022-02-21)
+
+### Features
+
+-   **sherlock:** add `resolved$`, `errored$` and `not$` getters to all Derivables ([#23](https://github.com/skunkteam/sherlock/issues/23)) ([34a7802](https://github.com/skunkteam/sherlock/commit/34a780239d5eb5d94a0d4223b4b86019218b2884))
+
 ## [6.1.0](https://github.com/skunkteam/sherlock/compare/v6.0.2...v6.1.0) (2021-09-20)
 
 ### Features
