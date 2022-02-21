@@ -40,8 +40,10 @@ export interface Derivable<V> {
     readonly value: V | undefined;
 
     readonly resolved: boolean;
+    readonly resolved$: Derivable<boolean>;
 
     readonly errored: boolean;
+    readonly errored$: Derivable<boolean>;
 
     readonly error: unknown;
 
@@ -108,6 +110,7 @@ export interface Derivable<V> {
      * Create a Derivation of this Derivable using the `!` operator on the value.
      */
     not(): Derivable<boolean>;
+    readonly not$: Derivable<boolean>;
 
     /**
      * Compares the value of this Derivable to the given value or the value of the given derivable using the same `equals` rules

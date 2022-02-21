@@ -1,5 +1,6 @@
 import type { Derivable, ExcludeFalsies, RestrictToFalsies } from '../../interfaces';
 import { equals } from '../../utils';
+import type { BaseDerivable } from '../base-derivable';
 import { isDerivable } from '../typeguards';
 
 export function andMethod<V, W>(this: Derivable<V>, other: Derivable<W> | W): Derivable<RestrictToFalsies<V> | W> {
@@ -17,7 +18,11 @@ export function orMethod<V, W>(this: Derivable<V>, other: Derivable<W> | W): Der
 }
 
 export function notMethod(this: Derivable<unknown>): Derivable<boolean> {
-    return this.map(v => !v);
+    return this.not$;
+}
+
+export function not$Getter(this: BaseDerivable<unknown>): Derivable<boolean> {
+    return (this._not$ ??= this.map(v => !v));
 }
 
 export function isMethod(this: Derivable<unknown>, other: unknown): Derivable<boolean> {

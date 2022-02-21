@@ -103,6 +103,14 @@ export abstract class BaseDerivable<V> implements TrackedObservable, Derivable<V
 
     /** The number of current dependencies of this Derivable, always `0` when not connected. */
     abstract readonly dependencyCount: number;
+
+    // Cached getters, to be filled in public accessors:
+    /** @internal */
+    _errored$?: Derivable<boolean> = undefined;
+    /** @internal */
+    _resolved$?: Derivable<boolean> = undefined;
+    /** @internal */
+    _not$?: Derivable<boolean> = undefined;
 }
 BaseDerivable.prototype.autoCache = function autoCache() {
     ((this as unknown) as BaseDerivable<unknown>)[autoCacheMode] = true;

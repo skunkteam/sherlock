@@ -89,10 +89,11 @@ export function testBooleanFuncs(factories: Factories) {
             });
         });
 
-        describe('#not', () => {
+        describe('#not and #not$', () => {
             it('should apply boolean NOT on the input derivable', () => {
-                expect(false$.not().get()).toBe(true);
-                expect(true$.not().get()).toBe(false);
+                expect(false$.not()).toBe(false$.not$);
+                expect(false$.not$.get()).toBe(true);
+                expect(true$.not$.get()).toBe(false);
             });
         });
     });

@@ -8,6 +8,7 @@ import { BiMapping, mapMethod, mapStateMethod } from './map';
 import {
     andMethod,
     connected$Getter,
+    errored$Getter,
     erroredGetter,
     errorGetter,
     fallbackToMethod,
@@ -17,9 +18,11 @@ import {
     getOrMethod,
     isMethod,
     makeFinalMethod,
+    not$Getter,
     notMethod,
     orMethod,
     pluckMethod,
+    resolved$Getter,
     resolvedGetter,
     setErrorMethod,
     setFinalMethod,
@@ -52,10 +55,13 @@ Object.defineProperty(BaseDerivable.prototype, 'settable', { value: false });
 
 baseDerivableGetter('value', valueGetter);
 baseDerivableGetter('resolved', resolvedGetter);
+baseDerivableGetter('resolved$', resolved$Getter);
 baseDerivableGetter('final', finalGetter);
 baseDerivableGetter('errored', erroredGetter);
+baseDerivableGetter('errored$', errored$Getter);
 baseDerivableGetter('error', errorGetter);
 baseDerivableGetter('connected$', connected$Getter);
+baseDerivableGetter('not$', not$Getter);
 
 declare module './atom' {
     export interface Atom<V> extends DerivableAtom<V> {

@@ -42,8 +42,16 @@ export function resolvedGetter(this: Derivable<unknown>): boolean {
     return this.getState() !== unresolved;
 }
 
+export function resolved$Getter(this: BaseDerivable<unknown>): Derivable<boolean> {
+    return (this._resolved$ ??= this.mapState(state => state !== unresolved));
+}
+
 export function erroredGetter(this: Derivable<unknown>): boolean {
     return this.getState() instanceof ErrorWrapper;
+}
+
+export function errored$Getter(this: BaseDerivable<unknown>): Derivable<boolean> {
+    return (this._errored$ ??= this.mapState(state => state instanceof ErrorWrapper));
 }
 
 export function errorGetter(this: Derivable<unknown>): unknown {
