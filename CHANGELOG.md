@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.3.0](https://github.com/skunkteam/sherlock/compare/v6.2.0...v6.3.0) (2022-03-14)
+
+### Features
+
+-   **ngx-sherfire:** upgrade to latest firebase 8.x ([#29](https://github.com/skunkteam/sherlock/issues/29)) ([10980af](https://github.com/skunkteam/sherlock/commit/10980afac850602c6e35dc8dd136c4a1cfc1148f))
+
 ## [6.2.0](https://github.com/skunkteam/sherlock/compare/v6.1.0...v6.2.0) (2022-02-21)
 
 ### Features
