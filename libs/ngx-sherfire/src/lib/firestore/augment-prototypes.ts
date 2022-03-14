@@ -294,6 +294,21 @@ export interface AugmentedDocumentReference<T = firebase.firestore.DocumentData>
      * provided converter will convert between Firestore data and your custom
      * type U.
      *
+     * Passing in `null` as the converter parameter removes the current
+     * converter.
+     *
+     * @param converter Converts objects to and from Firestore. Passing in
+     * `null` removes the current converter.
+     * @return A DocumentReference<U> that uses the provided converter.
+     */
+    withConverter(converter: null): AugmentedDocumentReference<firebase.firestore.DocumentData>;
+    /**
+     * Applies a custom data converter to this DocumentReference, allowing you
+     * to use your own custom model objects with Firestore. When you call
+     * set(), get(), etc. on the returned DocumentReference instance, the
+     * provided converter will convert between Firestore data and your custom
+     * type U.
+     *
      * @param converter Converts objects to and from Firestore.
      * @return A DocumentReference<U> that uses the provided converter.
      */
@@ -581,6 +596,20 @@ export interface AugmentedCollectionReference<T = firebase.firestore.DocumentDat
      * on the returned CollectionReference instance, the provided converter will
      * convert between Firestore data and your custom type U.
      *
+     * Passing in `null` as the converter parameter removes the current
+     * converter.
+     *
+     * @param converter Converts objects to and from Firestore. Passing in
+     * `null` removes the current converter.
+     * @return A CollectionReference<U> that uses the provided converter.
+     */
+    withConverter(converter: null): AugmentedCollectionReference<firebase.firestore.DocumentData>;
+    /**
+     * Applies a custom data converter to this CollectionReference, allowing you
+     * to use your own custom model objects with Firestore. When you call add()
+     * on the returned CollectionReference instance, the provided converter will
+     * convert between Firestore data and your custom type U.
+     *
      * @param converter Converts objects to and from Firestore.
      * @return A CollectionReference<U> that uses the provided converter.
      */
@@ -836,6 +865,20 @@ export interface AugmentedQuery<T = firebase.firestore.DocumentData>
         onCompletion?: () => void,
     ): () => void;
 
+    /**
+     * Applies a custom data converter to this Query, allowing you to use your
+     * own custom model objects with Firestore. When you call get() on the
+     * returned Query, the provided converter will convert between Firestore
+     * data and your custom type U.
+     *
+     * Passing in `null` as the converter parameter removes the current
+     * converter.
+     *
+     * @param converter Converts objects to and from Firestore. Passing in
+     * `null` removes the current converter.
+     * @return A Query<U> that uses the provided converter.
+     */
+    withConverter(converter: null): AugmentedQuery<firebase.firestore.DocumentData>;
     /**
      * Applies a custom data converter to this Query, allowing you to use your
      * own custom model objects with Firestore. When you call get() on the
