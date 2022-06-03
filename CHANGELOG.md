@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.3.1](https://github.com/skunkteam/sherlock/compare/v6.3.0...v6.3.1) (2022-06-03)
+
+### Bug Fixes
+
+-   **ngx-sherlock:** fix change detection of ValuePipe on errored/unresolved derivables ([#34](https://github.com/skunkteam/sherlock/issues/34)) ([84420d4](https://github.com/skunkteam/sherlock/commit/84420d450e3e82239f739fe21559dec84e6cf8ea))
+
 ## [6.3.0](https://github.com/skunkteam/sherlock/compare/v6.2.0...v6.3.0) (2022-03-14)
 
 ### Features
