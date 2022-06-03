@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, OnDestroy, Pipe, PipeTransform } from '@angular/core';
 import { atom, Derivable, unwrap } from '@skunkteam/sherlock';
+import { materialize } from '@skunkteam/sherlock-utils';
 
 /**
  * The {@link ValuePipe} can be used to unwrap `Derivable` values in templates. Like Angular's
@@ -37,9 +38,13 @@ export class ValuePipe implements PipeTransform, OnDestroy {
 
     private readonly input$ = atom.unresolved<Derivable<unknown>>();
     private readonly output$ = this.input$.derive(unwrap);
-    private readonly stop = this.output$.react(() => this.changeDetector.markForCheck(), {
-        onError: error => console.error('Error in input-derivable to ValuePipe:', error),
-    });
+    private readonly stop = materialize(this.output$).react(
+        m => {
+            if (m.errored) console.error('Error in input-derivable to ValuePipe:', this.output$.error);
+            this.changeDetector.markForCheck();
+        },
+        { skipFirst: true },
+    );
 
     ngOnDestroy() {
         this.stop();

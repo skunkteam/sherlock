@@ -37,13 +37,12 @@ describe(ValuePipe, () => {
 
         it('should never throw on errored derivables', () => {
             emitter.setError('the error, oh no!');
-            jest.spyOn(console, 'error')
-                .mockReturnValueOnce()
-                .mockImplementation(() => {
-                    throw new Error('should only occur once!');
-                });
+            jest.spyOn(console, 'error').mockReturnValueOnce();
+
             expect(pipe.transform(emitter)).toBeUndefined();
             expect(pipe.transform(emitter, 'sync')).toBeUndefined();
+            expect(console.error).toHaveBeenCalledTimes(1);
+            expect(console.error).toHaveBeenCalledWith('Error in input-derivable to ValuePipe:', 'the error, oh no!');
         });
 
         it('should dispose of the existing reaction when reacting to a new derivable', () => {
@@ -67,6 +66,40 @@ describe(ValuePipe, () => {
             emitter.set('do check');
 
             expect(ref.markForCheck).toHaveBeenCalled();
+        });
+
+        it('should request change detection check upon becoming `unresolved`', () => {
+            pipe.transform(emitter);
+
+            expect(ref.markForCheck).not.toHaveBeenCalled();
+
+            emitter.set('do check');
+
+            expect(ref.markForCheck).toHaveBeenCalledTimes(1);
+
+            emitter.unset();
+
+            expect(ref.markForCheck).toHaveBeenCalledTimes(2);
+
+            emitter.set('do check'); // Same value as before
+
+            expect(ref.markForCheck).toHaveBeenCalledTimes(3);
+        });
+
+        it('should request change detection check upon becoming errored', () => {
+            jest.spyOn(console, 'error').mockReturnValue(); // prevent error logs in the test
+
+            pipe.transform(emitter);
+
+            expect(ref.markForCheck).not.toHaveBeenCalled();
+
+            emitter.setError('the error, oh no!');
+
+            expect(ref.markForCheck).toHaveBeenCalledTimes(1);
+
+            emitter.setError('another error, oh no!');
+
+            expect(ref.markForCheck).toHaveBeenCalledTimes(2);
         });
     });
 
