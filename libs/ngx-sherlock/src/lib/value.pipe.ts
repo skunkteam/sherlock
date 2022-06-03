@@ -40,7 +40,7 @@ export class ValuePipe implements PipeTransform, OnDestroy {
     private readonly output$ = this.input$.derive(unwrap);
     private readonly stop = materialize(this.output$).react(
         m => {
-            if (m.errored) console.error('Error in input-derivable to ValuePipe:', this.output$.error);
+            if (m.errored) console.error('Error in input-derivable to ValuePipe:', m.error);
             this.changeDetector.markForCheck();
         },
         { skipFirst: true },
