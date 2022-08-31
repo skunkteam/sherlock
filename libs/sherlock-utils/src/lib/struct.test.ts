@@ -1,7 +1,18 @@
 import { atom } from '@skunkteam/sherlock';
-import { struct } from './struct';
+import { parallelStruct, struct } from './struct';
 
-describe('sherlock-utils/struct', () => {
+describe.each([
+    [struct, 'serial'],
+    [parallelStruct, 'parallel'],
+])('sherlock-utils/%p', (fn, mode) => {
+    test(`should activate derivables in ${mode}`, () => {
+        const parts = [1, 2, 3].map(() => atom.unresolved<number>());
+        const result = fn(parts).autoCache();
+
+        expect(result.resolved).toBeFalse();
+        expect(parts.map(d$ => d$.connected)).toEqual([true, mode === 'parallel', mode === 'parallel']);
+    });
+
     it('should copy any value-type as-is', () => {
         const obj = {
             date: new Date(),
@@ -9,14 +20,14 @@ describe('sherlock-utils/struct', () => {
             string: 'asdf',
             strings: ['asdf', 'sdfg'],
         };
-        const result = struct(obj).get();
+        const result = fn(obj).get();
         expect(result).toEqual(obj);
         expect(result.date).toBe(obj.date);
     });
 
     it('should return a Derivables as is', () => {
         const a = atom(123);
-        expect(struct(a)).toBe(a);
+        expect(fn(a)).toBe(a);
     });
 
     it('should turn an array of derivables into an unwrapped derivable', () => {
@@ -25,7 +36,7 @@ describe('sherlock-utils/struct', () => {
         const number3$ = number1$.derive(n => n + number2$.get());
 
         const number$s = [number1$, number2$, number3$];
-        const numbers$ = struct(number$s);
+        const numbers$ = fn(number$s);
 
         expect(numbers$.get()).toEqual([1, 2, 3]);
 
@@ -37,7 +48,7 @@ describe('sherlock-utils/struct', () => {
         const name$ = atom('Edwin');
         const tel$ = atom('0612345678');
         const person = { name: name$, tel: tel$ };
-        const person$ = struct(person);
+        const person$ = fn(person);
 
         expect(person$.get()).toEqual({ name: 'Edwin', tel: '0612345678' });
 
@@ -62,7 +73,7 @@ describe('sherlock-utils/struct', () => {
                 },
             ],
         };
-        const nested$ = struct(obj).autoCache();
+        const nested$ = fn(obj).autoCache();
 
         expect(nested$.get()).toEqual({
             name: 'Edwin',
@@ -96,7 +107,7 @@ describe('sherlock-utils/struct', () => {
         const readonlyObject = { a$, b$ } as const;
         const array = [a$, b$];
         const readonlyArray = [a$, b$] as const;
-        const d$ = struct({ object, readonlyObject, array, readonlyArray });
+        const d$ = fn({ object, readonlyObject, array, readonlyArray });
 
         const result = d$.get();
 
