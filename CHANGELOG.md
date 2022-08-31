@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.4.0](https://github.com/skunkteam/sherlock/compare/v6.3.1...v6.4.0) (2022-08-31)
+
+### Features
+
+-   **sherlock-utils:** add new `parallelStruct` util ([#37](https://github.com/skunkteam/sherlock/issues/37)) ([ecc1719](https://github.com/skunkteam/sherlock/commit/ecc1719ec006756c13d93a205edeb31d8d92b852))
+
 ### [6.3.1](https://github.com/skunkteam/sherlock/compare/v6.3.0...v6.3.1) (2022-06-03)
 
 ### Bug Fixes
