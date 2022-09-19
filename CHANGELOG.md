@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.4.1](https://github.com/skunkteam/sherlock/compare/v6.4.0...v6.4.1) (2022-09-19)
+
+### Bug Fixes
+
+-   **ngx-sherlock:** allow newer ng versions as peer deps ([#39](https://github.com/skunkteam/sherlock/issues/39)) ([56e610b](https://github.com/skunkteam/sherlock/commit/56e610bbf29e718418e1b4f77f7a6b6f837519c4))
+
 ## [6.4.0](https://github.com/skunkteam/sherlock/compare/v6.3.1...v6.4.0) (2022-08-31)
 
 ### Features
