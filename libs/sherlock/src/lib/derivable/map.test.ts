@@ -133,7 +133,7 @@ describe('derivable/map', () => {
             <V>(a$: Atom<V>) =>
                 new Atom(a$.map(val => ({ val })).getMaybeFinalState()).mapState(
                     obj => (obj === unresolved || obj instanceof ErrorWrapper ? obj : obj.val),
-                    val => (val === unresolved || val instanceof ErrorWrapper ? val : { val }),
+                    val => (val === unresolved ? unresolved : val instanceof ErrorWrapper ? val : { val }),
                 ),
             'atom',
             'settable',
@@ -211,7 +211,7 @@ describe('derivable/map', () => {
             expect(() => d$.get()).toThrowError('the Error');
             try {
                 d$.get();
-            } catch (e) {
+            } catch (e: any) {
                 expect(e.stack).toContain('the Error');
                 expect(e.stack).toContain(d$.creationStack);
             }

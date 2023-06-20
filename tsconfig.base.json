@@ -22,12 +22,13 @@
         "noUnusedParameters": true,
         "forceConsistentCasingInFileNames": true,
         "importsNotUsedAsValues": "error",
+        "ignoreDeprecations": "5.0",
         "baseUrl": ".",
         "paths": {
-            "@skunkteam/sherlock": ["libs/sherlock/src/index.ts"],
-            "@skunkteam/sherlock-utils": ["libs/sherlock-utils/src/index.ts"],
+            "@skunkteam/ngx-sherfire": ["libs/ngx-sherfire/src/index.ts"],
             "@skunkteam/ngx-sherlock": ["libs/ngx-sherlock/src/index.ts"],
-            "@skunkteam/ngx-sherfire": ["libs/ngx-sherfire/src/index.ts"]
+            "@skunkteam/sherlock": ["libs/sherlock/src/index.ts"],
+            "@skunkteam/sherlock-utils": ["libs/sherlock-utils/src/index.ts"]
         }
     },
     "exclude": ["node_modules", "tmp"]

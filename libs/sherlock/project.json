@@ -1,0 +1,34 @@
+{
+    "name": "sherlock",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/sherlock/src",
+    "projectType": "library",
+    "targets": {
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": ["libs/sherlock/**/*.ts"]
+            }
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/libs/sherlock"],
+            "options": {
+                "jestConfig": "libs/sherlock/jest.config.ts"
+            }
+        },
+        "build": {
+            "executor": "@nrwl/js:tsc",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/libs/sherlock",
+                "tsConfig": "libs/sherlock/tsconfig.lib.json",
+                "packageJson": "libs/sherlock/package.json",
+                "main": "libs/sherlock/src/index.ts",
+                "assets": ["libs/sherlock/*.md"],
+                "buildableProjectDepsInPackageJsonType": "peerDependencies"
+            }
+        }
+    },
+    "tags": []
+}

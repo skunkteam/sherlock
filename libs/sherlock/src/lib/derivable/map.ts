@@ -1,7 +1,7 @@
 import type { Derivable, MaybeFinalState, SettableDerivable, State } from '../interfaces';
 import { connect, disconnect, finalize, unresolved } from '../symbols';
 import { addObserver, independentTracking, removeObserver } from '../tracking';
-import { augmentStack, error, ErrorWrapper, FinalWrapper } from '../utils';
+import { ErrorWrapper, FinalWrapper, augmentStack, error } from '../utils';
 import type { BaseDerivable } from './base-derivable';
 import { BaseDerivation } from './derivation';
 
@@ -108,12 +108,16 @@ export function mapMethod<B, V>(
     get: (b: B) => MaybeFinalState<V>,
     set?: (v: V, b?: B) => B,
 ): Derivable<V> {
-    const stateMapper = function (this: Mapping<B, V>, state: State<B>) {
-        return state === unresolved || state instanceof ErrorWrapper ? state : get.call(this, state);
+    const stateMapper = function (this: Mapping<B, V>, state: State<B>): MaybeFinalState<V> {
+        return state === unresolved ? unresolved : state instanceof ErrorWrapper ? state : get.call(this, state);
     };
     return set && isSettable(this)
         ? new BiMapping(this, stateMapper, function (v) {
-              return v === unresolved || v instanceof ErrorWrapper ? v : set.call(this, v, this._base.value);
+              return v === unresolved
+                  ? unresolved
+                  : v instanceof ErrorWrapper
+                  ? v
+                  : set.call(this, v, this._base.value);
           })
         : new Mapping(this, stateMapper);
 }

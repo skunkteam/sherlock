@@ -37,6 +37,13 @@ BaseDerivable.prototype['@@observable'] = function () {
 Symbol.observable && (BaseDerivable.prototype[Symbol.observable] = BaseDerivable.prototype['@@observable']);
 
 /* RXJS INTERFACES */
+/** Symbol.observable addition */
+declare global {
+    interface SymbolConstructor {
+        readonly observable: symbol;
+    }
+}
+
 interface Subscribable<T> {
     subscribe(observer?: PartialObserver<T>): Unsubscribable;
     /** @deprecated Use an observer instead of a complete callback */
