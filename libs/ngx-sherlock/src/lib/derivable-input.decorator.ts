@@ -25,7 +25,7 @@ import { atom, Derivable, SettableDerivable } from '@skunkteam/sherlock';
  * ```
  */
 export function DerivableInput() {
-    return <Key extends PropertyKey>(proto: Record<Key, Derivable<unknown>>, key: Key) => {
+    return <Key extends string | number>(proto: Record<Key, Derivable<unknown>>, key: Key) => {
         const inputKey = Symbol(`_${key}Input$`);
         const flatKey = Symbol(`_${key}Flattened$`);
 

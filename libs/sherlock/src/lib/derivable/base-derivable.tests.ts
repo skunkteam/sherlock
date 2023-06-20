@@ -388,7 +388,7 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
 
             try {
                 await d$.toPromise();
-            } catch (e) {
+            } catch (e: any) {
                 expect(e).toBeInstanceOf(Error);
                 expect(e.message).toBe('with a message');
                 return;
@@ -489,7 +489,7 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
             it('should throw when trying to set a new value', () => {
                 // Make sure we are not final to begin with, otherwise some factories might create a derivable without a setter.
                 const a$ = assertSettable(factories.value('first value'));
-                a$.set((final('final value') as unknown) as string);
+                a$.set(final('final value') as unknown as string);
                 a$.autoCache().value;
                 expect(() => a$.set('not possible')).toThrowError('cannot set a final derivable');
             });
@@ -620,7 +620,7 @@ export function testDerivable(factory: Factories | (<V>(atom: Atom<V>) => Deriva
                 expect(() => d$.get()).toThrowError('the Error');
                 try {
                     d$.get();
-                } catch (e) {
+                } catch (e: any) {
                     expect(e.stack).toContain(' created:\n');
                 }
             });

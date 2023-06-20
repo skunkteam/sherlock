@@ -1,7 +1,7 @@
-const nxPreset = require('@nrwl/jest/preset');
+const nxPreset = require('@nx/jest/preset').default;
 
 /** @typedef {import('ts-jest/dist/types')} */
-/** @type {import('@jest/types').Config.InitialOptions} */
+/** @type {import('jest').Config} */
 module.exports = {
     ...nxPreset,
     collectCoverage: true,
@@ -14,8 +14,8 @@ module.exports = {
             statements: 100,
         },
     },
-    collectCoverageFrom: ['**/*.ts', '!**/index.ts', '!**/internal.ts', '!**/*.tests.ts'],
-    setupFilesAfterEnv: ['jest-extended'],
+    collectCoverageFrom: ['**/*.ts', '!**/index.ts', '!**/internal.ts', '!**/*.tests.ts', '!jest.config.ts'],
+    setupFilesAfterEnv: ['jest-extended/all'],
     clearMocks: true,
     restoreMocks: true,
 };

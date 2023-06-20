@@ -4,7 +4,7 @@
     "overrides": [
         {
             "files": ["*.ts"],
-            "extends": ["plugin:@nrwl/nx/angular", "plugin:@angular-eslint/template/process-inline-templates"],
+            "extends": ["plugin:@nx/angular", "plugin:@angular-eslint/template/process-inline-templates"],
             "parserOptions": { "project": ["libs/ngx-sherlock/tsconfig.*?.json"] },
             "rules": {
                 "@angular-eslint/directive-selector": [
@@ -17,6 +17,6 @@
                 ]
             }
         },
-        { "files": ["*.html"], "extends": ["plugin:@nrwl/nx/angular-template"], "rules": {} }
+        { "files": ["*.html"], "extends": ["plugin:@nx/angular-template"], "rules": {} }
     ]
 }

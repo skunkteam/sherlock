@@ -2,7 +2,7 @@ import type { Derivable, MaybeFinalState } from '../interfaces';
 import { react, shouldHaveReactedOnce, shouldNotHaveReacted } from '../reactor/testutils.tests';
 import { connect, dependencies, disconnect } from '../symbols';
 import { basicTransactionsTests } from '../transaction/transaction.tests';
-import { config, FinalWrapper } from '../utils';
+import { FinalWrapper, config } from '../utils';
 import { testDerivable } from './base-derivable.tests';
 import { PullDataSource } from './data-source';
 import type { Derivation } from './derivation';
@@ -111,7 +111,7 @@ describe('derivable/data-source', () => {
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
+        jest.useFakeTimers({ legacyFakeTimers: true });
         let now = Date.now();
         jest.spyOn(Date, 'now').mockImplementation(() => now);
         setInterval(() => (now += 100), 100);
@@ -228,7 +228,7 @@ describe('derivable/data-source', () => {
             expect(() => d$.get()).toThrowError('the error');
             try {
                 d$.get();
-            } catch (e) {
+            } catch (e: any) {
                 expect(e.stack).toContain('the error');
                 expect(e.stack).toContain(d$.creationStack);
             }

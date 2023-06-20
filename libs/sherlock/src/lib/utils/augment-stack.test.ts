@@ -8,7 +8,7 @@ describe('utils/augment-stack', () => {
             const originalStack = originalError.stack;
             const returnedError = augmentStack(originalError, {});
             expect(returnedError).toBe(originalError);
-            expect(returnedError.stack).toBe(originalStack);
+            expect(returnedError instanceof Error && returnedError.stack).toBe(originalStack);
         });
 
         it('should augment the provided error when a creationStack is present', () => {
@@ -18,7 +18,9 @@ describe('utils/augment-stack', () => {
             const returnedError = augmentStack(originalError, obj);
             expect(returnedError).not.toBe(originalError);
             expect(originalError.stack).toBe(originalStack);
-            expect(returnedError.stack).toBe(originalStack + '\n' + obj.creationStack);
+            expect(returnedError instanceof Error && returnedError.stack).toBe(
+                originalStack + '\n' + obj.creationStack,
+            );
         });
     });
 

@@ -14,9 +14,14 @@ export function clone<T extends object>(obj: T): T {
 
 function cloneArray<T extends any[]>(obj: T): T {
     try {
-        return Object.defineProperties(new (obj.constructor as any)(), Object.getOwnPropertyDescriptors(obj));
+        return Object.defineProperties(new (obj.constructor as any)(), Object.getOwnPropertyDescriptors<{}>(obj));
     } catch (e) {
         // istanbul ignore next: for debug purposes
-        throw Object.assign(new Error('could not clone Array: ' + e?.message), { jse_cause: e });
+        throw Object.assign(
+            new Error('could not clone Array: ' + String(typeof e === 'object' && e && 'message' in e ? e.message : e)),
+            {
+                jse_cause: e,
+            },
+        );
     }
 }

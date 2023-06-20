@@ -6,5 +6,5 @@
         "types": ["jest", "jest-extended", "node"]
     },
     "files": ["src/test-setup.ts"],
-    "include": ["**/*.test.ts", "**/*.d.ts"]
+    "include": ["**/*.test.ts", "**/*.d.ts", "jest.config.ts"]
 }
