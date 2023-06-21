@@ -14,8 +14,7 @@ export function fromObservable<V>(observable: Subscribable<V>): Derivable<V> {
 
 /* RXJS INTERFACES */
 interface Subscribable<T> {
-    subscribe(observer?: Partial<Observer<T>>): Unsubscribable;
-    subscribe(next?: (value: T) => void, error?: (error: any) => void, complete?: () => void): Unsubscribable;
+    subscribe(observer?: Partial<Observer<T>> | ((value: T) => void)): Unsubscribable;
 }
 
 interface Observer<T> {

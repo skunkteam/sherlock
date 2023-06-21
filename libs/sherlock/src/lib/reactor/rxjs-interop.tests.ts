@@ -137,42 +137,37 @@ export function testRxjsInterop(factories: Factories) {
             expect(complete).toBeFalse();
         });
 
-        describe.each(['using observer', 'using separate callbacks'] as const)(
-            '#subscribe using method: %s',
-            method => {
-                function subscribe(
-                    next?: (value: string) => void,
-                    error?: (error: any) => void,
-                    complete?: () => void,
-                ) {
-                    switch (method) {
-                        case 'using observer':
-                            return a$.subscribe({ next, error, complete } as import('rxjs').PartialObserver<string>);
-                        case 'using separate callbacks':
-                            return a$.subscribe(next, error, complete);
-                    }
+        describe.each(['using observer', 'using a single callback'] as const)('#subscribe using method: %s', method => {
+            function subscribe(next?: (value: string) => void, error?: (error: any) => void, complete?: () => void) {
+                switch (method) {
+                    case 'using observer':
+                        return a$.subscribe({ next, error, complete } as import('rxjs').PartialObserver<string>);
+                    case 'using a single callback':
+                        return a$.subscribe(next);
                 }
+            }
 
-                type Event = { next: string } | { error: any } | { complete: true };
+            type Event = { next: string } | { error: any } | { complete: true };
 
-                function getEvents() {
-                    const events: Event[] = [];
-                    return {
-                        events,
-                        ...subscribe(
-                            v => events.push({ next: v }),
-                            err => events.push({ error: err }),
-                            () => events.push({ complete: true }),
-                        ),
-                    };
-                }
+            function getEvents() {
+                const events: Event[] = [];
+                return {
+                    events,
+                    ...subscribe(
+                        v => events.push({ next: v }),
+                        err => events.push({ error: err }),
+                        () => events.push({ complete: true }),
+                    ),
+                };
+            }
 
-                it('should not emit complete on abort', () => {
-                    const { events, unsubscribe } = getEvents();
-                    unsubscribe();
-                    expect(events).toEqual([{ next: 'a' }]);
-                });
+            it('should not emit complete on abort', () => {
+                const { events, unsubscribe } = getEvents();
+                unsubscribe();
+                expect(events).toEqual([{ next: 'a' }]);
+            });
 
+            if (method === 'using observer') {
                 it('should not emit complete on error', () => {
                     const { events } = getEvents();
                     a$.setError('the error');
@@ -184,35 +179,37 @@ export function testRxjsInterop(factories: Factories) {
                     a$.makeFinal();
                     expect(events).toEqual([{ next: 'a' }, { complete: true }]);
                 });
+            }
 
-                describe('with only a next callback', () => {
-                    let values: string[], unsubscribe: () => void;
-                    beforeEach(() => {
-                        values = [];
-                        ({ unsubscribe } = subscribe(v => values.push(v)));
-                        expect(values).toEqual(['a']);
-                        a$.set('b');
-                        expect(values).toEqual(['a', 'b']);
-                    });
-
-                    test('until Error', () => {
-                        a$.setError('some error');
-                        a$.set('c');
-                        expect(values).toEqual(['a', 'b']);
-                    });
-
-                    test('until Final', () => {
-                        a$.setFinal('c');
-                        expect(values).toEqual(['a', 'b', 'c']);
-                    });
-
-                    test('until unsubscribe', () => {
-                        unsubscribe();
-                        a$.set('c');
-                        expect(values).toEqual(['a', 'b']);
-                    });
+            describe('with only a next callback', () => {
+                let values: string[], unsubscribe: () => void;
+                beforeEach(() => {
+                    values = [];
+                    ({ unsubscribe } = subscribe(v => values.push(v)));
+                    expect(values).toEqual(['a']);
+                    a$.set('b');
+                    expect(values).toEqual(['a', 'b']);
                 });
 
+                test('until Error', () => {
+                    a$.setError('some error');
+                    a$.set('c');
+                    expect(values).toEqual(['a', 'b']);
+                });
+
+                test('until Final', () => {
+                    a$.setFinal('c');
+                    expect(values).toEqual(['a', 'b', 'c']);
+                });
+
+                test('until unsubscribe', () => {
+                    unsubscribe();
+                    a$.set('c');
+                    expect(values).toEqual(['a', 'b']);
+                });
+            });
+
+            if (method === 'using observer') {
                 describe('with only an error callback', () => {
                     let errorCb: jest.Mock, unsubscribe: () => void;
                     beforeEach(() => {
@@ -265,8 +262,8 @@ export function testRxjsInterop(factories: Factories) {
                         expect(completeCb).not.toHaveBeenCalled();
                     });
                 });
-            },
-        );
+            }
+        });
 
         it('should be compatible with Observable.from', () => {
             new TestScheduler((actual, expected) => expect(actual).toEqual(expected)).run(
