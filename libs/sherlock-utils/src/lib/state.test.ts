@@ -36,10 +36,7 @@ describe('sherlock-utils/getState', () => {
 
     it('should not call the internal getter more than once', () => {
         const a$ = atom(undefined);
-        const getter = jest.spyOn(
-            (a$ as any) as _internal.BaseDerivable<any>,
-            _internal.symbols.internalGetState as any,
-        );
+        const getter = jest.spyOn(a$ as any as _internal.BaseDerivable<any>, _internal.symbols.internalGetState as any);
         getStateObject(a$);
         expect(getter).toHaveBeenCalledTimes(1);
         a$.setError(undefined);
