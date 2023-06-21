@@ -24,7 +24,7 @@ export interface DerivableCache<I, V, K = I> {
 
 export function derivableCache<I, V, K = I>(
     derivableFactory: DerivableFactory<I, V>,
-    { delayedEviction, mapKeys = v => (v as unknown) as K }: DerivableCacheOptions<I, K> = {},
+    { delayedEviction, mapKeys = v => v as unknown as K }: DerivableCacheOptions<I, K> = {},
 ): DerivableCache<I, V, K> {
     const cache = new Map<K, CacheItem<V>>();
 

@@ -22,10 +22,10 @@ describe(NgxSherfireModule, () => {
 
     const createAuth = jest.fn<Partial<firebase.auth.Auth>, []>();
     const createFirestore = jest.fn<Partial<firebase.firestore.Firestore>, []>();
-    const fakeApp = ({
+    const fakeApp = {
         auth: createAuth,
         firestore: createFirestore,
-    } as Partial<firebase.app.App>) as firebase.app.App;
+    } as Partial<firebase.app.App> as firebase.app.App;
 
     beforeEach(() => {
         TestBed.configureTestingModule({ imports: [NgxSherfireModule.forRoot(config)] });
@@ -59,7 +59,7 @@ describe(NgxSherfireModule, () => {
                 createAuth.mockReturnValue({ onIdTokenChanged, currentUser: null });
                 firebaseAuth = TestBed.inject(FirebaseAuth);
                 firebaseUser$ = TestBed.inject(FirebaseUser$);
-                sampleUser = ({ getIdTokenResult: jest.fn() } as Partial<typeof sampleUser>) as typeof sampleUser;
+                sampleUser = { getIdTokenResult: jest.fn() } as Partial<typeof sampleUser> as typeof sampleUser;
             });
 
             test('with no currentUser', async () => {

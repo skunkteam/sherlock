@@ -8,7 +8,7 @@ describe(ValuePipe, () => {
     let emitter: DerivableAtom<string>;
 
     beforeEach(() => {
-        ref = ({ markForCheck: jest.fn() } as unknown) as ChangeDetectorRef;
+        ref = { markForCheck: jest.fn() } as unknown as ChangeDetectorRef;
         pipe = new ValuePipe(ref);
         emitter = atom.unresolved();
     });

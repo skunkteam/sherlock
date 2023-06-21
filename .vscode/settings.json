@@ -12,5 +12,6 @@
         }
     ],
     "scss.scannerExclude": ["**/.git"],
-    "typescript.tsdk": "node_modules/typescript/lib"
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "files.insertFinalNewline": true
 }

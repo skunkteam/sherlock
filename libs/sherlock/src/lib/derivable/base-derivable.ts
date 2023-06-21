@@ -113,7 +113,7 @@ export abstract class BaseDerivable<V> implements TrackedObservable, Derivable<V
     _not$?: Derivable<boolean> = undefined;
 }
 BaseDerivable.prototype.autoCache = function autoCache() {
-    ((this as unknown) as BaseDerivable<unknown>)[autoCacheMode] = true;
+    (this as unknown as BaseDerivable<unknown>)[autoCacheMode] = true;
     return this;
 };
 
