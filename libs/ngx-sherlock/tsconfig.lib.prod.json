@@ -6,7 +6,7 @@
         "useDefineForClassFields": false
     },
     "angularCompilerOptions": {
-        "enableIvy": false
+        "compilationMode": "partial"
     },
     "exclude": ["jest.config.ts"]
 }

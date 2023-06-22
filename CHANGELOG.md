@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.0.0](https://github.com/skunkteam/sherlock/compare/v6.4.1...v7.0.0) (2023-06-22)
+
+### ⚠ BREAKING CHANGES
+
+-   **sherlock:** Support RxJS 7
+
+### Features
+
+-   **sherlock:** Support RxJS 7 ([dcddd07](https://github.com/skunkteam/sherlock/commit/dcddd074bef612b42b67aa34ed82fa28f238d344))
+
 ### [6.4.1](https://github.com/skunkteam/sherlock/compare/v6.4.0...v6.4.1) (2022-09-19)
 
 ### Bug Fixes
