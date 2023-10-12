@@ -34,7 +34,7 @@ describe(NgxSherfireModule, () => {
     const fakeAuth = {
         app: fakeApp,
     } as Partial<authModule.Auth> as authModule.Auth;
-    const fakeFirestore: firestoreModule.Firestore = {
+    } satisfies Partial<authModule.Auth> as authModule.Auth;
         app: fakeApp,
         type: 'firestore',
         toJSON() {
@@ -53,8 +53,7 @@ describe(NgxSherfireModule, () => {
         test('instantiation', () => {
             expect(appModule.initializeApp).not.toBeCalled();
             expect(TestBed.inject(SherfireApp)).toBe(fakeApp);
-            expect(appModule.initializeApp).toBeCalledTimes(1);
-            expect(appModule.initializeApp).toBeCalledWith(config, config.appSettings);
+            expect(appModule.initializeApp).toHaveBeenCalledExactlyOnceWith(config, config.appSettings);
         });
     });
 
@@ -62,8 +61,7 @@ describe(NgxSherfireModule, () => {
         test('instantiation', () => {
             expect(authModule.getAuth).not.toBeCalled();
             expect(TestBed.inject(SherfireAuth)).toBe(fakeAuth);
-            expect(authModule.getAuth).toBeCalledTimes(1);
-            expect(authModule.getAuth).toBeCalledWith(fakeApp);
+            expect(authModule.getAuth).toHaveBeenCalledExactlyOnceWith(fakeApp);
         });
     });
 
@@ -73,10 +71,11 @@ describe(NgxSherfireModule, () => {
             expect(firestoreModule.initializeFirestore).not.toBeCalled();
             expect(firestoreModule.connectFirestoreEmulator).not.toBeCalled();
             expect(TestBed.inject(SherfireFirestore)).toBe(fakeFirestore);
-            expect(firestoreModule.initializeFirestore).toBeCalledTimes(1);
-            expect(firestoreModule.initializeFirestore).toBeCalledWith(fakeApp, config.firestoreSettings);
-            expect(firestoreModule.connectFirestoreEmulator).toBeCalledTimes(1);
-            expect(firestoreModule.connectFirestoreEmulator).toBeCalledWith(
+            expect(firestoreModule.initializeFirestore).toHaveBeenCalledExactlyOnceWith(
+                fakeApp,
+                config.firestoreSettings,
+            );
+            expect(firestoreModule.connectFirestoreEmulator).toHaveBeenCalledExactlyOnceWith(
                 fakeFirestore,
                 config.firestoreEmulator.host,
                 config.firestoreEmulator.port,

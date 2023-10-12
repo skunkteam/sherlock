@@ -52,7 +52,7 @@ describe(FirebaseUser$, () => {
 
         // Apparently, the user now logged in...
         sampleUser.getIdTokenResult.mockResolvedValue({ token: 'the token' } as any);
-        cb(sampleUser as User);
+        cb(sampleUser);
 
         // UI should not respond yet, we are still in the process of receiving more info
         expect(userInfo).toBeNull();
@@ -75,7 +75,7 @@ describe(FirebaseUser$, () => {
     test('with currentUser', async () => {
         expect(firebaseUser$).not.toBeUndefined();
         sampleUser.getIdTokenResult.mockResolvedValue({ token: 'other token' } as any);
-        firebaseAuth.currentUser = sampleUser as User;
+        firebaseAuth.currentUser = sampleUser;
 
         let userInfo: Unwrap<typeof firebaseUser$> | undefined;
         firebaseUser$.react(u => (userInfo = u));
@@ -94,8 +94,8 @@ describe(FirebaseUser$, () => {
     });
 
     test('on idtoken change', async () => {
-        sampleUser.getIdTokenResult?.mockResolvedValueOnce({ token: 'the first token' } as any);
-        firebaseAuth.currentUser = sampleUser as User;
+        sampleUser.getIdTokenResult.mockResolvedValueOnce({ token: 'the first token' } as any);
+        firebaseAuth.currentUser = sampleUser;
 
         let userInfo: Unwrap<typeof firebaseUser$> | undefined;
         firebaseUser$.react(u => (userInfo = u));
