@@ -1,15 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { deleteApp, getApps } from 'firebase/app';
-import {
-    QueryDocumentSnapshot,
-    addDoc,
-    collection,
-    disableNetwork,
-    doc,
-    limit,
-    query,
-    setDoc,
-} from 'firebase/firestore';
+import { QueryDocumentSnapshot, addDoc, collection, disableNetwork, doc, setDoc } from 'firebase/firestore';
 import { NgxSherfireModule } from '../ngx-sherfire.module';
 import { DerivableFirestore } from './derivable-firestore.service';
 import { SherfireFirestore } from './sherfire-firestore.service';
@@ -68,43 +59,5 @@ describe(DerivableFirestore, () => {
         await expect(
             latestCollectionDocs$.toPromise({ when: d => d.get().length === 2 }),
         ).resolves.toIncludeSameMembers([expect.any(QueryDocumentSnapshot), expect.any(QueryDocumentSnapshot)]);
-    });
-
-    test('caching of derivables', () => {
-        const docA = doc(firestore, 'collection/document');
-        const docB = doc(collection(firestore, 'collection'), 'document');
-        // Trigger the cache
-        service.snapshot$(docA).value;
-        service.data$(docA).value;
-
-        expect(docA).not.toBe(docB);
-        expect(service.snapshot$(docA)).toBe(service.snapshot$(docB));
-        expect(service.data$(docA)).toBe(service.data$(docB));
-
-        const colA = collection(firestore, 'collection/document/subcollection');
-        const colB = collection(doc(collection(firestore, 'collection'), 'document'), 'subcollection');
-        // Trigger the cache
-        service.snapshot$(colA).value;
-        service.docs$(colA).value;
-        service.data$(colA).value;
-
-        expect(colA).not.toBe(colB);
-        expect(service.snapshot$(colA)).toBe(service.snapshot$(colB));
-        expect(service.docs$(colA)).toBe(service.docs$(colB));
-        expect(service.data$(colA)).toBe(service.data$(colB));
-
-        // Does not work for queries.
-
-        const qA = query(colA, limit(10));
-        const qB = query(colB, limit(10));
-        // Trigger the cache;
-        service.snapshot$(qA).value;
-        service.docs$(qA).value;
-        service.data$(qA).value;
-
-        expect(colA).not.toBe(colB);
-        expect(service.snapshot$(qA)).not.toBe(service.snapshot$(qB));
-        expect(service.docs$(qA)).not.toBe(service.docs$(qB));
-        expect(service.data$(qA)).not.toBe(service.data$(qB));
     });
 });

@@ -33,8 +33,8 @@ describe(NgxSherfireModule, () => {
     };
     const fakeAuth = {
         app: fakeApp,
-    } as Partial<authModule.Auth> as authModule.Auth;
     } satisfies Partial<authModule.Auth> as authModule.Auth;
+    const fakeFirestore: firestoreModule.Firestore = {
         app: fakeApp,
         type: 'firestore',
         toJSON() {

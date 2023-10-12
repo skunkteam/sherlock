@@ -1,8 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Derivable, DerivableAtom, SettableDerivable, error, lens } from '@skunkteam/sherlock';
-import { DerivableCacheOptions, derivableCache, fromEventPattern } from '@skunkteam/sherlock-utils';
+import { fromEventPattern } from '@skunkteam/sherlock-utils';
 import {
-    CollectionReference,
     DocumentData,
     DocumentReference,
     DocumentSnapshot,
@@ -20,66 +19,61 @@ export class DerivableFirestore {
     constructor(private readonly zone: NgZone) {}
 
     /**
-     * Build a derivable based on a Query or CollectionReference that returns a stream of updated QuerySnapshots that contain all
-     * QueryDocumentSnapshots matching the query.
+     * Build a derivable based on a Query or CollectionReference that updates with a QuerySnapshot (that contains all
+     * QueryDocumentSnapshots matching the query) whenever the QuerySnapshot changes server side.
      */
-    snapshot$<App, Db extends DocumentData>(query: Query<App, Db>): Derivable<QuerySnapshot<App, Db>>;
+    snapshot$<AppType, DbType extends DocumentData>(
+        query: Query<AppType, DbType>,
+    ): Derivable<QuerySnapshot<AppType, DbType>>;
     /**
-     * Build a derivable based on a DocumentReference that returns a stream of updated DocumentSnapshots.
+     * Build a derivable based on a DocumentReference that updates with a DocumentSnapshot whenever the snapshot changes server side.
      */
-    snapshot$<App, Db extends DocumentData>(ref: DocumentReference<App, Db>): Derivable<DocumentSnapshot<App, Db>>;
-    snapshot$<App, Db extends DocumentData>(
-        v: DocumentReference<App, Db> | Query<App, Db>,
-    ): Derivable<DocumentSnapshot<App, Db>> | Derivable<QuerySnapshot<App, Db>> {
+    snapshot$<AppType, DbType extends DocumentData>(
+        ref: DocumentReference<AppType, DbType>,
+    ): Derivable<DocumentSnapshot<AppType, DbType>>;
+    snapshot$<AppType, DbType extends DocumentData>(
+        v: DocumentReference<AppType, DbType> | Query<AppType, DbType>,
+    ): Derivable<DocumentSnapshot<AppType, DbType>> | Derivable<QuerySnapshot<AppType, DbType>> {
         return v instanceof DocumentReference
-            ? this.CACHES.doc.snapshot(v)
-            : v instanceof CollectionReference
-            ? this.CACHES.collection.snapshot(v)
-            : this.querySnapshot$(v);
+            ? fromEventPattern<DocumentSnapshot<AppType, DbType>>(v$ =>
+                  onSnapshot(v, ...this.snapshotEventHandlers(v$)),
+              )
+            : fromEventPattern<QuerySnapshot<AppType, DbType>>(v$ => onSnapshot(v, ...this.snapshotEventHandlers(v$)));
     }
 
     /**
-     * Build a derivable based on a Query or CollectionReference that returns a stream of updates with an array of QueryDocumentSnapshot.
+     * Build a derivable based on a Query or CollectionReference that updates with an array of QueryDocumentSnapshot whenever the
+     * QuerySnapshot changes server side.
      */
-    docs$<App, Db extends DocumentData>(query: Query<App, Db>): Derivable<Array<QueryDocumentSnapshot<App, Db>>> {
-        return query instanceof CollectionReference ? this.CACHES.collection.docs(query) : this.queryDocs$(query);
+    docs$<AppType, DbType extends DocumentData>(
+        query: Query<AppType, DbType>,
+    ): Derivable<Array<QueryDocumentSnapshot<AppType, DbType>>> {
+        return this.snapshot$(query).map(s => s.docs);
     }
 
     /**
-     * Build a derivable based on a Query or CollectionReference that returns a stream of arrays of document contents.
+     * Build a derivable based on a Query or CollectionReference that updates with an array of document contents whenever the
+     * QuerySnapshot changes server side.
      */
-    data$<App, Db extends DocumentData>(query: Query<App, Db>): Derivable<App[]>;
+    data$<AppType, DbType extends DocumentData>(query: Query<AppType, DbType>): Derivable<AppType[]>;
     /**
-     * Build a derivable based on a DocumentReference that returns a stream of document contents. The returned derivable is settable and
-     * setting a value to the derivable will update the firestore document.
+     * Build a derivable based on a DocumentReference that updates with the document contents whenever the snapshot changes server side. The
+     * returned derivable is settable and setting a (non undefined) value to the derivable will update the firestore document server side.
      */
-    data$<App, Db extends DocumentData>(ref: DocumentReference<App, Db>): SettableDerivable<App>;
-    data$<App, Db extends DocumentData>(
-        v: DocumentReference<App, Db> | Query<App, Db>,
-    ): SettableDerivable<App> | Derivable<App[]> {
-        return v instanceof DocumentReference
-            ? this.CACHES.doc.data(v)
-            : v instanceof CollectionReference
-            ? this.CACHES.collection.data(v)
-            : this.queryData$(v);
-    }
-
-    private readonly CACHES = this.buildCaches();
-
-    private querySnapshot$<AppModelType, DbModelType extends DocumentData>(
-        query: Query<AppModelType, DbModelType>,
-    ): Derivable<QuerySnapshot<AppModelType, DbModelType>> {
-        return fromEventPattern<QuerySnapshot<AppModelType, DbModelType>>(value$ =>
-            onSnapshot(query, ...this.snapshotEventHandlers(value$)),
-        );
-    }
-
-    private docSnapshot$<AppModelType, DbModelType extends DocumentData>(
-        ref: DocumentReference<AppModelType, DbModelType>,
-    ): Derivable<DocumentSnapshot<AppModelType, DbModelType>> {
-        return fromEventPattern<DocumentSnapshot<AppModelType, DbModelType>>(value$ =>
-            onSnapshot(ref, ...this.snapshotEventHandlers(value$)),
-        );
+    data$<AppType, DbType extends DocumentData>(
+        ref: DocumentReference<AppType, DbType>,
+    ): SettableDerivable<AppType | undefined>;
+    data$<AppType, DbType extends DocumentData>(
+        v: DocumentReference<AppType, DbType> | Query<AppType, DbType>,
+    ): SettableDerivable<AppType | undefined> | Derivable<AppType[]> {
+        if (v instanceof DocumentReference) {
+            const snapshot$ = this.snapshot$(v);
+            return lens({
+                get: () => snapshot$.get().data(),
+                set: newValue => newValue != null && setDoc(v, newValue),
+            });
+        }
+        return this.snapshot$(v).map(s => s.docs.map(d => d.data()));
     }
 
     private snapshotEventHandlers<T>(value$: DerivableAtom<T>) {
@@ -88,49 +82,5 @@ export class DerivableFirestore {
             // istanbul ignore next, because I don't know how to force that to happen
             (err: FirestoreError) => this.zone.run(() => value$.setFinal(error(err))),
         ] as const;
-    }
-
-    private queryDocs$<AppModelType, DbModelType extends DocumentData>(
-        query: Query<AppModelType, DbModelType>,
-    ): Derivable<Array<QueryDocumentSnapshot<AppModelType, DbModelType>>> {
-        return this.snapshot$(query).map(s => s.docs);
-    }
-
-    private queryData$<AppModelType, DbModelType extends DocumentData>(
-        query: Query<AppModelType, DbModelType>,
-    ): Derivable<AppModelType[]> {
-        return this.docs$(query).map(snaps => snaps.map(snap => snap.data()));
-    }
-
-    private buildCaches() {
-        const CACHE_OPTIONS: DerivableCacheOptions<
-            DocumentReference<any, any> | CollectionReference<any, any>,
-            string
-        > = {
-            delayedEviction: true,
-            mapKeys: v => v.path,
-        };
-
-        return {
-            collection: {
-                snapshot: derivableCache(
-                    (ref: CollectionReference<any, any>) => this.querySnapshot$(ref),
-                    CACHE_OPTIONS,
-                ),
-                docs: derivableCache((ref: CollectionReference<any, any>) => this.queryDocs$(ref), CACHE_OPTIONS),
-                data: derivableCache((ref: CollectionReference<any, any>) => this.queryData$(ref), CACHE_OPTIONS),
-            },
-            doc: {
-                snapshot: derivableCache((ref: DocumentReference<any, any>) => this.docSnapshot$(ref), CACHE_OPTIONS),
-                data: derivableCache(
-                    (ref: DocumentReference<any, any>) =>
-                        lens({
-                            get: () => this.snapshot$(ref).get().data(),
-                            set: newValue => newValue != null && setDoc(ref, newValue),
-                        }),
-                    CACHE_OPTIONS,
-                ),
-            },
-        } as const;
     }
 }
