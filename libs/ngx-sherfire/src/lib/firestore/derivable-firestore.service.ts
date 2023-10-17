@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Derivable, DerivableAtom, SettableDerivable, error, lens } from '@skunkteam/sherlock';
+import { Derivable, SettableDerivable, Unwrap, error, lens } from '@skunkteam/sherlock';
 import { fromEventPattern } from '@skunkteam/sherlock-utils';
 import {
     DocumentData,
@@ -32,13 +32,19 @@ export class DerivableFirestore {
         ref: DocumentReference<AppType, DbType>,
     ): Derivable<DocumentSnapshot<AppType, DbType>>;
     snapshot$<AppType, DbType extends DocumentData>(
-        v: DocumentReference<AppType, DbType> | Query<AppType, DbType>,
-    ): Derivable<DocumentSnapshot<AppType, DbType>> | Derivable<QuerySnapshot<AppType, DbType>> {
-        return v instanceof DocumentReference
-            ? fromEventPattern<DocumentSnapshot<AppType, DbType>>(v$ =>
-                  onSnapshot(v, ...this.snapshotEventHandlers(v$)),
-              )
-            : fromEventPattern<QuerySnapshot<AppType, DbType>>(v$ => onSnapshot(v, ...this.snapshotEventHandlers(v$)));
+        refOrQuery: DocumentReference<AppType, DbType> | Query<AppType, DbType>,
+    ): Derivable<DocumentSnapshot<AppType, DbType> | QuerySnapshot<AppType, DbType>> {
+        return fromEventPattern(v$ => {
+            const onNext = (snap: Unwrap<typeof v$>) => this.zone.run(() => v$.set(snap));
+            // istanbul ignore next, because I don't know how to force that to happen
+            const onError = (err: FirestoreError) => this.zone.run(() => v$.setFinal(error(err)));
+            // `onSnapshot` doesn't have a merged signature that accepts both `DocumentReference`s and `Query`s. The following ternary
+            // expression is obviously unnecessary at runtime, but this is the safest way to make sure that we get warned by TypeScript
+            // if the signature of `onSnapshot` gets changed in a future release.
+            return refOrQuery instanceof DocumentReference
+                ? onSnapshot(refOrQuery, onNext, onError)
+                : onSnapshot(refOrQuery, onNext, onError);
+        });
     }
 
     /**
@@ -74,13 +80,5 @@ export class DerivableFirestore {
             });
         }
         return this.snapshot$(v).map(s => s.docs.map(d => d.data()));
-    }
-
-    private snapshotEventHandlers<T>(value$: DerivableAtom<T>) {
-        return [
-            (snap: T) => this.zone.run(() => value$.set(snap)),
-            // istanbul ignore next, because I don't know how to force that to happen
-            (err: FirestoreError) => this.zone.run(() => value$.setFinal(error(err))),
-        ] as const;
     }
 }
