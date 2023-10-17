@@ -1,1 +1,2 @@
-export { FirebaseFirestore } from './firebase-firestore.service';
+export { DerivableFirestore } from './derivable-firestore.service';
+export { SherfireFirestore } from './sherfire-firestore.service';

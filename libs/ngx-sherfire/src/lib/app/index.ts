@@ -1,1 +1,1 @@
-export { FirebaseApp } from './firebase-app.service';
+export { SherfireApp } from './sherfire-app.service';

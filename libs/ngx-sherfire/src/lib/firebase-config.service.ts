@@ -1,15 +1,9 @@
-import type firebase from 'firebase/app';
+import type { FirebaseAppSettings, FirebaseOptions } from 'firebase/app';
+import type { FirestoreSettings } from 'firebase/firestore';
 
 export abstract class FirebaseConfig {
-    abstract apiKey: string;
-    abstract authDomain: string;
-    abstract databaseURL: string;
-    abstract projectId: string;
-    // locationId: string;
-    abstract storageBucket: string;
-    abstract messagingSenderId: string;
-    abstract appId: string;
-
-    abstract firestoreSettings?: firebase.firestore.Settings;
+    abstract firestoreSettings?: FirestoreSettings;
     abstract firestoreEmulator?: { host: string; port: number };
+    abstract appSettings?: FirebaseAppSettings;
 }
+export interface FirebaseConfig extends FirebaseOptions {}
