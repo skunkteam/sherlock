@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.0.0](https://github.com/skunkteam/sherlock/compare/v7.0.0...v8.0.0) (2023-10-17)
+
+### ⚠ BREAKING CHANGES
+
+-   **ngx-sherlock:** upgrade to firestore 10 with modular API (#50)
+
+### Features
+
+-   **ngx-sherlock:** upgrade to firestore 10 with modular API ([#50](https://github.com/skunkteam/sherlock/issues/50)) ([efdea42](https://github.com/skunkteam/sherlock/commit/efdea424854b2881a5a69deb47de5f281af9739c))
+
 ## [7.0.0](https://github.com/skunkteam/sherlock/compare/v6.4.1...v7.0.0) (2023-06-22)
 
 ### ⚠ BREAKING CHANGES
