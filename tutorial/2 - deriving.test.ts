@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { atom, Derivable, derive } from '../libs/sherlock/src';
 
 /**
@@ -33,11 +32,11 @@ describe.skip('deriving', () => {
          */
         const lyric$ = text$.derive(txt => txt); // We can combine txt with `repeat$.get()` here.
 
-        expect(lyric$.get()).to.equal(`It won't be long`);
+        expect(lyric$.get()).toEqual(`It won't be long`);
 
         text$.set(' yeah');
         repeat$.set(3);
-        expect(lyric$.get()).to.equal(` yeah yeah yeah`);
+        expect(lyric$.get()).toEqual(` yeah yeah yeah`);
     });
 
     /**
@@ -61,9 +60,9 @@ describe.skip('deriving', () => {
         const buzz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
         const fizzBuzz$: Derivable<string | number> = derive(__YOUR_TURN__);
 
-        expect(fizz$.get()).to.equal('');
-        expect(buzz$.get()).to.equal('');
-        expect(fizzBuzz$.get()).to.equal(1);
+        expect(fizz$.get()).toEqual('');
+        expect(buzz$.get()).toEqual('');
+        expect(fizzBuzz$.get()).toEqual(1);
         for (let count = 1; count <= 100; count++) {
             // Set the value of the `Atom`,
             myCounter$.set(count);
@@ -74,14 +73,18 @@ describe.skip('deriving', () => {
     });
 
     function checkFizzBuzz(count: number, out: string | number) {
-        if (count % 3 + count % 5 === 0) {  // If `count` is a multiple of 3 AND 5, output 'FizzBuzz'.
-            expect(out).to.equal('FizzBuzz');
-        } else if (count % 3 === 0) {       // If `count` is a multiple of 3, output 'Fizz'.
-            expect(out).to.equal('Fizz');
-        } else if (count % 5 === 0) {       // If `count` is a multiple of 5, output 'Buzz'.
-            expect(out).to.equal('Buzz');
-        } else {                            // Otherwise just output the `count` itself.
-            expect(out).to.equal(count);
+        if ((count % 3) + (count % 5) === 0) {
+            // If `count` is a multiple of 3 AND 5, output 'FizzBuzz'.
+            expect(out).toEqual('FizzBuzz');
+        } else if (count % 3 === 0) {
+            // If `count` is a multiple of 3, output 'Fizz'.
+            expect(out).toEqual('Fizz');
+        } else if (count % 5 === 0) {
+            // If `count` is a multiple of 5, output 'Buzz'.
+            expect(out).toEqual('Buzz');
+        } else {
+            // Otherwise just output the `count` itself.
+            expect(out).toEqual(count);
         }
     }
 
@@ -104,16 +107,16 @@ describe.skip('deriving', () => {
         });
 
         // The first tweet should have automatically been added to the `pastTweets` array.
-        expect(pastTweets).to.have.length(1);
-        expect(pastTweets[0]).to.contain('Barack');
-        expect(pastTweets[0]).to.contain('First tweet');
+        expect(pastTweets).toHaveLength(1);
+        expect(pastTweets[0]).toContain('Barack');
+        expect(pastTweets[0]).toContain('First tweet');
 
         // Let's add a famous quote by Mr Barack:
         tweet$.set('We need to reject any politics that targets people because of race or religion.');
         // As expected this is automatically added to the log.
-        expect(pastTweets).to.have.length(2);
-        expect(pastTweets[1]).to.contain('Barack');
-        expect(pastTweets[1]).to.contain('reject');
+        expect(pastTweets).toHaveLength(2);
+        expect(pastTweets[1]).toContain('Barack');
+        expect(pastTweets[1]).toContain('reject');
 
         // But what if the user changes?
         currentUser$.set('Donald');
@@ -122,9 +125,9 @@ describe.skip('deriving', () => {
          * **Your Turn**
          * Time to set your own expectations.
          */
-        expect(pastTweets).to.have.length(2); // Is there a new tweet?
-        expect(pastTweets[2]).to.contain(__YOUR_TURN__); // Who sent it? Donald? Or Barack?
-        expect(pastTweets[2]).to.contain(__YOUR_TURN__); // What did he tweet?
+        expect(pastTweets).toHaveLength(2); // Is there a new tweet?
+        expect(pastTweets[2]).toContain(__YOUR_TURN__); // Who sent it? Donald? Or Barack?
+        expect(pastTweets[2]).toContain(__YOUR_TURN__); // What did he tweet?
 
         /**
          * As you can see, this is something to look out for.
@@ -158,8 +161,16 @@ describe.skip('deriving', () => {
          * `fizz$` and `buzz$` can be completed with only `.is(...)`, `.and(...)` and `.or(...)`;
          * Make sure the output of those `Derivable`s is either 'Fizz'/'Buzz' or ''.
          */
-        const fizz$ = myCounter$.derive(count => count % 3).is(__YOUR_TURN__).and(__YOUR_TURN__).or(__YOUR_TURN__) as Derivable<string>;
-        const buzz$ = myCounter$.derive(count => count % 5).is(__YOUR_TURN__).and(__YOUR_TURN__).or(__YOUR_TURN__) as Derivable<string>;
+        const fizz$ = myCounter$
+            .derive(count => count % 3)
+            .is(__YOUR_TURN__)
+            .and(__YOUR_TURN__)
+            .or(__YOUR_TURN__) as Derivable<string>;
+        const buzz$ = myCounter$
+            .derive(count => count % 5)
+            .is(__YOUR_TURN__)
+            .and(__YOUR_TURN__)
+            .or(__YOUR_TURN__) as Derivable<string>;
         const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(__YOUR_TURN__);
 
         for (let count = 1; count <= 100; count++) {
