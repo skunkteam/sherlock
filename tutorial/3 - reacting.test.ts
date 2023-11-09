@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { atom } from '../libs/sherlock/src';
 
 /**
@@ -16,19 +15,25 @@ describe.skip('reacting', () => {
     let wasCalledTimes: number;
     // and record the last value it reacted to.
     let lastValue: any;
-    beforeEach('reset the values', () => {
+
+    // reset the values
+    beforeEach(() => {
         wasCalledTimes = 0;
         lastValue = undefined;
     });
+
     // The reactor to be given to the `.react()` method.
     function reactor(val: any) {
         wasCalledTimes++;
         lastValue = val;
     }
+
     // Of course we are lazy and don't want to type these assertions over and over. :-)
     function expectReact(reactions: number, value?: any) {
-        expect(wasCalledTimes, 'Reaction was called # times').to.equal(reactions);
-        expect(lastValue, 'Last value of the reaction was #').to.equal(value);
+        // Reaction was called # times
+        expect(wasCalledTimes).toEqual(reactions);
+        // Last value of the reaction was #
+        expect(lastValue).toEqual(value);
     }
 
     /**
@@ -42,7 +47,7 @@ describe.skip('reacting', () => {
     it('reacting synchronously', () => {
         const myAtom$ = atom('initial value');
         // A trivial `expect` to silence TypeScript's noUnusedLocals.
-        expect(myAtom$.get()).to.equal('initial value');
+        expect(myAtom$.get()).toEqual('initial value');
 
         // There should not have been a reaction yet
         expectReact(0);
@@ -70,7 +75,7 @@ describe.skip('reacting', () => {
         it('with the stopper function', () => {
             const myAtom$ = atom('initial value');
             // A trivial `expect` to silence TypeScript's noUnusedLocals
-            expect(myAtom$.get()).to.equal('initial value');
+            expect(myAtom$.get()).toEqual('initial value');
 
             /**
              * **Your Turn**
@@ -97,7 +102,7 @@ describe.skip('reacting', () => {
         it('with the stopper callback', () => {
             const myAtom$ = atom('initial value');
             // A trivial `expect` to silence TypeScript's noUnusedLocals
-            expect(myAtom$.get()).to.equal('initial value');
+            expect(myAtom$.get()).toEqual('initial value');
 
             /**
              * **Your Turn**
@@ -115,7 +120,6 @@ describe.skip('reacting', () => {
             // And the reaction stopped.
             expectReact(1, 'initial value');
         });
-
     });
 
     /**
@@ -135,7 +139,8 @@ describe.skip('reacting', () => {
         describe('reacting `until`', () => {
             const boolean$ = atom(false);
             const string$ = atom('Value');
-            beforeEach('reset', () => {
+            beforeEach(() => {
+                // reset
                 boolean$.set(false);
                 string$.set('Value');
             });
@@ -149,17 +154,17 @@ describe.skip('reacting', () => {
                  * Try giving `boolean$` as `until` option.
                  */
                 string$.react(reactor, __YOUR_TURN__);
-                expectReact(1, 'Value');     // It should react directly as usual.
+                expectReact(1, 'Value'); // It should react directly as usual.
 
                 string$.set('New value');
                 expectReact(2, 'New value'); // It should keep reacting as usual.
 
-                boolean$.set(true);          // We set `boolean$` to true, to stop the reaction
+                boolean$.set(true); // We set `boolean$` to true, to stop the reaction
                 expectReact(2, 'New value'); // The reactor has immediately stopped, so it still reacted only twice.
 
-                boolean$.set(false);            // Even when `boolean$` is set to `false` again
-                string$.set('Another value');   // And a new value is introduced
-                expectReact(2, 'New value');    // The reactor won't start up again, so it still reacted only twice.
+                boolean$.set(false); // Even when `boolean$` is set to `false` again
+                string$.set('Another value'); // And a new value is introduced
+                expectReact(2, 'New value'); // The reactor won't start up again, so it still reacted only twice.
             });
 
             /**
@@ -177,7 +182,7 @@ describe.skip('reacting', () => {
                 string$.set('Newer Value');
                 expectReact(3, 'Newer Value'); // It should react as usual.
 
-                string$.set('');               // We set `string$` to an empty string, to stop the reaction
+                string$.set(''); // We set `string$` to an empty string, to stop the reaction
                 expectReact(3, 'Newer Value'); // The reactor was immediately stopped, so even the empty string was never given to the reactor
             });
 
@@ -195,7 +200,7 @@ describe.skip('reacting', () => {
                 string$.set('Newer Value');
                 expectReact(3, 'Newer Value'); // It should react as usual.
 
-                string$.set('');               // We set `string$` to an empty string, to stop the reaction
+                string$.set(''); // We set `string$` to an empty string, to stop the reaction
                 expectReact(3, 'Newer Value'); // The reactor was immediately stopped, so even the empty string was never given to the reactor
             });
         });
@@ -298,7 +303,6 @@ describe.skip('reacting', () => {
             finished$.set(true);
             expectReact(1, true);
         });
-
     });
 
     describe('challenge', () => {
@@ -325,8 +329,7 @@ describe.skip('reacting', () => {
             expectReact(1, false);
 
             // It should not react again after this
-            expect(connected$.connected).to.be.false;
+            expect(connected$.connected).toBeFalse;
         });
-
     });
 });
