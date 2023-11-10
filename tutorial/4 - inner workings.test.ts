@@ -1,6 +1,4 @@
-import { expect } from 'chai';
 import { Seq } from 'immutable';
-import { spy } from 'sinon';
 import { atom } from '../libs/sherlock/src';
 
 /**
@@ -22,15 +20,20 @@ describe.skip('inner workings', () => {
         const number$ = atom(1);
         const string$ = atom('one');
 
-        const reacted = spy();
+        const reacted = jest.fn();
 
         switch$
             // This `.derive()` is the one we are testing when true, it will return the `number` otherwise the `string`
-            .derive(s => s ? number$.get() : string$.get())
+            .derive(s => (s ? number$.get() : string$.get()))
+            // Note: reacted is being called as reacted(value, stop),
+            // where stop is a function used to stop the reaction from within reacted.
             .react(reacted);
 
-        // The first time should not surprise anyone, the derivation was called and returned the right result
-        expect(reacted).to.have.been.calledOnceWith(1);
+        // The first time should not surprise anyone, the derivation
+        // was called and returned the right result.
+        // Again note here the second expectation (.toBeFunction()) to
+        // catch the stop function that was part of the .react() signature.
+        expect(reacted).toHaveBeenCalledExactlyOnceWith(1, expect.toBeFunction());
 
         // `switch$` is still set to true (number)
         string$.set('two');
@@ -39,8 +42,8 @@ describe.skip('inner workings', () => {
          * **Your Turn**
          * What do you expect?
          */
-        expect(reacted).to.have.callCount(__YOUR_TURN__);
-        expect(reacted.lastCall).to.be.calledWith(__YOUR_TURN__);
+        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
 
         // `switch$` is still set to true (number)
         number$.set(2);
@@ -49,11 +52,11 @@ describe.skip('inner workings', () => {
          * **Your Turn**
          * What do you expect?
          */
-        expect(reacted).to.have.callCount(__YOUR_TURN__);
-        expect(reacted.lastCall).to.be.calledWith(__YOUR_TURN__);
+        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
 
         // Now let's reset the spy, so callCount should be 0 again.
-        reacted.resetHistory();
+        reacted.mockClear();
 
         // `switch$` is set to false (string)
         switch$.set(false);
@@ -63,8 +66,8 @@ describe.skip('inner workings', () => {
          * **Your Turn**
          * What do you expect now?
          */
-        expect(reacted).to.have.callCount(__YOUR_TURN__);
-        expect(reacted.lastCall).to.be.calledWith(__YOUR_TURN__);
+        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
     });
 
     /**
@@ -72,7 +75,7 @@ describe.skip('inner workings', () => {
      * So let's test this.
      */
     it('lazy execution', () => {
-        const hasDerived = spy();
+        const hasDerived = jest.fn();
 
         const myAtom$ = atom(true);
         const myDerivation$ = myAtom$.derive(hasDerived);
@@ -81,18 +84,17 @@ describe.skip('inner workings', () => {
          * **Your Turn**
          * We have created a new `Derivable` by deriving the `Atom`. But have not called `.get()` on that new `Derivable`.
          * Do you think the `hasDerived` function has been called? And how many times?
-         *
          * *Hint: you can use sinonChai's `.to.have.been.called`/`.to.have.been.calledOnce`/`to.have.callCount(...)`/etc..*
          */
-        expect(hasDerived).to.have.callCount(__YOUR_TURN__); // Well, what do you expect?
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // Well, what do you expect?
 
         myDerivation$.get();
 
-        expect(hasDerived).to.have.callCount(__YOUR_TURN__); // And after a `.get()`?
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // And after a `.get()`?
 
         myDerivation$.get();
 
-        expect(hasDerived).to.have.callCount(__YOUR_TURN__); // And after the second `.get()`? Is there an extra call?
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // And after the second `.get()`? Is there an extra call?
 
         /**
          * The state of any `Derivable` can change at any moment.
@@ -108,13 +110,13 @@ describe.skip('inner workings', () => {
      * So a `.get()` should not have to be calculated.
      */
     it('while reacting', () => {
-        const hasDerived = spy();
+        const hasDerived = jest.fn();
 
         const myAtom$ = atom(true);
         const myDerivation$ = myAtom$.derive(hasDerived);
 
         // It should not have done anything at this moment
-        expect(hasDerived).to.not.have.been.called;
+        expect(hasDerived).not.toHaveBeenCalled();
 
         const stopper = myDerivation$.react(() => '');
 
@@ -123,27 +125,27 @@ describe.skip('inner workings', () => {
          * Ok, it's your turn to complete the expectations.
          * *Hint: you can use `.calledOnce`/`.calledTwice` etc or `.callCount()`*
          */
-        expect(hasDerived).to.have.callCount(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myDerivation$.get();
 
-        expect(hasDerived).to.have.callCount(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myAtom$.set(false);
 
-        expect(hasDerived).to.have.callCount(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myDerivation$.get();
 
-        expect(hasDerived).to.have.callCount(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         stopper();
 
-        expect(hasDerived).to.have.callCount(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myDerivation$.get();
 
-        expect(hasDerived).to.have.callCount(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         /**
          * Since the `.react()` already listens to the value(changes) there is no need to recalculate whenever a `.get()` is called.
@@ -156,8 +158,8 @@ describe.skip('inner workings', () => {
      * But there is one more trick up it's sleeve.
      */
     it('cached changes', () => {
-        const first = spy();
-        const second = spy();
+        const first = jest.fn();
+        const second = jest.fn();
 
         const myAtom$ = atom(1);
         const first$ = myAtom$.derive(i => {
@@ -167,14 +169,14 @@ describe.skip('inner workings', () => {
         const second$ = first$.derive(second);
 
         // As always, they should not have fired yet
-        expect(first).to.not.have.been.called;
-        expect(second).to.not.have.been.called;
+        expect(first).not.toHaveBeenCalled();
+        expect(second).not.toHaveBeenCalled();
 
         second$.react(() => '');
 
         // And as expected, they now should both have fired once
-        expect(first).to.have.been.calledOnce;
-        expect(second).to.have.been.calledOnce;
+        expect(first).toHaveBeenCalledOnce();
+        expect(second).toHaveBeenCalledOnce();
 
         /**
          * **Your Turn**
@@ -182,23 +184,23 @@ describe.skip('inner workings', () => {
          */
         myAtom$.set(1); // Note that this is the same value as it was initialized with
 
-        expect(first).to.have.callCount(__YOUR_TURN__);
-        expect(second).to.have.callCount(__YOUR_TURN__);
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myAtom$.set(2);
 
-        expect(first).to.have.callCount(__YOUR_TURN__);
-        expect(second).to.have.callCount(__YOUR_TURN__);
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myAtom$.set(3);
 
-        expect(first).to.have.callCount(__YOUR_TURN__);
-        expect(second).to.have.callCount(__YOUR_TURN__);
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myAtom$.set(4);
 
-        expect(first).to.have.callCount(__YOUR_TURN__);
-        expect(second).to.have.callCount(__YOUR_TURN__);
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         /**
          * Can you explain the behavior above?
@@ -218,7 +220,7 @@ describe.skip('inner workings', () => {
      */
     it('equality', () => {
         const atom$ = atom<unknown>({});
-        const hasReacted = spy();
+        const hasReacted = jest.fn();
 
         atom$.react(hasReacted, { skipFirst: true });
 
@@ -228,7 +230,7 @@ describe.skip('inner workings', () => {
          * **Your Turn**
          * The `Atom` is set with exactly the same object as before. Will the `.react()` fire?
          */
-        expect(hasReacted).to.have.callCount(__YOUR_TURN__);
+        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         /**
          * But what if you use an object, that can be easily compared through a library like `ImmutableJS`
@@ -236,15 +238,15 @@ describe.skip('inner workings', () => {
          */
         atom$.set(Seq.Indexed.of(1, 2, 3));
         // Let's reset the spy here, to start over
-        hasReacted.resetHistory();
-        expect(hasReacted).to.not.have.been.called;
+        hasReacted.mockClear();
+        expect(hasReacted).not.toHaveBeenCalled();
 
         atom$.set(Seq.Indexed.of(1, 2, 3));
         /**
          * **Your Turn**
          * Do you think the `.react()` fired with this new value?
          */
-        expect(hasReacted).to.have.callCount(__YOUR_TURN__);
+        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         atom$.set(Seq.Indexed.of(1, 2));
 
@@ -252,7 +254,7 @@ describe.skip('inner workings', () => {
          * **Your Turn**
          * And now?
          */
-        expect(hasReacted).to.have.callCount(__YOUR_TURN__);
+        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         /**
          * In `@politie/sherlock` equality is a bit complex.
@@ -271,15 +273,15 @@ describe.skip('inner workings', () => {
         const number$ = atom(1);
         const string$ = atom('one');
 
-        const reacted = spy();
+        const reacted = jest.fn();
 
         switch$
             // This `.derive()` is the one we are testing when true, it will return the `number` otherwise the `string`
-            .derive(s => s ? number$.get() : string$.get())
+            .derive(s => (s ? number$.get() : string$.get()))
             .react(reacted);
 
         // The first time should not surprise anyone, the derivation was called and returned the right result
-        expect(reacted).to.have.been.calledOnceWith(1);
+        expect(reacted).toHaveBeenCalledExactlyOnceWith(1, expect.toBeFunction());
 
         // `switch$` is still set to true (number)
         string$.set('two');
@@ -288,7 +290,7 @@ describe.skip('inner workings', () => {
          * **Your Turn**
          * What do you expect?
          */
-        expect(reacted).to.have.callCount(__YOUR_TURN__);
+        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         // `switch$` is still set to true (number)
         number$.set(2);
@@ -297,10 +299,10 @@ describe.skip('inner workings', () => {
          * **Your Turn**
          * What do you expect?
          */
-        expect(reacted).to.have.callCount(__YOUR_TURN__);
+        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         // Now let's reset the spy, so callCount should be 0 again.
-        reacted.resetHistory();
+        reacted.mockClear();
 
         // `switch$` is set to false (string)
         switch$.set(false);
@@ -310,6 +312,6 @@ describe.skip('inner workings', () => {
          * **Your Turn**
          * What do you expect now?
          */
-        expect(reacted).to.have.callCount(__YOUR_TURN__);
+        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
     });
 });
