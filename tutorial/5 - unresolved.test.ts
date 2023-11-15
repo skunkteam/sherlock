@@ -1,4 +1,4 @@
-import { atom, Derivable, DerivableAtom } from '../libs/sherlock/src';
+import { atom, Derivable, DerivableAtom } from '@skunkteam/sherlock';
 
 /**
  * **Your Turn**

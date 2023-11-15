@@ -1,4 +1,4 @@
-import { atom } from '../libs/sherlock/src';
+import { atom } from '@skunkteam/sherlock';
 
 /**
  * **Your Turn**

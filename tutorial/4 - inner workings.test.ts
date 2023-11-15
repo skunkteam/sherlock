@@ -1,5 +1,5 @@
+import { atom } from '@skunkteam/sherlock';
 import { Seq } from 'immutable';
-import { atom } from '../libs/sherlock/src';
 
 /**
  * **Your Turn**
