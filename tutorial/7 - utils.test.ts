@@ -18,7 +18,7 @@ describe.skip('utils', () => {
      * *Note functions like `pairwise` and `scan` can be used with any callback. So it can be used both in a `.derive()` step and in a `.react()`*
      */
     it('pairwise', () => {
-        expect(pairwise).toBe(pairwise); // use `pairwise` so the import is used. --> Does it work like this?
+        expect(pairwise).toBe(pairwise); // use `pairwise` so the import is used.
 
         const myCounter$ = atom(1);
         const reactSpy = jest.fn();

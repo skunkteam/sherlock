@@ -54,7 +54,7 @@ describe.skip('unresolved', () => {
          */
         expect(myAtom$.resolved).toEqual(__YOUR_TURN__);
 
-        // .toThrow() or .not.toThrow()?
+        // .toThrow() or .not.toThrow()? ↴
         expect(() => myAtom$.get()) /*__YOUR_TURN__*/;
     });
 
