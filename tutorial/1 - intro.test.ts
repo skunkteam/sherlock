@@ -39,15 +39,13 @@ describe('intro', () => {
         expect(bool).toBeFalse();
 
         /**
-         * If **Your Turn** is shown in a comment, there is work for you to do.
+         * If ** Your Turn ** is shown in a comment, there is work for you to do.
          * This can also be indicated with the `__YOUR_TURN__` variable.
          *
-         * It should be clear what to do here...
-         */
+         * It should be clear what to do here... */
         bool = __YOUR_TURN__;
-
-        // We use expectations like this to verify the result.
         expect(bool).toBeTrue();
+        // We use expectations like this to verify the result.
     });
 });
 

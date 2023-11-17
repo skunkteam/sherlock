@@ -1,36 +1,43 @@
 import { atom, Derivable, derive } from '@skunkteam/sherlock';
 
 /**
- * **Your Turn**
+ * ** Your Turn **
+ *
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
 
 /**
- * Any `Derivable` (including `Atom`s) can be used (and/or combined) to create a derived state.
- * This derived state is in turn a `Derivable`.
+ * Any `Derivable` (including `Atom`s) can be used (and/or combined) to create
+ * a derived state. This derived state is in turn a `Derivable`.
  *
  * There are a couple of ways to do this.
  */
-describe.skip('deriving', () => {
+describe('deriving', () => {
     /**
      * In the 'intro' we have created a derivable by using the `.derive()` method.
-     * This method allows the state of that `Derivable` to be used to create a new `Derivable`.
+     * This method allows the state of that `Derivable` to be used to create a
+     * new `Derivable`.
      *
      * In the derivation, other `Derivable`s can be used as well.
-     * If a `Derivable.get()` is called inside a derivation, the changes to that `Derivable` are also tracked and kept up to date.
+     * If a `Derivable.get()` is called inside a derivation, the changes to that
+     * `Derivable` are also tracked and kept up to date.
      */
     it('combining `Derivable`s', () => {
         const repeat$ = atom(1);
         const text$ = atom(`It won't be long`);
 
         /**
-         * **Your Turn**
+         * ** Your Turn **
+         *
          * Let's create some lyrics by combining `text$` and `repeat$`.
          * As you might have guessed, we want to repeat the text a couple of times.
+         *
          * (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat should do fine)
          */
-        const lyric$ = text$.derive(txt => txt); // We can combine txt with `repeat$.get()` here.
+
+        // We can combine txt with `repeat$.get()` here.
+        const lyric$ = text$.derive(txt => txt /* __YOUR_TURN__ */ );
 
         expect(lyric$.get()).toEqual(`It won't be long`);
 
@@ -40,24 +47,38 @@ describe.skip('deriving', () => {
     });
 
     /**
-     * Now that we have used `.get()` in a `.derive()`. You may wonder, can we skip the original `Derivable` and just call the function `derive()`?
+     * Now that we have used `.get()` in a `.derive()`. You may wonder, can
+     * we skip the original `Derivable` and just call the function `derive()`?
+     *
      * Of course you can!
      *
-     * And you can use any `Derivable` you want, even if they all have the same `Atom` as a parent.
+     * And you can use any `Derivable` you want, even if they all have the same
+     * `Atom` as a parent.
      */
     it('the `derive()` function', () => {
         const myCounter$ = atom(1);
 
         /**
-         * **Your Turn**
-         * Let's try creating a `Derivable` [FizzBuzz](https://en.wikipedia.org/wiki/Fizz_buzz)
-         * `fizzBuzz$` should combine `fizz$`, `buzz$` and `myCounter$` to produce the correct output.
+         * ** Your Turn **
          *
-         * Multiple `Derivable`s can be combined to create a new one. To do this, just use `.get()` on (other) `Derivable`s in the `.derive()` step.
-         * This can be done both when `derive()` is used standalone or as a method on another `Derivable`.
+         * Let's try creating a `Derivable` [FizzBuzz](https://en.wikipedia.org/wiki/Fizz_buzz).
+         * `fizzBuzz$` should combine `fizz$`, `buzz$` and `myCounter$` to
+         * produce the correct output.
+         *
+         * Multiple `Derivable`s can be combined to create a new one. To do
+         * this, just use `.get()` on (other) `Derivable`s in the `.derive()`
+         * step.
+         *
+         * This can be done both when `derive()` is used standalone or as a
+         * method on another `Derivable`.
          */
-        const fizz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); // Should return 'Fizz' when `myCounter$` is a multiple of 3 and '' otherwise.
-        const buzz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
+
+        // Should return 'Fizz' when `myCounter$` is a multiple of 3 and '' otherwise.
+        const fizz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__);
+
+        // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
+        const buzz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__);
+
         const fizzBuzz$: Derivable<string | number> = derive(__YOUR_TURN__);
 
         expect(fizz$.get()).toEqual('');
@@ -89,17 +110,20 @@ describe.skip('deriving', () => {
     }
 
     /**
-     * The automatic tracking of `.get()` calls will also happen inside called `function`s.
-     * This can be really powerful, but also dangerous. One of the dangers is shown here.
+     * The automatic tracking of `.get()` calls will also happen inside called
+     * `function`s.
+     *
+     * This can be really powerful, but also dangerous. One of the dangers is
+     * shown here.
      */
     it('indirect derivations', () => {
         const pastTweets = [] as string[];
         const currentUser$ = atom('Barack');
+        const tweet$ = atom('First tweet');
+
         function log(tweet: string) {
             pastTweets.push(`${currentUser$.get()} - ${tweet}`);
         }
-
-        const tweet$ = atom('First tweet');
 
         tweet$.derive(log).react(txt => {
             // Normally we would do something with the tweet here.
@@ -122,18 +146,23 @@ describe.skip('deriving', () => {
         currentUser$.set('Donald');
 
         /**
-         * **Your Turn**
+         * ** Your Turn **
+         *
          * Time to set your own expectations.
          */
-        expect(pastTweets).toHaveLength(2); // Is there a new tweet?
-        expect(pastTweets[2]).toContain(__YOUR_TURN__); // Who sent it? Donald? Or Barack?
-        expect(pastTweets[2]).toContain(__YOUR_TURN__); // What did he tweet?
+        const tweetCount = pastTweets.length;
+        const lastTweet = pastTweets[tweetCount - 1];
+
+        expect(tweetCount).toEqual(__YOUR_TURN__); // Is there a new tweet?
+        expect(lastTweet).toContain(__YOUR_TURN__); // Who sent it? Donald? Or Barack?
+        expect(lastTweet).toContain(__YOUR_TURN__); // What did he tweet?
 
         /**
          * As you can see, this is something to look out for.
          * Luckily there are ways to circumvent this. But more on that later.
          *
-         * *Note that this behavior can also be really helpful if you know what you are doing*
+         * * Note that this behavior can also be really helpful if you know what
+         *   you are doing *
          */
     });
 
@@ -142,35 +171,45 @@ describe.skip('deriving', () => {
      * These are methods that make common derivations a bit easier.
      *
      * These methods are: `.and()`, `.or()`, `.is()` and `.not()`.
-     * Their function is as you would expect from `boolean` operators in a JavaScript environment.
+     *
+     * Their function is as you would expect from `boolean` operators in a
+     * JavaScript environment.
+     *
      * The first three will take a `Derivable` or regular value as parameter.
      * `.not()` does not need any input.
      *
-     * `.is()` will resolve equality in the same way as `@politie/sherlock` would do internally.
-     * More on the equality check in the 'inner workings' part. But know that the first check is
-     * [Object.is()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
+     * `.is()` will resolve equality in the same way as `@skunkteam/sherlock`
+     * would do internally.
+     *
+     * More on the equality check in the 'inner workings' part. But know that
+     * the first check is [Object.is()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
      */
     it('convenience methods', () => {
         const myCounter$ = atom(1);
 
         /**
-         * **Your Turn**
-         * The FizzBuzz example above can be rewritten using the convenience methods.
-         * This is not how you would normally write it, but it looks like a fun excercise.
+         * ** Your Turn **
          *
-         * `fizz$` and `buzz$` can be completed with only `.is(...)`, `.and(...)` and `.or(...)`;
-         * Make sure the output of those `Derivable`s is either 'Fizz'/'Buzz' or ''.
+         * The FizzBuzz example above can be rewritten using the convenience
+         * methods. This is not how you would normally write it, but it looks
+         * like a fun excercise.
+         *
+         * `fizz$` and `buzz$` can be completed with only `.is(...)`,
+         * `.and(...)` and `.or(...)`. Make sure the output of those `Derivable`s
+         * is either 'Fizz'/'Buzz' or ''.
          */
         const fizz$ = myCounter$
             .derive(count => count % 3)
             .is(__YOUR_TURN__)
             .and(__YOUR_TURN__)
             .or(__YOUR_TURN__) as Derivable<string>;
+
         const buzz$ = myCounter$
             .derive(count => count % 5)
             .is(__YOUR_TURN__)
             .and(__YOUR_TURN__)
             .or(__YOUR_TURN__) as Derivable<string>;
+
         const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(__YOUR_TURN__);
 
         for (let count = 1; count <= 100; count++) {
