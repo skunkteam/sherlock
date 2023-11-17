@@ -1,7 +1,5 @@
-import { expect } from 'chai';
+import { atom, constant, Derivable, derive, SettableDerivable } from '@skunkteam/sherlock';
 import { Map as ImmutableMap } from 'immutable';
-import { spy } from 'sinon';
-import { atom, constant, Derivable, derive, SettableDerivable } from '../libs/sherlock/src';
 
 /**
  * **Your Turn**
@@ -28,8 +26,12 @@ describe.skip('advanced', () => {
          * **Your Turn**
          * What do you expect this `Derivable` to do on `.set()`, `.get()` etc?
          */
-        expect(() => c.get()).to; // .throw()/.not.to.throw()?
-        expect(() => c.set('new value')).to; // .throw()/.not.to.throw()?
+
+        // Remove this after taking your turn below.
+        expect(false).toBe(true);
+        // .toThrow() or .not.toThrow()? ↴ (2x)
+        expect(() => c.get()) /* __YOUR_TURN__ */;
+        expect(() => c.set('new value')) /* __YOUR_TURN__ */;
     });
 
     /**
@@ -41,18 +43,22 @@ describe.skip('advanced', () => {
      */
     it('`.swap()`', () => {
         // This is a separate function, because you might be able to use this later
-        function plusOne(num: number) { return num + 1; }
+        function plusOne(num: number) {
+            return num + 1;
+        }
 
         const myCounter$ = atom(0);
         /**
          * **Your Turn**
          * Rewrite the `.get()`/`.set()` combos below using `.swap()`.
          */
+        expect(false).toBe(true);
+        // Remove this after taking your turn below.
         myCounter$.set(plusOne(myCounter$.get()));
-        expect(myCounter$.get()).to.equal(1);
+        expect(myCounter$.get()).toEqual(1);
 
         myCounter$.set(plusOne(myCounter$.get()));
-        expect(myCounter$.get()).to.equal(2);
+        expect(myCounter$.get()).toEqual(2);
     });
 
     /**
@@ -70,7 +76,7 @@ describe.skip('advanced', () => {
              * **Your Turn**
              * Use the `.value` accessor to get the current value.
              */
-            expect(__YOUR_TURN__).to.equal('foo');
+            expect(__YOUR_TURN__).toEqual('foo');
 
             /**
              * **Your Turn**
@@ -78,7 +84,7 @@ describe.skip('advanced', () => {
              */
             myAtom$.value = __YOUR_TURN__;
 
-            expect(myAtom$.get()).to.equal('new value');
+            expect(myAtom$.get()).toEqual('new value');
         });
 
         /**
@@ -91,7 +97,7 @@ describe.skip('advanced', () => {
             /**
              * **Your Turn**
              */
-            expect(myAtom$.value).to.equal(__YOUR_TURN__);
+            expect(myAtom$.value).toEqual(__YOUR_TURN__);
         });
 
         /**
@@ -104,19 +110,19 @@ describe.skip('advanced', () => {
             const usingGet$ = derive(() => myAtom$.get());
             const usingVal$ = derive(() => myAtom$.value);
 
-            expect(usingGet$.get()).to.equal('foo');
-            expect(usingVal$.get()).to.equal('foo');
+            expect(usingGet$.get()).toEqual('foo');
+            expect(usingVal$.get()).toEqual('foo');
 
             /**
              * **Your Turn**
              * We just created two `Derivable`s that are almost exactly the same.
              * But what happens when their source becomes `unresolved`?
              */
-            expect(usingGet$.resolved).to.equal(__YOUR_TURN__);
-            expect(usingVal$.resolved).to.equal(__YOUR_TURN__);
+            expect(usingGet$.resolved).toEqual(__YOUR_TURN__);
+            expect(usingVal$.resolved).toEqual(__YOUR_TURN__);
             myAtom$.unset();
-            expect(usingGet$.resolved).to.equal(__YOUR_TURN__);
-            expect(usingVal$.resolved).to.equal(__YOUR_TURN__);
+            expect(usingGet$.resolved).toEqual(__YOUR_TURN__);
+            expect(usingVal$.resolved).toEqual(__YOUR_TURN__);
         });
     });
 
@@ -128,8 +134,9 @@ describe.skip('advanced', () => {
      * - It can be made to be settable
      */
     describe('`.map()`', () => {
-        const mapReactSpy = spy();
-        beforeEach('reset the spy', () => mapReactSpy.resetHistory());
+        const mapReactSpy = jest.fn();
+        // Clear the spy before each test case.
+        beforeEach(() => mapReactSpy.mockClear());
 
         it('triggers when the source changes', () => {
             const myAtom$ = atom(1);
@@ -141,25 +148,25 @@ describe.skip('advanced', () => {
 
             mappedAtom$.react(mapReactSpy);
 
-            expect(mapReactSpy).to.have.been.calledOnceWith('1');
+            expect(mapReactSpy).toHaveBeenCalledExactlyOnceWith('1', expect.toBeFunction());
 
             myAtom$.set(3);
 
-            expect(mapReactSpy).to.have.been.calledTwice
-                .and.calledWith('333');
+            expect(mapReactSpy).toHaveBeenCalledTimes(2);
+            expect(mapReactSpy).toHaveBeenLastCalledWith('333', expect.toBeFunction());
         });
 
         it('does not trigger when any other `Derivable` changes', () => {
             const myRepeat$ = atom(1);
             const myString$ = atom('ho');
-            const deriveReactSpy = spy();
+            const deriveReactSpy = jest.fn();
 
             // Note that the `.map` uses both `myRepeat$` and `myString$`
             myRepeat$.map(r => myString$.get().repeat(r)).react(mapReactSpy);
             myRepeat$.derive(r => myString$.get().repeat(r)).react(deriveReactSpy);
 
-            expect(mapReactSpy).to.have.been.calledOnceWith('ho');
-            expect(deriveReactSpy).to.have.been.calledOnceWith('ho');
+            expect(mapReactSpy).toHaveBeenCalledExactlyOnceWith('ho', expect.toBeFunction());
+            expect(deriveReactSpy).toHaveBeenCalledExactlyOnceWith('ho', expect.toBeFunction());
 
             myRepeat$.value = 3;
             /**
@@ -167,26 +174,29 @@ describe.skip('advanced', () => {
              * We changed`myRepeat$` to equal 3.
              * Do you expect both reactors to have fired? And with what?
              */
-            expect(deriveReactSpy).to.have.callCount(__YOUR_TURN__);
-            expect(deriveReactSpy.lastCall).to.be.calledWith(__YOUR_TURN__);
-            expect(mapReactSpy).to.have.callCount(__YOUR_TURN__);
-            expect(mapReactSpy.lastCall).to.be.calledWith(__YOUR_TURN__);
+            expect(deriveReactSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
+            expect(deriveReactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
+
+            expect(mapReactSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
+            expect(mapReactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
 
             myString$.value = 'ha';
             /**
              * **Your Turn**
              * And now that we have changed `myString$`? And when `myRepeat$` changed again?
              */
-            expect(deriveReactSpy).to.have.callCount(__YOUR_TURN__);
-            expect(deriveReactSpy.lastCall).to.be.calledWith(__YOUR_TURN__);
-            expect(mapReactSpy).to.have.callCount(__YOUR_TURN__);
-            expect(mapReactSpy.lastCall).to.be.calledWith(__YOUR_TURN__);
+            expect(deriveReactSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
+            expect(deriveReactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
+
+            expect(mapReactSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
+            expect(mapReactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
 
             myRepeat$.value = 2;
-            expect(deriveReactSpy).to.have.callCount(__YOUR_TURN__);
-            expect(deriveReactSpy.lastCall).to.be.calledWith(__YOUR_TURN__);
-            expect(mapReactSpy).to.have.callCount(__YOUR_TURN__);
-            expect(mapReactSpy.lastCall).to.be.calledWith(__YOUR_TURN__);
+            expect(deriveReactSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
+            expect(deriveReactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
+
+            expect(mapReactSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
+            expect(mapReactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
 
             /**
              * As you can see, a change in `myString$` will not trigger an update.
@@ -211,15 +221,15 @@ describe.skip('advanced', () => {
                 __YOUR_TURN__,
             );
 
-            expect(myInverse$.get()).to.equal(-1);
+            expect(myInverse$.get()).toEqual(-1);
 
             myInverse$.set(-2);
 
             /**
              * **Your Turn**
              */
-            expect(myAtom$.get()).to.equal(__YOUR_TURN__);
-            expect(myInverse$.get()).to.equal(__YOUR_TURN__);
+            expect(myAtom$.get()).toEqual(__YOUR_TURN__);
+            expect(myInverse$.get()).toEqual(__YOUR_TURN__);
         });
     });
 
@@ -236,18 +246,21 @@ describe.skip('advanced', () => {
      * *ImmutableJS can help fix this problem*
      */
     describe('`.pluck()`', () => {
-        const reactSpy = spy();
-        const reactPropSpy = spy();
+        const reactSpy = jest.fn();
+        const reactPropSpy = jest.fn();
         let myMap$: SettableDerivable<ImmutableMap<string, string>>;
         let firstProp$: SettableDerivable<string>;
 
-        beforeEach('reset', () => {
-            reactPropSpy.resetHistory();
-            reactSpy.resetHistory();
-            myMap$ = atom<ImmutableMap<string, string>>(ImmutableMap({
-                firstProp: 'firstValue',
-                secondProp: 'secondValue',
-            }));
+        // Reset
+        beforeEach(() => {
+            reactPropSpy.mockClear();
+            reactSpy.mockClear();
+            myMap$ = atom<ImmutableMap<string, string>>(
+                ImmutableMap({
+                    firstProp: 'firstValue',
+                    secondProp: 'secondValue',
+                }),
+            );
             /**
              * **Your Turn**
              * `.pluck()` 'firstProp' from `myMap$`.
@@ -265,13 +278,16 @@ describe.skip('advanced', () => {
              * **Your Turn**
              * What do you expect the plucked `Derivable` to look like? And what happens when we `.set()` it?
              */
-            expect(firstProp$.get()).to.equal(__YOUR_TURN__);
+            expect(firstProp$.get()).toEqual(__YOUR_TURN__);
 
-            firstProp$.set('other value');                        // the plucked `Derivable` should be settable
-            expect(firstProp$.get()).to.equal(__YOUR_TURN__);     // is the `Derivable` value the same as was set?
+            firstProp$.set('other value'); // the plucked `Derivable` should be settable
+            expect(firstProp$.get()).toEqual(__YOUR_TURN__); // is the `Derivable` value the same as was set?
 
-            expect(reactPropSpy).to.have.callCount(__YOUR_TURN__) // how many times was the spy called? Note the `skipFirst`..
-                .and.calledWith(__YOUR_TURN__);                   // and what was the value?
+            // How many times was the spy called? Note the `skipFirst`..
+            expect(reactPropSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
+
+            // ... and what was the value?
+            expect(reactPropSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
         });
 
         /**
@@ -286,16 +302,23 @@ describe.skip('advanced', () => {
              * We will set `secondProp`, will this affect `firstProp$`?
              */
             myMap$.swap(map => map.set('secondProp', 'new value'));
-            expect(reactPropSpy).to.have.callCount(__YOUR_TURN__)   // how many times was the spy called?
-                .and.calledWith(__YOUR_TURN__);                     // and with what value?
+            // How many times was the spy called? Note the `skipFirst`..
+            expect(reactPropSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
+
+            // ... and what was the value?
+            expect(reactPropSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
 
             /**
              * **Your Turn**
              * And what if we set `firstProp`?
              */
             myMap$.swap(map => map.set('firstProp', 'new value'));
-            expect(reactPropSpy).to.have.callCount(__YOUR_TURN__)   // how many times was the spy called?
-                .and.calledWith(__YOUR_TURN__);                     // and with what value?
+
+            // How many times was the spy called? Note the `skipFirst`..
+            expect(reactPropSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
+
+            // ... and what was the value?
+            expect(reactPropSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
         });
 
         /**
@@ -309,8 +332,8 @@ describe.skip('advanced', () => {
              * So what if we set `firstProp$`? Does this propagate to the source `Derivable`?
              */
             firstProp$.set(__YOUR_TURN__);
-            expect(reactSpy).to.have.callCount(__YOUR_TURN__);
-            expect(myMap$.get()).to.equal(__YOUR_TURN__);
+            expect(reactSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
+            expect(myMap$.get()).toEqual(__YOUR_TURN__);
         });
     });
 });
