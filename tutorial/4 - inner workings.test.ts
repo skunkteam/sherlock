@@ -12,7 +12,6 @@ export const __YOUR_TURN__ = {} as any;
  * Time to dive a bit deeper into the inner workings of `@skunkteam/sherlock`.
  */
 describe.skip('inner workings', () => {
-describe('inner workings', () => {
     /**
      * What if there is a derivation that reads from one of two `Derivable`s
      * dynamically? Will both of those `Derivable`s be tracked for changes?

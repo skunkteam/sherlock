@@ -13,7 +13,7 @@ export const __YOUR_TURN__ = {} as any;
  *
  * There are a couple of ways to do this.
  */
-describe('deriving', () => {
+describe.skip('deriving', () => {
     /**
      * In the 'intro' we have created a derivable by using the `.derive()` method.
      * This method allows the state of that `Derivable` to be used to create a
@@ -37,7 +37,7 @@ describe('deriving', () => {
          */
 
         // We can combine txt with `repeat$.get()` here.
-        const lyric$ = text$.derive(txt => txt /* __YOUR_TURN__ */ );
+        const lyric$ = text$.derive(txt => txt /* __YOUR_TURN__ */);
 
         expect(lyric$.get()).toEqual(`It won't be long`);
 

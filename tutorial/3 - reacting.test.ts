@@ -11,7 +11,7 @@ export const __YOUR_TURN__ = {} as any;
  * In the intro we have seen a basic usage of the `.react()` method.
  * Let's dive a bit deeper into the details of this method.
  */
-describe('reacting', () => {
+describe.skip('reacting', () => {
     // For easy testing we can count the number of times a reactor was called,
     let wasCalledTimes: number;
     // and record the last value it reacted to.
