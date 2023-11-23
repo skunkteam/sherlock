@@ -43,7 +43,7 @@ describe('intro', () => {
          * This can also be indicated with the `__YOUR_TURN__` variable.
          *
          * It should be clear what to do here... */
-        bool = __YOUR_TURN__;
+        bool = true;
         expect(bool).toBeTrue();
         // We use expectations like this to verify the result.
     });
@@ -55,7 +55,7 @@ describe('intro', () => {
  * ** Your Turn **
  * Remove the `.skip` so this part of the tutorial will run.
  */
-describe.skip('the basics', () => {
+describe('the basics', () => {
     /**
      * The `Atom` is the basic building block of `@skunkteam/sherlock`.
      * It holds a value which you can `get()` and `set()`.
@@ -73,6 +73,7 @@ describe.skip('the basics', () => {
 
         // ** Your Turn **
         // Use the `.set(<newValue>)` method to change the value of the `Atom`.
+        myValue$.set(2);
         expect(myValue$.get()).toEqual(2);
     });
 
@@ -97,7 +98,7 @@ describe.skip('the basics', () => {
          * negative to a positive number and vice versa) of the original `Atom`.
          */
         // Use `myValue$.derive(val => ...)` to implement `myInverse$`.
-        const myInverse$ = myValue$.derive(__YOUR_TURN__ => __YOUR_TURN__);
+        const myInverse$ = myValue$.derive(val => -val);
         expect(myInverse$.get()).toEqual(-1);
         // So if we set `myValue$` to -2:
         myValue$.set(-2);
@@ -122,7 +123,7 @@ describe.skip('the basics', () => {
          *
          * Now react to `myCounter$`. In every `react()`.
          * Increase the `reacted` variable by one. */
-        myCounter$.react(() => __YOUR_TURN__);
+        myCounter$.react(() => reacted++);
         expect(reacted).toEqual(1);
         // `react()` will react immediately, more on that later.
 
