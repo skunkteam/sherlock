@@ -13,7 +13,7 @@ export const __YOUR_TURN__ = {} as any;
  *
  * There are a couple of ways to do this.
  */
-describe.skip('deriving', () => {
+describe('deriving', () => {
     /**
      * In the 'intro' we have created a derivable by using the `.derive()` method.
      * This method allows the state of that `Derivable` to be used to create a
@@ -37,7 +37,7 @@ describe.skip('deriving', () => {
          */
 
         // We can combine txt with `repeat$.get()` here.
-        const lyric$ = text$.derive(txt => txt /* __YOUR_TURN__ */);
+        const lyric$ = text$.derive(txt => txt.repeat(repeat$.get()));
 
         expect(lyric$.get()).toEqual(`It won't be long`);
 
@@ -74,12 +74,14 @@ describe.skip('deriving', () => {
          */
 
         // Should return 'Fizz' when `myCounter$` is a multiple of 3 and '' otherwise.
-        const fizz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__);
+        const fizz$: Derivable<string> = myCounter$.derive(v => (v % 3 === 0 ? 'Fizz' : ''));
 
         // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
-        const buzz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__);
+        const buzz$: Derivable<string> = myCounter$.derive(v => (v % 5 === 0 ? 'Buzz' : ''));
 
-        const fizzBuzz$: Derivable<string | number> = derive(__YOUR_TURN__);
+        const fizzBuzz$: Derivable<string | number> = derive(
+            () => (fizz$.get() + buzz$.get() === '' ? myCounter$.get() : fizz$.get() + buzz$.get()), // TODO: why not put it on the counter then?
+        );
 
         expect(fizz$.get()).toEqual('');
         expect(buzz$.get()).toEqual('');
@@ -153,9 +155,9 @@ describe.skip('deriving', () => {
         const tweetCount = pastTweets.length;
         const lastTweet = pastTweets[tweetCount - 1];
 
-        expect(tweetCount).toEqual(__YOUR_TURN__); // Is there a new tweet?
-        expect(lastTweet).toContain(__YOUR_TURN__); // Who sent it? Donald? Or Barack?
-        expect(lastTweet).toContain(__YOUR_TURN__); // What did he tweet?
+        expect(tweetCount).toEqual(3); // Is there a new tweet?
+        expect(lastTweet).toContain('Donald'); // Who sent it? Donald? Or Barack?
+        expect(lastTweet).toContain('race'); // What did he tweet?
 
         /**
          * As you can see, this is something to look out for.
@@ -200,22 +202,22 @@ describe.skip('deriving', () => {
          */
         const fizz$ = myCounter$
             .derive(count => count % 3)
-            .is(__YOUR_TURN__)
-            .and(__YOUR_TURN__)
-            .or(__YOUR_TURN__) as Derivable<string>;
+            .is(0)
+            .and('Fizz')
+            .or('');
 
         const buzz$ = myCounter$
             .derive(count => count % 5)
-            .is(__YOUR_TURN__)
-            .and(__YOUR_TURN__)
-            .or(__YOUR_TURN__) as Derivable<string>;
+            .is(0)
+            .and('Buzz')
+            .or('');
 
-        const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(__YOUR_TURN__);
+        const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(myCounter$); // TODO:
 
         for (let count = 1; count <= 100; count++) {
             // Set the value of the `Atom`,
             myCounter$.set(count);
-
+            // console.log(myCounter$.get() + ', ' + fizzBuzz$.get());
             // and check if the output changed accordingly.
             checkFizzBuzz(count, fizzBuzz$.get());
         }

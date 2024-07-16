@@ -17,7 +17,7 @@ export const __YOUR_TURN__ = {} as any;
  * state, called `unresolved`. This indicates that the data is not available
  * yet, but (probably) will be at some point.
  */
-describe.skip('unresolved', () => {
+describe('unresolved', () => {
     /**
      * Let's start by creating an `unresolved` `Derivable`.
      */
@@ -27,13 +27,14 @@ describe.skip('unresolved', () => {
         // since it can't be inferred by TypeScript this way.
         const myAtom$ = atom.unresolved<number>();
 
-        expect(myAtom$.resolved).toEqual(__YOUR_TURN__);
+        expect(myAtom$.resolved).toEqual(false);
 
         /**
          * ** Your Turn **
          *
          * Resolve the atom, it's pretty easy
          */
+        myAtom$.set(1);
 
         expect(myAtom$.resolved).toBeTrue();
     });
@@ -48,7 +49,7 @@ describe.skip('unresolved', () => {
          *
          * Time to create an `unresolved` Atom..
          */
-        const myAtom$: DerivableAtom<string> = __YOUR_TURN__;
+        const myAtom$: DerivableAtom<string> = atom.unresolved();
 
         expect(myAtom$.resolved).toBeFalse();
 
@@ -63,17 +64,18 @@ describe.skip('unresolved', () => {
          *
          * What do you expect?
          */
-        expect(myAtom$.resolved).toEqual(__YOUR_TURN__);
+        expect(myAtom$.resolved).toEqual(true);
 
         // .toThrow() or .not.toThrow()? ↴
-        expect(() => myAtom$.get()) /*__YOUR_TURN__*/;
+        expect(() => myAtom$.get()).not.toThrow();
     });
 
     /**
      * If a `Derivable` is `unresolved` it can't react yet. But it will
      * `.react()` if a value becomes available.
      *
-     * *Note that this can prevent `.react()` from executing immediately*
+     * *Note that this can prevent `.react()` from executing immediately* // TODO: what annoying messages... I want to change them.
+     * It is not a 'Note: side-effect' but the expected intended behavior!
      */
     it('reacting to `unresolved`', () => {
         const myAtom$ = atom.unresolved<string>();
@@ -86,13 +88,14 @@ describe.skip('unresolved', () => {
          *
          * What do you expect?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(hasReacted).toHaveBeenCalledTimes(0);
 
         /**
          * ** Your Turn **
          *
          * Now make the last expect succeed
          */
+        myAtom$.set(`woohoow, I was called`);
 
         expect(myAtom$.resolved).toBeTrue();
         expect(hasReacted).toHaveBeenCalledExactlyOnceWith(`woohoow, I was called`, expect.toBeFunction());
@@ -100,7 +103,7 @@ describe.skip('unresolved', () => {
 
     /**
      * In `@skunkteam/sherlock` there is no reason why a `Derivable` should not
-     * become `unresolved` again after it has been set.
+     * be able to become `unresolved` again after it has been set.
      */
     it('can become `unresolved` again', () => {
         const myAtom$ = atom.unresolved<string>();
@@ -112,6 +115,7 @@ describe.skip('unresolved', () => {
          *
          * Set the value..
          */
+        myAtom$.set(`it's alive!`);
 
         expect(myAtom$.get()).toEqual(`it's alive!`);
 
@@ -120,6 +124,7 @@ describe.skip('unresolved', () => {
          *
          * Unset the value.. (*Hint: TypeScript is your friend*)
          */
+        myAtom$.unset();
 
         expect(myAtom$.resolved).toBeFalse();
     });
@@ -140,14 +145,14 @@ describe.skip('unresolved', () => {
          *
          * Combine the two `Atom`s into one `Derivable`
          */
-        const myDerivable$: Derivable<string> = __YOUR_TURN__;
+        const myDerivable$: Derivable<string> = myString$.derive(s => s + myOtherString$.get());
 
         /**
          * ** Your Turn **
          *
          * Is `myDerivable$` expected to be `resolved`?
          */
-        expect(myDerivable$.resolved).toEqual(__YOUR_TURN__);
+        expect(myDerivable$.resolved).toEqual(false);
 
         // Now let's set one of the two source `Atom`s
         myString$.set('some');
@@ -157,12 +162,12 @@ describe.skip('unresolved', () => {
          *
          * What do you expect to see in `myDerivable$`.
          */
-        expect(myDerivable$.resolved).toEqual(__YOUR_TURN__);
+        expect(myDerivable$.resolved).toEqual(false);
 
         // And what if we set `myOtherString$`?
         myOtherString$.set('data');
-        expect(myDerivable$.resolved).toEqual(__YOUR_TURN__);
-        expect(myDerivable$.get()).toEqual(__YOUR_TURN__);
+        expect(myDerivable$.resolved).toEqual(true);
+        expect(myDerivable$.get()).toEqual('somedata');
 
         /**
          * ** Your Turn **
@@ -171,6 +176,6 @@ describe.skip('unresolved', () => {
          * What do you expect `myDerivable$` to be?
          */
         myString$.unset();
-        expect(myDerivable$.resolved).toEqual(__YOUR_TURN__);
+        expect(myDerivable$.resolved).toEqual(false);
     });
 });
