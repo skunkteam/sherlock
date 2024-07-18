@@ -1,5 +1,5 @@
-import { atom, constant, Derivable, derive, SettableDerivable } from '@skunkteam/sherlock';
-import { template } from '@skunkteam/sherlock-utils';
+import { atom, constant, Derivable, derive, SettableDerivable, unresolved } from '@skunkteam/sherlock';
+import { lift, template } from '@skunkteam/sherlock-utils';
 import { Map as ImmutableMap } from 'immutable';
 
 /**
@@ -30,20 +30,17 @@ describe('advanced', () => {
          * What do you expect this `Derivable` to do on `.set()`, `.get()` etc?
          */
 
-        // Remove this after taking your turn below.
-        expect(false).toBe(true);
         // .toThrow() or .not.toThrow()? ↴ (2x)
-        expect(() => c.get()).not.toThrow(); /* __YOUR_TURN__ */
-        expect(() => c.set('new value')).toThrow() /* __YOUR_TURN__ */;
+        expect(() => c.get()).not.toThrow(); /* __YOUR_TURN__ */ 
+        expect(() => c.set('new value')).toThrow() /* __YOUR_TURN__ */; 
     });
 
     it('`templates`', () => {
-        // Staying in the theme of redefining normal Typescript code in our Derivable language
+        // Staying in the theme of redefining normal Typescript code in our Derivable language,
         // we also have a special syntax to copy template literals to a Derivable.
         const one = 1;
         const myDerivable = template`I want to go to ${one} party`;
-        // expect(myDerivable.value).toBe(`I want to go to 1 party`);
-        expect(myDerivable.value).toBe(__YOUR_TURN__); /* __YOUR_TURN__ */
+        expect(myDerivable.get()).toBe(`I want to go to 1 party`); 
     });
 
     /**
@@ -67,21 +64,40 @@ describe('advanced', () => {
          *
          * Rewrite the `.get()`/`.set()` combos below using `.swap()`.
          */
-        // Remove this after taking your turn below.
-        // expect(false).toBe(true);
 
-        myCounter$.swap(plusOne);
+        myCounter$.swap(plusOne); 
         expect(myCounter$.get()).toEqual(1);
 
-        myCounter$.swap(plusOne);
+        myCounter$.swap(plusOne); 
         expect(myCounter$.get()).toEqual(2);
+    });
+
+    /**
+     * You might want to use the reactor options such as
+     * `when`, `until`, and `skipFirst` when deriving as well.
+     * In such cases, you could use `.take()`.
+     */
+    it('`.take()`', () => {
+        const myAtom$ = atom('denied');
+
+        /**
+         * ** Your Turn **
+         * Use the `.take()` method on `myAtom$` to only accept the input string
+         * when it is `allowed`.
+         */
+        const myLimitedAtom$ = myAtom$.take({ when: v => v.is('allowed') }); 
+
+        expect(myLimitedAtom$.resolved).toBe(false);
+        myAtom$.set('allowed');
+        expect(myLimitedAtom$.resolved).toBe(true);
+        expect(myLimitedAtom$.value).toBe('allowed');
     });
 
     /**
      * As an alternative to `.get()` and `.set()`, there is also the `.value`
      * accessor.
      */
-    describe('.value', () => {
+    describe('`.value`', () => {
         /**
          * `.value` can be used as an alternative to `.get()` and `.set()`.
          * This helps when a property is expected instead of two methods.
@@ -94,19 +110,18 @@ describe('advanced', () => {
              *
              * Use the `.value` accessor to get the current value.
              */
-            expect(myAtom$.value).toEqual('foo');
-
+            expect(myAtom$.value).toEqual('foo'); 
             /**
              * ** Your Turn **
              *
              * Now use the `.value` accessor to set a 'new value'.
              */
-            myAtom$.value = 'new value';
+            myAtom$.value = 'new value'; 
 
             expect(myAtom$.get()).toEqual('new value');
         });
 
-        /** FIXME: SAME FOR ERRORS!!
+        /**
          * If a `Derivable` is `unresolved`, `.get()` will normally throw.
          * `.value` will return `undefined` instead.
          */
@@ -116,7 +131,7 @@ describe('advanced', () => {
             /**
              * ** Your Turn **
              */
-            expect(myAtom$.value).toEqual(undefined);
+            expect(myAtom$.value).toEqual(undefined); 
         });
 
         /**
@@ -139,11 +154,13 @@ describe('advanced', () => {
              * We just created two `Derivable`s that are almost exactly the same.
              * But what happens when their source becomes `unresolved`?
              */
+
             expect(usingGet$.resolved).toEqual(true);
             expect(usingVal$.resolved).toEqual(true);
             myAtom$.unset();
             expect(usingGet$.resolved).toEqual(false);
             expect(usingVal$.resolved).toEqual(true);
+            
         });
     });
 
@@ -166,7 +183,7 @@ describe('advanced', () => {
              *
              * Use the `.map()` method to create the expected output below
              */
-            const mappedAtom$: Derivable<string> = myAtom$.map(base => base.toString().repeat(base));
+            const mappedAtom$: Derivable<string> = myAtom$.map(base => base.toString().repeat(base)); 
 
             mappedAtom$.react(mapReactSpy);
 
@@ -197,6 +214,7 @@ describe('advanced', () => {
              * We changed`myRepeat$` to equal 3.
              * Do you expect both reactors to have fired? And with what?
              */
+
             expect(deriveReactSpy).toHaveBeenCalledTimes(2);
             expect(deriveReactSpy).toHaveBeenLastCalledWith('hohoho', expect.toBeFunction());
 
@@ -209,6 +227,7 @@ describe('advanced', () => {
              *
              * And now that we have changed `myString$`? And when `myRepeat$` changed again?
              */
+
             expect(deriveReactSpy).toHaveBeenCalledTimes(3);
             expect(deriveReactSpy).toHaveBeenLastCalledWith('hahaha', expect.toBeFunction());
 
@@ -221,7 +240,7 @@ describe('advanced', () => {
 
             expect(mapReactSpy).toHaveBeenCalledTimes(3);
             expect(mapReactSpy).toHaveBeenLastCalledWith('haha', expect.toBeFunction());
-
+            
             /**
              * As you can see, a change in `myString$` will not trigger an
              * update. But if an update is triggered, `myString$` will be called
@@ -247,7 +266,7 @@ describe('advanced', () => {
                 // This first function is called when getting...
                 n => -n,
                 // ...and this second function is called when setting.
-                (newV, _) => -newV,
+                (newV, _) => -newV, 
             );
 
             // The original `atom` was set to 1, so we want the inverse to
@@ -262,25 +281,93 @@ describe('advanced', () => {
         });
 
         it('similar to `map()` on arrays', () => {
-            // if the similarity is not clear yet, here is a comparison between
-            // the normal `map()` on arrays and our `Derivable` `map()`.
-            // both get values out of a container (`Array` or `Derivable`), apply
+            // If the similarity is not clear yet, here is a comparison between
+            // the normal `.map()` on arrays and our `Derivable` `.map()`.
+            // Both get values out of a container (`Array` or `Derivable`), apply
             // some function, and put it back in the container.
 
-            const addOne: (v: number) => number = v => v + 1;
+            const addOne = jest.fn((v: number) => v + 1);
 
             const myList = [1, 2, 3];
-            const myList2 = myList.map(addOne);
-            expect(myList2).toMatchObject([2, 3, 4]);
+            const myMappedList = myList.map(addOne);
+            expect(myMappedList).toMatchObject([2, 3, 4]);
 
-            const myDerivable = atom(1);
-            const myDerivable2 = myDerivable.map(addOne);
-            expect(myDerivable2.value).toBe(2);
+            const myAtom$ = atom(1);
+            let myMappedDerivable$ = myAtom$.map(addOne);
+            expect(myMappedDerivable$.value).toBe(2);
 
-            // you can combine them too
-            const myDerivable3 = atom([1, 2, 3]);
-            const myDerivable4 = myDerivable3.map(v => v.map(addOne));
-            expect(myDerivable4.value).toMatchObject([2, 3, 4]);
+            // Or, as we have seen before, you can use `lift()` for this.
+            myMappedDerivable$ = lift(addOne)(myAtom$);
+            expect(myMappedDerivable$.value).toBe(2);
+
+            // You can combine them too.
+            const myAtom2$ = atom([1, 2, 3]);
+            const myMappedDerivable2$ = myAtom2$.map(v => v.map(addOne));
+            expect(myMappedDerivable2$.value).toMatchObject([2, 3, 4]);
+        });
+
+        /**
+         * In order to reason over the state of a Derivable, we can
+         * use `.mapState()`. This will map one state to another, and
+         * can be used to get rid of pesky `unresolved` or `Errorwrapper`
+         * states (or to introduce them!).
+         */
+        it('`.mapState()`', () => {
+            const myAtom$ = atom(1);
+
+            // like `.map()`, we can specify it both ways.
+            const myMappedAtom$ = myAtom$.mapState(
+                state => (state === unresolved ? 3 : state), // `myAtom$` => `myMappedAtom$`
+                state => (state === 2 ? unresolved : state), // `myMappedAtom$` => `myAtom$`
+            );
+
+            myAtom$.set(2);
+            expect(myAtom$.resolved).toBe(true); 
+            expect(myMappedAtom$.resolved).toBe(true); 
+
+            myAtom$.unset();
+            expect(myAtom$.resolved).toBe(false); 
+            expect(myMappedAtom$.resolved).toBe(true); 
+
+            myMappedAtom$.set(2);
+            expect(myAtom$.resolved).toBe(false); 
+            expect(myMappedAtom$.resolved).toBe(true); 
+
+            // This is a tricky one:
+            myMappedAtom$.unset();
+            expect(myAtom$.resolved).toBe(false); 
+            expect(myMappedAtom$.resolved).toBe(true); 
+
+            /**
+             * The results, especially of the last case, may seem weird.
+             * In the first exercise, `myAtom$` is set to 2, causing the state to be 2 as well.
+             * By setting the state of `myAtom$`, the first line of `mapState()` is triggered.
+             * Since `2` is not equal to `unresolved`, we return the state `2`, causing
+             * `myMappedAtom$` to also get state 2 (and thus: value 2). Neither are unresolved.
+             *
+             * In the second case, `myAtom$` is set to `unresolved`, triggering the first line of
+             * `mapState()`, letting `myMappedAtom$` become 3. `myAtom$` is now `unresolved`, and
+             * `myMappedAtom$` is not.
+             *
+             * In the third case, `myMappedAtom$` is set to 2, it triggers the second line of
+             * `mapState()`, causing `myAtom$` to become `unresolved`. However, what we don't
+             * notice is that this change in state triggers the first line of `mapState()` again,
+             * causing `myMappedAtom$` to get state `3`. We can check this:
+             */
+
+            myMappedAtom$.set(2);
+            expect(myMappedAtom$.get()).toBe(3); // the state and value are linked, so this is identical to `.getState()`
+            /**
+             * You might think that this change in state would cause `myAtom$` to now also get
+             * `3` as its state, but this does not happen. Why not? TODO: maximally one cycle?
+             * Since both `2` and `3` are not `unresolved`, it does not matter to our answer.
+             *
+             * The same cannot be said for the fourth case. Setting `myMappedAtom$` to `unresolved`
+             * triggers the second line of `mapState()`, causing `myAtom$` to also become `unresolved`. This, in turn,
+             * triggers the first line of `mapState()`, causing `myMappedAtom$` to become `3`.
+             * As such, `myMappedAtom$` is not `unresolved` even though we set it as such.
+             * TODO: change this to be for MAP. Then make MAPSTATE a trivial one right after.
+             */
         });
     });
 
@@ -323,7 +410,7 @@ describe('advanced', () => {
              *
              * * Hint: you'll have to cast the result from `.pluck()`.
              */
-            firstProp$ = myMap$.pluck('firstProp') as SettableDerivable<string>;
+            firstProp$ = myMap$.pluck('firstProp') as SettableDerivable<string>; 
         });
 
         /**
@@ -339,18 +426,18 @@ describe('advanced', () => {
              * What do you expect the plucked `Derivable` to look like? And what
              * happens when we `.set()` it?
              */
-            expect(firstProp$.get()).toEqual('firstValue');
+            expect(firstProp$.get()).toEqual('firstValue'); 
 
             // the plucked `Derivable` should be settable
             firstProp$.set('other value');
             // is the `Derivable` value the same as was set?
-            expect(firstProp$.get()).toEqual('other value');
+            expect(firstProp$.get()).toEqual('other value'); 
 
             // How many times was the spy called? Note the `skipFirst`..
-            expect(reactPropSpy).toHaveBeenCalledTimes(1);
+            expect(reactPropSpy).toHaveBeenCalledTimes(1); 
 
             // ...and what was the value?
-            expect(reactPropSpy).toHaveBeenLastCalledWith('other value', expect.toBeFunction());
+            expect(reactPropSpy).toHaveBeenLastCalledWith('other value', expect.toBeFunction()); 
         });
 
         /**
@@ -372,7 +459,7 @@ describe('advanced', () => {
             myMap$.swap(map => map.set('secondProp', 'new value'));
 
             // How many times was the spy called? Note the `skipFirst`.
-            expect(reactPropSpy).toHaveBeenCalledTimes(0);
+            expect(reactPropSpy).toHaveBeenCalledTimes(0); 
 
             /**
              * ** Your Turn **
@@ -382,10 +469,10 @@ describe('advanced', () => {
             myMap$.swap(map => map.set('firstProp', 'new value'));
 
             // How many times was the spy called? Note the `skipFirst`..
-            expect(reactPropSpy).toHaveBeenCalledTimes(1);
+            expect(reactPropSpy).toHaveBeenCalledTimes(1); 
 
             // ...and what was the value?
-            expect(reactPropSpy).toHaveBeenLastCalledWith('new value', expect.toBeFunction());
+            expect(reactPropSpy).toHaveBeenLastCalledWith('new value', expect.toBeFunction()); 
         });
 
         /**
@@ -405,10 +492,12 @@ describe('advanced', () => {
              * So what if we set `firstProp$`? Does this propagate to the source
              * `Derivable`?
              */
+
             firstProp$.set('new value');
             expect(reactSpy).toHaveBeenCalledTimes(1);
             expect(myMap$.get().get('firstProp')).toEqual('new value');
             expect(myMap$.get().get('secondProp')).toEqual('secondValue');
+            
         });
     });
 });

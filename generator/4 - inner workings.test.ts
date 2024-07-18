@@ -43,9 +43,17 @@ describe('inner workings', () => {
          *
          * What do you expect?
          */
+        // #QUESTION-BLOCK-START
+        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
+        // #QUESTION-BLOCK-END
+        // #ANSWER-BLOCK-START
         expect(reacted).toHaveBeenCalledTimes(1);
-        expect(reacted).toHaveBeenLastCalledWith(1, expect.toBeFunction()); // TODO: NIET omdat hij weet dat de string niets verandert,
-        // maar juist omdat hij dezelfde waarde binnen krijgt en dus niet nogmaals triggered!!
+        expect(reacted).toHaveBeenLastCalledWith(1, expect.toBeFunction());
+        // Note: the reactor doesn't know that changing `string$` will not generate a different
+        // answer by looking at the code of `switch$`, but instead it simply noticed that
+        // `switch$` got the same value it already had and prevented triggering because of that.
+        // #ANSWER-BLOCK-END
 
         // `switch$` is still set to true (number)
         number$.set(2);
@@ -55,15 +63,17 @@ describe('inner workings', () => {
          *
          * What do you expect?
          */
+        // #QUESTION-BLOCK-START
+        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
+        // #QUESTION-BLOCK-END
+        // #ANSWER-BLOCK-START
         expect(reacted).toHaveBeenCalledTimes(2);
-        expect(reacted).toHaveBeenLastCalledWith(2, expect.toBeFunction()); // Now it gets a different value!!
+        expect(reacted).toHaveBeenLastCalledWith(2, expect.toBeFunction());
+        // As it got a different value (`2` instead of `1`), it triggered.
+        // #ANSWER-BLOCK-END
 
-        // Now let's reset the mock function, so the call count should
-        // be 0 again.
-        reacted.mockClear();
-        expect(reacted).toHaveBeenCalledTimes(0);
-
-        // `switch$` is set to false (string)
+        // `switch$` is now set to false (string)
         switch$.set(false);
         number$.set(3);
 
@@ -72,8 +82,14 @@ describe('inner workings', () => {
          *
          * What do you expect now?
          */
-        expect(reacted).toHaveBeenCalledTimes(1);
-        expect(reacted).toHaveBeenLastCalledWith('two', expect.toBeFunction()); // It gets a different value than last time again. No need for the reset...? TODO:
+        // #QUESTION-BLOCK-START
+        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
+        // #QUESTION-BLOCK-END
+        // #ANSWER-BLOCK-START
+        expect(reacted).toHaveBeenCalledTimes(3);
+        expect(reacted).toHaveBeenLastCalledWith('two', expect.toBeFunction());
+        // #ANSWER-BLOCK-END
     });
 
     /**
@@ -86,7 +102,7 @@ describe('inner workings', () => {
         const hasDerived = jest.fn();
 
         const myAtom$ = atom(true);
-        const myDerivation$ = myAtom$.derive(hasDerived); // NOTE: React causes an immediate update. Derive does not!
+        const myDerivation$ = myAtom$.derive(hasDerived);
 
         /**
          * ** Your Turn **
@@ -99,17 +115,20 @@ describe('inner workings', () => {
          */
 
         // Well, what do you expect?
-        expect(hasDerived).toHaveBeenCalledTimes(0);
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasDerived).toHaveBeenCalledTimes(0); // #ANSWER
 
         myDerivation$.get();
 
         // And after a `.get()`?
-        expect(hasDerived).toHaveBeenCalledTimes(1);
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasDerived).toHaveBeenCalledTimes(1); // #ANSWER
 
         myDerivation$.get();
 
         // And after the second `.get()`? Is there an extra call?
-        expect(hasDerived).toHaveBeenCalledTimes(2);
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasDerived).toHaveBeenCalledTimes(2); // #ANSWER
 
         /**
          * The state of any `Derivable` can change at any moment.
@@ -148,38 +167,41 @@ describe('inner workings', () => {
          *
          * Ok, it's your turn to complete the expectations.
          */
-        expect(hasDerived).toHaveBeenCalledTimes(1); // because of the react.
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasDerived).toHaveBeenCalledTimes(1); // because of the react. // #ANSWER
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(1); // no update because someone is reacting, and there has been no update in value.
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasDerived).toHaveBeenCalledTimes(1); // no update because someone is reacting, and there has been no update in value. // #ANSWER
 
         myAtom$.set(false);
 
-        expect(hasDerived).toHaveBeenCalledTimes(2); // `myDerivation`s value has changed, so update.
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasDerived).toHaveBeenCalledTimes(2); // `myDerivation$`s value has changed, so update. // #ANSWER
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(2); // no update.
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasDerived).toHaveBeenCalledTimes(2); // no update. // #ANSWER
 
         stopper();
 
-        expect(hasDerived).toHaveBeenCalledTimes(2); // stopping doesn't change the value...
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasDerived).toHaveBeenCalledTimes(2); // stopping doesn't change the value... // #ANSWER
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(3); // ...but now, it is not being reacted to, so it goes back to updating every time `.get()` is called!
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasDerived).toHaveBeenCalledTimes(3); // ...but now, it is not being reacted to, so it goes back to updating every time `.get()` is called. // #ANSWER
 
         /**
-         * Since the `.react()` already listens to the value(changes) there is
+         * Since the `.react()` already listens to the value-changes, there is
          * no need to recalculate whenever a `.get()` is called.
          *
          * But when the reactor has stopped, the derivation has to be calculated
          * again.
          */
-        // Okay, clear, but why?
-        // I see... because we don't want to keep internal states and such and track changes when no-one is listening! It is a waste of effort.
-        // So we only keep track of changes when a react is listening.
     });
 
     /**
@@ -216,23 +238,31 @@ describe('inner workings', () => {
         // Note that this is the same value as it was initialized with
         myAtom$.set(1);
 
-        expect(first).toHaveBeenCalledTimes(1);
-        expect(second).toHaveBeenCalledTimes(1);
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(first).toHaveBeenCalledTimes(1); // `myAtom$` has the same value (`1`), so no need to be called // #ANSWER
+        expect(second).toHaveBeenCalledTimes(1); // `first$` has the same value (`false`), so no need to be called // #ANSWER
 
         myAtom$.set(2);
 
-        expect(first).toHaveBeenCalledTimes(2); // different INPUT [2], so call again
-        expect(second).toHaveBeenCalledTimes(1); // same INPUT [false], so no change
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(first).toHaveBeenCalledTimes(2); // `myAtom$` has a different value (`2`), so call again // #ANSWER
+        expect(second).toHaveBeenCalledTimes(1); // `first$` has the same value (`false`), so no need to be called // #ANSWER
 
         myAtom$.set(3);
 
-        expect(first).toHaveBeenCalledTimes(3); // different INPUT [3]
-        expect(second).toHaveBeenCalledTimes(2); // different INPUT [true]
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(first).toHaveBeenCalledTimes(3); // `myAtom$` has a different value (`3`), so call again // #ANSWER
+        expect(second).toHaveBeenCalledTimes(2); // `first$` has a different value (`true`), so call again // #ANSWER
 
         myAtom$.set(4);
 
-        expect(first).toHaveBeenCalledTimes(4); // different INPUT [4]
-        expect(second).toHaveBeenCalledTimes(2); // same INPUT [true]
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(first).toHaveBeenCalledTimes(4); // `myAtom$` has a different value (`4`), so call again // #ANSWER
+        expect(second).toHaveBeenCalledTimes(2); // `first$` has the same value (`true`), so no need to be called // #ANSWER
 
         /**
          * Can you explain the behavior above?
@@ -270,7 +300,8 @@ describe('inner workings', () => {
          * The `Atom` is set with exactly the same object as before. Will the
          * `.react()` fire?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(1); // not considered equal (`{} !== {}`)
+        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasReacted).toHaveBeenCalledTimes(1); // `{} !== {}`, as they have different references // #ANSWER
 
         /**
          * But what if you use an object, that can be easily compared through a
@@ -289,7 +320,8 @@ describe('inner workings', () => {
          *
          * Do you think the `.react()` fired with this new value?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(0); // TODO: answer already given - is considered equal
+        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasReacted).toHaveBeenCalledTimes(0); // #ANSWER
 
         atom$.set(Seq.Indexed.of(1, 2));
 
@@ -298,7 +330,8 @@ describe('inner workings', () => {
          *
          * And now?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(1); // TODO: answer already given - obviously unequal
+        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
+        expect(hasReacted).toHaveBeenCalledTimes(1); // #ANSWER
 
         /**
          * In `@skunkteam/sherlock` equality is a bit complex:

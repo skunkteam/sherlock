@@ -32,7 +32,6 @@ describe('intro', () => {
     --- Welcome to the tutorial! ---
     
     Please look in \`./tutorial/1 - intro.test.ts\` to see what to do next.`, () => {
-        // TODO:
         // At the start of the spec, there will be some setup.
         let bool = false;
 
@@ -44,7 +43,8 @@ describe('intro', () => {
          * This can also be indicated with the `__YOUR_TURN__` variable.
          *
          * It should be clear what to do here... */
-        bool = true;
+        bool = __YOUR_TURN__; // #QUESTION
+        bool = true; // #ANSWER
         expect(bool).toBeTrue();
         // We use expectations like this to verify the result.
     });
@@ -72,7 +72,8 @@ describe('the basics', () => {
         // the `Atom`.
         expect(myValue$.get()).toEqual(1);
 
-        myValue$.set(2);
+        // ** Your Turn ** // #QUESTION
+        myValue$.set(2); // #ANSWER
         // Use the `.set(<newValue>)` method to change the value of the `Atom`.
         expect(myValue$.get()).toEqual(2);
     });
@@ -98,7 +99,8 @@ describe('the basics', () => {
          * negative to a positive number and vice versa) of the original `Atom`.
          */
         // Use `myValue$.derive(val => ...)` to implement `myInverse$`.
-        const myInverse$ = myValue$.derive(val => -val);
+        const myInverse$ = myValue$.derive(__YOUR_TURN__ => __YOUR_TURN__); // #QUESTION
+        const myInverse$ = myValue$.derive(val => -val); // #ANSWER
         expect(myInverse$.get()).toEqual(-1);
         // So if we set `myValue$` to -2:
         myValue$.set(-2);
@@ -123,7 +125,8 @@ describe('the basics', () => {
          *
          * Now react to `myCounter$`. In every `react()`.
          * Increase the `reacted` variable by one. */
-        myCounter$.react(() => reacted++);
+        myCounter$.react(() => __YOUR_TURN__); // #QUESTION
+        myCounter$.react(() => reacted++); // #ANSWER
         expect(reacted).toEqual(1);
         // `react()` will react immediately, more on that later.
 

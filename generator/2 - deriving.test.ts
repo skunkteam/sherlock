@@ -37,7 +37,8 @@ describe('deriving', () => {
          */
 
         // We can combine txt with `repeat$.get()` here.
-        const lyric$ = text$.derive(txt => txt.repeat(repeat$.get()));
+        const lyric$ = text$.derive(txt => txt /* __YOUR_TURN__ */); // #QUESTION
+        const lyric$ = text$.derive(txt => txt.repeat(repeat$.get())); // #ANSWER
 
         expect(lyric$.get()).toEqual(`It won't be long`);
 
@@ -73,15 +74,20 @@ describe('deriving', () => {
          * method on another `Derivable`.
          */
 
+        // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
+
         // Should return 'Fizz' when `myCounter$` is a multiple of 3 and '' otherwise.
-        const fizz$: Derivable<string> = myCounter$.derive(v => (v % 3 === 0 ? 'Fizz' : ''));
+        const fizz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); // #QUESTION
+        const fizz$: Derivable<string> = myCounter$.derive(v => (v % 3 ? 'Fizz' : '')); // Shorthand for `v % 3 === 0` // #ANSWER
 
         // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
-        const buzz$: Derivable<string> = myCounter$.derive(v => (v % 5 === 0 ? 'Buzz' : ''));
+        const buzz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); // #QUESTION
+        const buzz$: Derivable<string> = myCounter$.derive(v => (v % 5 ? 'Buzz' : '')); // #ANSWER
 
-        const fizzBuzz$: Derivable<string | number> = derive(
-            () => (fizz$.get() + buzz$.get() === '' ? myCounter$.get() : fizz$.get() + buzz$.get()), // TODO: why not put it on the counter then?
-        );
+        const fizzBuzz$: Derivable<string | number> = derive(__YOUR_TURN__); // #QUESTION
+        // #ANSWER-BLOCK-START
+        const fizzBuzz$: Derivable<string | number> = derive(() => fizz$.get() + buzz$.get() || myCounter$.get());
+        // #ANSWER-BLOCK-END
 
         expect(fizz$.get()).toEqual('');
         expect(buzz$.get()).toEqual('');
@@ -155,9 +161,12 @@ describe('deriving', () => {
         const tweetCount = pastTweets.length;
         const lastTweet = pastTweets[tweetCount - 1];
 
-        expect(tweetCount).toEqual(3); // Is there a new tweet?
-        expect(lastTweet).toContain('Donald'); // Who sent it? Donald? Or Barack?
-        expect(lastTweet).toContain('race'); // What did he tweet?
+        expect(tweetCount).toEqual(__YOUR_TURN__); // Is there a new tweet? // #QUESTION
+        expect(tweetCount).toEqual(3); // Is there a new tweet?// #ANSWER
+        expect(lastTweet).toContain(__YOUR_TURN__); // Who sent it? Donald? Or Barack?// #QUESTION
+        expect(lastTweet).toContain('Donald'); // Who sent it? Donald? Or Barack?// #ANSWER
+        expect(lastTweet).toContain(__YOUR_TURN__); // What did he tweet?// #QUESTION
+        expect(lastTweet).toContain('politics'); // What did he tweet?// #ANSWER
 
         /**
          * As you can see, this is something to look out for.
@@ -200,6 +209,21 @@ describe('deriving', () => {
          * `.and(...)` and `.or(...)`. Make sure the output of those `Derivable`s
          * is either 'Fizz'/'Buzz' or ''.
          */
+        // #QUESTION-BLOCK-START
+        const fizz$ = myCounter$
+            .derive(count => count % 3)
+            .is(__YOUR_TURN__)
+            .and(__YOUR_TURN__)
+            .or(__YOUR_TURN__) as Derivable<string>;
+
+        const buzz$ = myCounter$
+            .derive(count => count % 5)
+            .is(__YOUR_TURN__)
+            .and(__YOUR_TURN__)
+            .or(__YOUR_TURN__) as Derivable<string>;
+        // #QUESTION-BLOCK-END
+
+        // #ANSWER-BLOCK-START
         const fizz$ = myCounter$
             .derive(count => count % 3)
             .is(0)
@@ -211,13 +235,16 @@ describe('deriving', () => {
             .is(0)
             .and('Buzz')
             .or('');
+        // #ANSWER-BLOCK-END
 
-        const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(myCounter$); // TODO:
+        const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(__YOUR_TURN__); // #QUESTION
+        const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(myCounter$); // #ANSWER
+        // This will check whether `fizz$.get() + buzz$.get()` is truthy: if so, return it; if not, return `myCounter$` // #ANSWER
 
         for (let count = 1; count <= 100; count++) {
             // Set the value of the `Atom`,
             myCounter$.set(count);
-            // console.log(myCounter$.get() + ', ' + fizzBuzz$.get());
+
             // and check if the output changed accordingly.
             checkFizzBuzz(count, fizzBuzz$.get());
         }

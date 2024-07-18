@@ -7,6 +7,13 @@ import { atom } from '@skunkteam/sherlock';
  */
 export const __YOUR_TURN__ = {} as any;
 
+// FIXME: check my solutions with the actual solutions
+// FIXME: remove all TODO: and FIXME:
+// FIXME: check whether the generated tutorials and solutions actually work (e.g. are all solutions correct? No weird shenanigans?)
+// FIXME: deze file niet linten / builden (voor automatische test). Tutorial ook niet. Maar solutions juist wel! OP EIND.
+// FIXME: interne review document, mocht ik iets hebben om te laten zien! In Google Drive, zet het erin!
+// FIXME: werkt `npm run tutorial` nog???
+
 /**
  * In the intro we have seen a basic usage of the `.react()` method.
  * Let's dive a bit deeper into the details of this method.
@@ -69,8 +76,10 @@ describe('reacting', () => {
          * Time to react to `myAtom$` with the `reactor()` function defined
          * above.
          */
-        myAtom$.react((val, _) => reactor(val));
-        // myAtom$.react(reactor); // OR this. TS will ignore any additional arguments you might give it.
+        
+        myAtom$.react(reactor);
+        // myAtom$.react(val => reactor(val)); // Alternatively, this would work too.
+        // myAtom$.react((val, _) => reactor(val)); // Or this.
 
         expectReact(1, 'initial value');
 
@@ -102,13 +111,8 @@ describe('reacting', () => {
              *
              * catch the returned `stopper` in a variable
              */
+            const stopper = myAtom$.react(reactor); 
 
-            // let stopFunc: () => void = () => {}; // dummy initial value
-            // myAtom$.react((val, stop) => {
-            //     reactor(val);
-            //     stopFunc = stop;
-            // });
-            const stopFunc = myAtom$.react((val, _) => reactor(val));
             expectReact(1, 'initial value');
 
             /**
@@ -116,7 +120,7 @@ describe('reacting', () => {
              *
              * Call the `stopper`.
              */
-            stopFunc();
+            stopper(); 
 
             myAtom$.set('new value');
 
@@ -139,9 +143,10 @@ describe('reacting', () => {
              * In the reaction below, use the stopper callback to stop the
              * reaction
              */
-            myAtom$.react((val, stop) => {
+
+            myAtom$.react((val, stopper) => {
                 reactor(val);
-                stop();
+                stopper();
             });
 
             expectReact(1, 'initial value');
@@ -194,7 +199,7 @@ describe('reacting', () => {
                  *
                  * Try giving `boolean$` as `until` option.
                  */
-                string$.react(reactor, { until: boolean$ });
+                string$.react(reactor, { until: boolean$ }); 
 
                 // It should react directly as usual.
                 expectReact(1, 'Value');
@@ -242,7 +247,7 @@ describe('reacting', () => {
                  * Use `!string$.get()` to return `true` when the `string` is
                  * empty.
                  */
-                string$.react(reactor, { until: () => !string$.get() });
+                string$.react(reactor, { until: () => !string$.get() }); 
 
                 // It should react as usual:
                 string$.set('New value');
@@ -269,7 +274,7 @@ describe('reacting', () => {
                  * Try using the first parameter of the `until` function to do
                  * the same as above.
                  */
-                string$.react(reactor, { until: s => !s.get() });
+                string$.react(reactor, { until: s => !s.get() }); 
 
                 // It should react as usual.
                 string$.set('New value');
@@ -293,21 +298,21 @@ describe('reacting', () => {
                 let stopper = boolean$.react(reactor, { until: b => !b });
 
                 // ...but does it? (Remember: `boolean$` starts out as `false`)
-                expect(boolean$.connected).toBe(__YOUR_TURN__);
+                expect(boolean$.connected).toBe(true); 
 
                 // The `b` it obtains as argument is a `Derivable<boolean>`. This is a
                 // reference value which will evaluate to `true` as it is not `undefined`.
                 // Thus, the negation will evaluate to `false`, independent of the value of
                 // the boolean. You can get the boolean value our of the `Derivable` using `.get()`:
-                stopper();
+                stopper(); // reset
                 stopper = boolean$.react(reactor, { until: b => !b.get() });
-                expect(boolean$.connected).toBe(__YOUR_TURN__);
+                expect(boolean$.connected).toBe(false); 
 
-                // You can also return the `Derivable<boolean>` and apply the negation
-                // with the method designed for it:
+                // You can also return the `Derivable<boolean>` after appling the negation
+                // using the method designed for negating Derivables:
                 stopper();
                 boolean$.react(reactor, { until: b => b.not() });
-                expect(boolean$.connected).toBe(__YOUR_TURN__);
+                expect(boolean$.connected).toBe(false); 
             });
         });
 
@@ -322,9 +327,6 @@ describe('reacting', () => {
          *
          * The interface of `from` is the same as `until` (i.e. it also gets
          * the parent derivable as first parameter when it's called.)
-         *
-         * * Note: when using `from`, `.react()` will (most often) not react
-         * synchronously any more. As that is the function of this option.* // TODO: word differently... is not a `note`, but the intended effect.
          */
         it('reacting `from`', () => {
             const sherlock$ = atom('');
@@ -338,7 +340,7 @@ describe('reacting', () => {
              *
              * *Hint: remember the `.is()` method from tutorial 2?*
              */
-            sherlock$.react(reactor, { from: sherlock$.is('dear') });
+            sherlock$.react(reactor, { from: sherlock$.is('dear') }); 
 
             expectReact(0);
             ['Elementary,', 'my', 'dear', 'Watson'].forEach(txt => sherlock$.set(txt));
@@ -364,10 +366,7 @@ describe('reacting', () => {
              * Now, let's react to all even numbers.
              * Except 4, we don't want to make it too easy now.
              */
-            count$.react(reactor, { when: v => v.get() % 2 === 0 && v.is(4).not() });
-            count$.react(reactor, { when: v => v.get() % 2 === 0 && v.get() !== 4 });
-            // TODO: why can I apply `&&` to `number` and Derivable<number>??
-            // >>>  e.g. `when` kan zowel booleans and Derivable<boolean> vanwege Unwrappable type xD
+            count$.react(reactor, { when: v => v.get() % 2 === 0 && v.get() !== 4 }); 
 
             expectReact(1, 0);
 
@@ -387,35 +386,26 @@ describe('reacting', () => {
          * there is also a `boolean` option: `skipFirst`.
          */
         it('reacting with `skipFirst`', () => {
-            const done$ = atom(false);
+            const count$ = atom(0);
 
             /**
              * ** Your Turn **
              *
-             * Say you want to react when `done$` is true. But not right away.. // TODO: change to use number?
+             * Say you want to react when `count$` is larger than 3. But not the first time...
              */
-            done$.react(reactor, { when: d => d.is(true) }); // TODO: true expected answer given description: the test case needs asjustment!
-            // SKIPFIRST negeert de eerste keer dat WHEN true is! Niet de eerste keer in general.
-            // `// Doesn't react, because the new value equals the previous value that was seen by the reactor.`
-            // libs/sherlock/src/lib/reactor/reactor.test.ts:136
-            // Hij accepteert alleen waardes die anders zijn dan zijn huidige. Omdat hij alleen `true` accepteert, kan hij nooit meer updaten!
-            // => false accepteert de `when` niet;
-            // => true is zelfde als voorheen.
-            // Ik denk dat hij, ondanks dat `skipFirst` de eerste true genegeerd heeft, hij hem wel onthouden heeft als last seen value. Expected!
-            // Zie libs/sherlock/src/lib/derivable/mixins/take.ts voor volgorde van events?
-            // Als je `events` wilt, kan je beter Observables ofzo gebruiken. Je wilt dit patroon van "elke keer dat je true ziet, pas aan" eigenlijk niet hier.
-            // kan beter numbers gebruiken om dit te testen! `<= 4` ofzo
-            // En extra testje hiervoor!
+            count$.react(reactor, { when: d => d.get() > 3, skipFirst: true }); 
+
             expectReact(0);
 
-            done$.set(true);
-            expectReact(0);
+            for (let i = 0; i <= 5; i++) {
+                count$.set(i);
+            }
+            expectReact(1, 5); // it should have skipped the 4
 
-            done$.set(false);
-            expectReact(0);
-
-            done$.set(true);
-            expectReact(1, true);
+            for (let i = 0; i <= 5; i++) {
+                count$.set(i);
+            }
+            expectReact(3, 5); // now it should not have skipped the 4
         });
 
         /**
@@ -437,8 +427,8 @@ describe('reacting', () => {
              *
              * *Hint: you will need to combine `once` with another option*
              */
-            finished$.react(reactor, { once: true, when: f => f.get() }); // TODO: make sure the test captures the diff between `f` and `f.get()` here!
-            // see next `challenge` for a case where there is a difference.
+            finished$.react(reactor, { once: true, when: f => f }); // `f => f.get()` is fine as well 
+
             expectReact(0);
 
             // When finished it should react once.
@@ -453,11 +443,9 @@ describe('reacting', () => {
     });
 
     describe('order of execution', () => {
-        // the interactions between `from`, `until`, `when`, `skipFirst`, `once`... - that order!
-        // als het goed is nog niet behandeld (libs/sherlock/src/lib/derivable/mixins/take.ts)
-
         /**
-         * The options `from`, `until`, `when`, `skipFirst` and `once` are tested in this specific order:
+         * As you can see for yourself in  libs/sherlock/src/lib/derivable/mixins/take.ts,
+         * the options `from`, `until`, `when`, `skipFirst` and `once` are tested in this specific order:
          * 1) firstly, `from` is checked. If `from` is/was true (or is not set in the options), we continue:
          * 2) secondly, `until` is checked. If `until` is false (or is not set in the options), we continue:
          * 3) thirdly, `when` is checked. If `when` is true (or is not set in the options), we continue:
@@ -475,10 +463,10 @@ describe('reacting', () => {
                 myAtom$.set(i);
             }
 
-            // the reactor starts reacting when `myAtom` gets the value 3, but stops when it gets the value 2.
+            // The reactor starts reacting when `myAtom` gets the value 3, but stops when it gets the value 2.
             // But because `myAtom` obtains the value 2 before it obtains 3...
             // ...how many times was the reactor called, if any?
-            expectReact(__YOUR_TURN__);
+            expectReact(3, 5); // `from` evaluates before `until`. 
         });
 
         it('`when` and `skipFirst`', () => {
@@ -487,9 +475,10 @@ describe('reacting', () => {
 
             myAtom$.set(1);
 
-            // the reactor reacts when `myAtom` is 1 but skips the first number.
-            // `myAtom` starts at 0. Does the reactor skip the 0 or the 1?
-            expectReact(__YOUR_TURN__);
+            // The reactor reacts when `myAtom` is 1 but skips the first number.
+            // The first number of `myAtom` is 0, its initial number.
+            // Does the reactor skip the 0 or the 1?
+            expectReact(0); // `skipFirst` triggers only when `when` evaluates to true. 
         });
 
         it('`from`, `until`, `when`, `skipFirst`, and `once`', () => {
@@ -502,7 +491,7 @@ describe('reacting', () => {
                 once: true,
             });
 
-            for (let v of [1, 2, 3, 5, 4, 3, 2, 1, 2, 3]) {
+            for (let v of [1, 2, 3, 4, 5, 4, 3, 2, 1, 2, 3]) {
                 myAtom$.set(v);
             }
 
@@ -510,56 +499,51 @@ describe('reacting', () => {
             // Meanwhile, `when` allows neither of those values and only allows the values 2, 3, and 4.
             // `skipFirst` and `once` are also added, just to bring the whole group together.
             // so, how many times is the reactor called, and what was the last argument (if any)?
-            expectReact(__YOUR_TURN__);
+            
+            expectReact(1, 3);
+            // `from` makes it start at the first `5`. `when` allows the next `4`,`3`, and `2`, but
+            // `skipFirst` ensures that the first `4` is skipped. `once` then ensures that only the `3`
+            // reacted to. Before the `until` can trigger from a `1`, the `once` has already stopped it.
+            
         });
     });
 
     describe('challenge', () => {
         it('onDisconnect', () => {
-            const connected$ = atom(false); // TODO: change to use number
-
+            const connected$ = atom('disconnected');
             /**
              * ** Your Turn **
              *
-             * We want our reactor to trigger once, when the user disconnects
-             * (eg for cleanup).
+             * `connected$` indicates the current connection status:
+             * > 'connected';
+             * > 'disconnected';
+             * > 'standby'.
              *
-             * `connected$` indicates the current connection status.
+             * We want our reactor to trigger once, when the device is not connected,
+             * which means it is either `standby` or `disconnected` (eg for cleanup).
+             *
              * This should be possible with three simple ReactorOptions
-             * Hint: do not use `when`!
              */
-            connected$.react(reactor, { from: c => c, skipFirst: true, once: true }); // WORKS, and intended
-            connected$.react(reactor, { from: _ => connected$, skipFirst: true, once: true }); // WORKS, and intended
-            connected$.react(reactor, { from: connected$, skipFirst: true, once: true }); // WORKS, and intended
+            connected$.react(reactor, { when: s => s.is('connected').not(), skipFirst: true, once: true }); 
 
-            // TODO:
-            // `when: c => !c.get()` gets the boolean out of the Derivable, applies `not`, and returns
-            // `when: c => !c` coerces the Derivable to a boolean (whether it exists: true), applies `not` to this boolean, and returns false.
-            // `when: c => c.not()` takes the boolean out of the Derivable, applies `not`, puts it back in a Derivable, and `when` is overloaded
-            // ...to also be able to take the boolean out of the Derivable! So that is how you can also pass a Derivable - `when` takes the boolean out!
-            // connected$.react(reactor, { when: c => !c.get(), from: c => c.get() }); // 1. DOES NOT WORK - the connection is not false afterwards
-            // connected$.react(reactor, { when: c => !c, from: c => c }); // 2. DOES NOT WORK - see above
-            // connected$.react(reactor, { when: c => !c.get(), skipFirst: true }); // 3. DOES NOT WORK...
-            // ...as the first time c is false, this is accepted in the system even though skipfirst is true. Then...
-            // ...the second time that c is false, it is seen as the same value and thus not accepted (only changes are accepted)! Hence:
-            // setting a Derivable with a value it already has does not trigger it. It does not even go to `when`.
-
-            // It starts as 'not connected'
+            // It starts as 'disconnected'
             expectReact(0);
 
-            // At this point, the user connects, no reaction should occur yet.
-            connected$.set(true);
+            // At this point, the device connects, no reaction should occur yet.
+            connected$.set('connected');
             expectReact(0);
 
-            // When the user disconnects, the reaction should fire once
-            connected$.set(false);
-            expectReact(1, false);
+            // When the device goes to standby, the reaction should fire once
+            connected$.set('standby');
+            expectReact(1, 'standby');
 
             // After that, nothing should change anymore.
-            connected$.set(true);
-            expectReact(1, false);
-            connected$.set(false);
-            expectReact(1, false);
+            connected$.set('disconnected');
+            expectReact(1, 'standby');
+            connected$.set('standby');
+            expectReact(1, 'standby');
+            connected$.set('connected');
+            expectReact(1, 'standby');
 
             // It should not react again after this.
             expect(connected$.connected).toBeFalse();
