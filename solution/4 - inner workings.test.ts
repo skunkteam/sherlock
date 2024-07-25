@@ -2,16 +2,9 @@ import { atom } from '@skunkteam/sherlock';
 import { Seq } from 'immutable';
 
 /**
- * ** Your Turn **
- *
- * If you see this variable, you should do something about it. :-)
- */
-export const __YOUR_TURN__ = {} as any;
-
-/**
  * Time to dive a bit deeper into the inner workings of `@skunkteam/sherlock`.
  */
-describe.skip('inner workings', () => {
+describe('inner workings', () => {
     /**
      * What if there is a derivation that reads from one of two `Derivable`s
      * dynamically? Will both of those `Derivable`s be tracked for changes?
@@ -43,9 +36,11 @@ describe.skip('inner workings', () => {
          *
          * What do you expect?
          */
-        
-        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
-        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
+        expect(reacted).toHaveBeenCalledTimes(1);
+        expect(reacted).toHaveBeenLastCalledWith(1, expect.toBeFunction());
+        // Note: the reactor doesn't know that changing `string$` will not generate a different
+        // answer by looking at the code of `switch$`, but instead it simply noticed that
+        // `switch$` got the same value it already had and prevented triggering because of that.
 
         // `switch$` is still set to true (number)
         number$.set(2);
@@ -55,9 +50,9 @@ describe.skip('inner workings', () => {
          *
          * What do you expect?
          */
-        
-        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
-        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
+        expect(reacted).toHaveBeenCalledTimes(2);
+        expect(reacted).toHaveBeenLastCalledWith(2, expect.toBeFunction());
+        // As it got a different value (`2` instead of `1`), it triggered.
 
         // `switch$` is now set to false (string)
         switch$.set(false);
@@ -68,10 +63,9 @@ describe.skip('inner workings', () => {
          *
          * What do you expect now?
          */
-        
-        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
-        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
-
+        expect(reacted).toHaveBeenCalledTimes(3);
+        expect(reacted).toHaveBeenLastCalledWith('two', expect.toBeFunction());
+        // As it got a different value (`two` instead of `2`), it triggered.
     });
 
     /**
@@ -93,21 +87,21 @@ describe.skip('inner workings', () => {
          * not called `.get()` on that new `Derivable`.
          *
          * How many times do you think the `hasDerived` function has been
-         * called? 0 is also an option of course.
+         * called?
          */
 
         // Well, what do you expect?
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(0); 
 
         myDerivation$.get();
 
         // And after a `.get()`?
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(1); 
 
         myDerivation$.get();
 
         // And after the second `.get()`? Is there an extra call?
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(2); 
 
         /**
          * The state of any `Derivable` can change at any moment.
@@ -146,27 +140,27 @@ describe.skip('inner workings', () => {
          *
          * Ok, it's your turn to complete the expectations.
          */
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(1); // because of the react. 
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(1); // no update: someone is reacting, and there has been no update in value. 
 
         myAtom$.set(false);
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(2); // `myDerivation$`s value has changed, so update. 
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(2); // no update. 
 
         stopper();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(2); // stopping doesn't change the value... 
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(3); // ...but now, it is not being reacted to, so it goes back to updating every time `.get()` is called. 
 
         /**
          * Since the `.react()` already listens to the value-changes, there is
@@ -211,23 +205,23 @@ describe.skip('inner workings', () => {
         // Note that this is the same value as it was initialized with
         myAtom$.set(1);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); 
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(first).toHaveBeenCalledTimes(1); // `myAtom$` has the same value (`1`), so no need to be called 
+        expect(second).toHaveBeenCalledTimes(1); // `first$` has the same value (`false`), so no need to be called 
 
         myAtom$.set(2);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); 
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(first).toHaveBeenCalledTimes(2); // `myAtom$` has a different value (`2`), so call again 
+        expect(second).toHaveBeenCalledTimes(1); // `first$` has the same value (`false`), so no need to be called 
 
         myAtom$.set(3);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); 
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(first).toHaveBeenCalledTimes(3); // `myAtom$` has a different value (`3`), so call again 
+        expect(second).toHaveBeenCalledTimes(2); // `first$` has a different value (`true`), so call again 
 
         myAtom$.set(4);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); 
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(first).toHaveBeenCalledTimes(4); // `myAtom$` has a different value (`4`), so call again 
+        expect(second).toHaveBeenCalledTimes(2); // `first$` has the same value (`true`), so no need to be called 
 
         /**
          * Can you explain the behavior above?
@@ -255,7 +249,7 @@ describe.skip('inner workings', () => {
         const hasReacted = jest.fn();
 
         atom$.react(hasReacted, { skipFirst: true });
-        expect(hasReacted).toHaveBeenCalledTimes(0); // added for clarity, in case people missed the `skipFirst` or its implication
+        expect(hasReacted).toHaveBeenCalledTimes(0);
 
         atom$.set({});
 
@@ -265,7 +259,7 @@ describe.skip('inner workings', () => {
          * The `Atom` is set with exactly the same object as before. Will the
          * `.react()` fire?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasReacted).toHaveBeenCalledTimes(1); // `{} !== {}`, as they are different references 
 
         /**
          * But what if you use an object, that can be easily compared through a
@@ -284,7 +278,7 @@ describe.skip('inner workings', () => {
          *
          * Do you think the `.react()` fired with this new value?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasReacted).toHaveBeenCalledTimes(0); 
 
         atom$.set(Seq.Indexed.of(1, 2));
 
@@ -293,7 +287,7 @@ describe.skip('inner workings', () => {
          *
          * And now?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasReacted).toHaveBeenCalledTimes(1); 
 
         /**
          * In `@skunkteam/sherlock` equality is a bit complex:
@@ -301,7 +295,7 @@ describe.skip('inner workings', () => {
          * First we check `Object.is()` equality, if that is true, it is the
          * same, you can't deny that.
          *
-         * After that it is pluggable. It can be anything you want.
+         * After that it is pluggable. It can be anything you want. TODO: what is pluggable?
          *
          * By default we try to use `.equals()`, to support libraries like
          * `ImmutableJS`.

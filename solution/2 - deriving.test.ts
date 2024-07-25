@@ -1,13 +1,6 @@
 import { atom, Derivable, derive } from '@skunkteam/sherlock';
 
 /**
- * ** Your Turn **
- *
- * If you see this variable, you should do something about it. :-)
- */
-export const __YOUR_TURN__ = {} as any;
-
-/**
  * Any `Derivable` (including `Atom`s) can be used (and/or combined) to create
  * a derived state. This derived state is in turn a `Derivable`.
  *
@@ -37,7 +30,7 @@ describe('deriving', () => {
          */
 
         // We can combine txt with `repeat$.get()` here.
-        const lyric$ = text$.derive(txt => txt.repeat(repeat$.get()));
+        const lyric$ = text$.derive(txt => txt.repeat(repeat$.get())); 
 
         expect(lyric$.get()).toEqual(`It won't be long`);
 
@@ -73,13 +66,11 @@ describe('deriving', () => {
          * method on another `Derivable`.
          */
 
-        // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
-
         // Should return 'Fizz' when `myCounter$` is a multiple of 3 and '' otherwise.
-        const fizz$: Derivable<string> = myCounter$.derive(v => (v % 3 ? 'Fizz' : '')); // Shorthand for `v % 3 === 0`
+        const fizz$: Derivable<string> = myCounter$.derive(v => (v % 3 ? '' : 'Fizz')); // Shorthand for `v % 3 !== 0`
 
         // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
-        const buzz$: Derivable<string> = myCounter$.derive(v => (v % 5 ? 'Buzz' : ''));
+        const buzz$: Derivable<string> = myCounter$.derive(v => (v % 5 ? '' : 'Buzz'));
 
         const fizzBuzz$: Derivable<string | number> = derive(() => fizz$.get() + buzz$.get() || myCounter$.get());
 
@@ -200,7 +191,6 @@ describe('deriving', () => {
          * `.and(...)` and `.or(...)`. Make sure the output of those `Derivable`s
          * is either 'Fizz'/'Buzz' or ''.
          */
-
         const fizz$ = myCounter$
             .derive(count => count % 3)
             .is(0)
@@ -213,8 +203,8 @@ describe('deriving', () => {
             .and('Buzz')
             .or('');
 
-        const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(myCounter$);
-        // This will check whether `fizz$.get() + buzz$.get()` is truthy: if so, return it; if not, return `myCounter$`
+        const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(myCounter$); 
+        // This will check whether `fizz$.get() + buzz$.get()` is truthy: if so, return it; if not, return `myCounter$` 
 
         for (let count = 1; count <= 100; count++) {
             // Set the value of the `Atom`,

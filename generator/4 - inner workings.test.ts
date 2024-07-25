@@ -1,13 +1,13 @@
 import { atom } from '@skunkteam/sherlock';
 import { Seq } from 'immutable';
 
+// #QUESTION-BLOCK-START
 /**
  * ** Your Turn **
- *
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
-
+// #QUESTION-BLOCK-END
 /**
  * Time to dive a bit deeper into the inner workings of `@skunkteam/sherlock`.
  */
@@ -89,6 +89,7 @@ describe('inner workings', () => {
         // #ANSWER-BLOCK-START
         expect(reacted).toHaveBeenCalledTimes(3);
         expect(reacted).toHaveBeenLastCalledWith('two', expect.toBeFunction());
+        // As it got a different value (`two` instead of `2`), it triggered.
         // #ANSWER-BLOCK-END
     });
 
@@ -111,7 +112,7 @@ describe('inner workings', () => {
          * not called `.get()` on that new `Derivable`.
          *
          * How many times do you think the `hasDerived` function has been
-         * called? 0 is also an option of course.
+         * called?
          */
 
         // Well, what do you expect?
@@ -173,7 +174,7 @@ describe('inner workings', () => {
         myDerivation$.get();
 
         expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
-        expect(hasDerived).toHaveBeenCalledTimes(1); // no update because someone is reacting, and there has been no update in value. // #ANSWER
+        expect(hasDerived).toHaveBeenCalledTimes(1); // no update: someone is reacting, and there has been no update in value. // #ANSWER
 
         myAtom$.set(false);
 
@@ -290,7 +291,7 @@ describe('inner workings', () => {
         const hasReacted = jest.fn();
 
         atom$.react(hasReacted, { skipFirst: true });
-        expect(hasReacted).toHaveBeenCalledTimes(0); // added for clarity, in case people missed the `skipFirst` or its implication
+        expect(hasReacted).toHaveBeenCalledTimes(0);
 
         atom$.set({});
 
@@ -301,7 +302,7 @@ describe('inner workings', () => {
          * `.react()` fire?
          */
         expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
-        expect(hasReacted).toHaveBeenCalledTimes(1); // `{} !== {}`, as they have different references // #ANSWER
+        expect(hasReacted).toHaveBeenCalledTimes(1); // `{} !== {}`, as they are different references // #ANSWER
 
         /**
          * But what if you use an object, that can be easily compared through a
@@ -339,7 +340,7 @@ describe('inner workings', () => {
          * First we check `Object.is()` equality, if that is true, it is the
          * same, you can't deny that.
          *
-         * After that it is pluggable. It can be anything you want.
+         * After that it is pluggable. It can be anything you want. TODO: what is pluggable?
          *
          * By default we try to use `.equals()`, to support libraries like
          * `ImmutableJS`.

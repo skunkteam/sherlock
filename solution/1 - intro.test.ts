@@ -1,19 +1,13 @@
 import { atom } from '@skunkteam/sherlock';
 
 /**
- * ** Your Turn **
- * If you see this variable, you should do something about it. :-)
- */
-export const __YOUR_TURN__ = {} as any;
-
-/**
  * Welcome to the `@skunkteam/sherlock` tutorial.
  *
  * It is set up as a collection of specs, with the goal of getting all the specs
  * to pass. The `expect()`s and basic setup are there, you just need to get it
  * to work.
  *
- * All specs except the first one are set to `.skip`. Remove this to start on
+ * All specs are set to `.skip`. Remove this to start on
  * that part of the tutorial.
  *
  * Start the tutorial by running:
@@ -25,7 +19,15 @@ export const __YOUR_TURN__ = {} as any;
  *
  * *Hint: most methods and functions are fairly well documented in jsDoc,
  * which is easily accessed through TypeScript*
+ *
+ * If you cannot figure it out or are curious to the intended answers, you can
+ * read the answers in the `solution` folder.
  */
+
+/**
+ * ** Your Turn **
+ * Your first task: remove this `.skip`.
+ * */
 describe('intro', () => {
     it(`
     

@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-TODO: should I put my shit in?
+TODO:
+Lots of changes!
+
+-   Swapped `7 - advanced` with `8 - util` to be able to use advanced techniques in the utils.
+-   More tests, including `reactor options order of execution (3)`, `fallback-to (5)`, `errors (6)`, `templates, take, map on arrays, mapState, flatMap, pluck (7)`, and `pairwise/scan on normal arrays, peek, lift, final, promise... (8)`.
+-   The tutorial and solutions are now both available in the same branch. To prevent making every change twice, all changes should now be put in the `generator` folder rather than directly in the `tutorial` or `solution` folder.
 
 ## [8.0.0](https://github.com/skunkteam/sherlock/compare/v7.0.0...v8.0.0) (2023-10-17)
 

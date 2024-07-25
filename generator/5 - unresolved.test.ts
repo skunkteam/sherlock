@@ -1,12 +1,12 @@
 import { atom, Derivable, DerivableAtom } from '@skunkteam/sherlock';
 
+// #QUESTION-BLOCK-START
 /**
  * ** Your Turn **
- *
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
-
+// #QUESTION-BLOCK-END
 /**
  * Sometimes your data isn't available yet. For example if it is still being
  * fetched from the server. At that point you probably still want your
@@ -36,7 +36,7 @@ describe('unresolved', () => {
          * Resolve the atom, it's pretty easy
          */
         __YOUR_TURN__; // #QUESTION
-        myAtom$.set(1); // #ANSWER
+        myAtom$.set(1); // setting it to any value will unresolve it // #ANSWER
 
         expect(myAtom$.resolved).toBeTrue();
     });
@@ -152,7 +152,7 @@ describe('unresolved', () => {
          * Combine the two `Atom`s into one `Derivable`
          */
         const myDerivable$: Derivable<string> = __YOUR_TURN__; // #QUESTION
-        const myDerivable$: Derivable<string> = myString$.derive(s => s + myOtherString$.get()); // #ANSWER
+        const myDerivable$: Derivable<string> = myString$.derive(parent$ => parent$ + myOtherString$.get()); // #ANSWER
 
         /**
          * ** Your Turn **
@@ -188,5 +188,32 @@ describe('unresolved', () => {
         myString$.unset();
         expect(myDerivable$.resolved).toEqual(__YOUR_TURN__); // #QUESTION
         expect(myDerivable$.resolved).toEqual(false); // #ANSWER
+    });
+
+    /**
+     * It is nice to be able to have a backup plan when a Derivable gets unresolved.
+     * The `.fallbackTo()` function allows you to specify a default value
+     * whenever your Derivable gets unset.
+     */
+    it('Fallback-to', () => {
+        const myAtom$ = atom(0);
+
+        /**
+         * ** Your Turn **
+         * Use the `.fallbackTo()` method to create a `mySafeAtom$` which
+         * gets the backup value `3` when `myAtom$` becomes unresolved.
+         */
+        const mySafeAtom$ = myAtom$.fallbackTo(__YOUR_TURN__); // #QUESTION
+        const mySafeAtom$ = myAtom$.fallbackTo(() => 3); // #ANSWER
+
+        expect(myAtom$.value).toBe(0);
+        expect(mySafeAtom$.value).toBe(0);
+
+        myAtom$.unset();
+
+        expect(myAtom$.resolved).toBeFalse();
+        expect(mySafeAtom$.resolved).toBeTrue();
+        expect(myAtom$.value).toBeUndefined();
+        expect(mySafeAtom$.value).toBe(3);
     });
 });

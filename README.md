@@ -85,7 +85,7 @@ let currentPageNumber$ = atom(0);
 
 // We simply use a lambda function to define currentPage$ as a derivation of currentBook$
 // and currentFontSize$ using calculatePages. Sherlock automatically records all dependencies.
-let currentPages$ = derivation(() => calculatePages(currentBook$.get(), currentFontSize$.get()));
+let currentPages$ = derive(() => calculatePages(currentBook$.get(), currentFontSize$.get()));
 
 // currentPage$ is always equal to the element in currentPages$ at position currentPageNumber$.
 let currentPage$ = currentPages$.pluck(currentPageNumber$);
@@ -152,7 +152,7 @@ There are three types of Derivables:
     isBrilliant$.get(); // true
     ```
 
-    Derivations can also be created with the generic `derivation` function as seen earlier. This function can be used to do an arbitrary calculation on any number of derivables. `@skunkteam/sherlock` automatically records which derivable is dependent on which other derivable to be able to update derived state when needed.
+    Derivations can also be created with the generic `derive` function as seen earlier. This function can be used to do an arbitrary calculation on any number of derivables. `@skunkteam/sherlock` automatically records which derivable is dependent on which other derivable to be able to update derived state when needed.
 
 ## Reactors
 

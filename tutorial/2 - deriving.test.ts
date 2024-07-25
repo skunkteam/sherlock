@@ -2,11 +2,9 @@ import { atom, Derivable, derive } from '@skunkteam/sherlock';
 
 /**
  * ** Your Turn **
- *
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
-
 /**
  * Any `Derivable` (including `Atom`s) can be used (and/or combined) to create
  * a derived state. This derived state is in turn a `Derivable`.
@@ -73,13 +71,13 @@ describe.skip('deriving', () => {
          * method on another `Derivable`.
          */
 
-        // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
-
         // Should return 'Fizz' when `myCounter$` is a multiple of 3 and '' otherwise.
         const fizz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); 
+        const fizz$: Derivable<string> = myCounter$.derive(v => (v % 3 ? '' : 'Fizz')); // Shorthand for `v % 3 !== 0`
 
         // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
         const buzz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); 
+        const buzz$: Derivable<string> = myCounter$.derive(v => (v % 5 ? '' : 'Buzz'));
 
         const fizzBuzz$: Derivable<string | number> = derive(__YOUR_TURN__); 
 
@@ -200,7 +198,6 @@ describe.skip('deriving', () => {
          * `.and(...)` and `.or(...)`. Make sure the output of those `Derivable`s
          * is either 'Fizz'/'Buzz' or ''.
          */
-        
         const fizz$ = myCounter$
             .derive(count => count % 3)
             .is(__YOUR_TURN__)

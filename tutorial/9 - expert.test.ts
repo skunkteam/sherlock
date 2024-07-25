@@ -3,13 +3,11 @@ import { derivableCache } from '@skunkteam/sherlock-utils';
 
 /**
  * ** Your Turn **
- *
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
-
-describe('expert', () => {
-    describe('`.autoCache()`', () => {
+describe.skip('expert', () => {
+    describe.skip('`.autoCache()`', () => {
         /**
          * If a `.get()` is called on a `Derivable` all derivations will be
          * executed. But what if a `Derivable` is used multiple times in another
@@ -30,9 +28,8 @@ describe('expert', () => {
              * `hasDerived` is used in the first derivation. But has it been
              * called at this point?
              */
-
             // `.toHaveBeenCalled()` or `.not.toHaveBeenCalled()`? ↴
-            expect(hasDerived).not.toHaveBeenCalled(); 
+            expect(hasDerived) /* Your Turn */; 
 
             mySecondDerivation$.get();
 
@@ -44,7 +41,7 @@ describe('expert', () => {
              * first `Derivable` actually executed its derivation?
              */
             // how many times?
-            expect(hasDerived).toHaveBeenCalledTimes(3); 
+            expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
         });
 
         /**
@@ -68,7 +65,7 @@ describe('expert', () => {
              * expectations pass.
              */
             const myAtom$ = atom(true);
-            const myFirstDerivation$ = myAtom$.derive(firstHasDerived).autoCache(); 
+            const myFirstDerivation$ = myAtom$.derive(firstHasDerived); 
             const mySecondDerivation$ = myFirstDerivation$.derive(() =>
                 secondHasDerived(myFirstDerivation$.get() + myFirstDerivation$.get()),
             );
@@ -110,9 +107,9 @@ describe('expert', () => {
             mySecondDerivation$.get();
 
             // first after last .get()
-            expect(firstHasDerived).toHaveBeenCalledTimes(2); 
+            expect(firstHasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
             // second after last .get()
-            expect(secondHasDerived).toHaveBeenCalledTimes(3); 
+            expect(secondHasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
         });
     });
 
@@ -132,7 +129,7 @@ describe('expert', () => {
      * *Note that a `Derivable` without an input is (hopefully) created only
      * once, so it does not have this problem*
      */
-    describe('`derivableCache`', () => {
+    describe.skip('`derivableCache`', () => {
         type Stocks = 'GOOGL' | 'MSFT' | 'APPL';
 
         let stockPrice$: jest.Mock<DerivableAtom<number>, [Stocks], any>;
@@ -182,20 +179,15 @@ describe('expert', () => {
              * But does that apply here?
              * How many times has the setup run, for the price `Derivable`.
              */
-            expect(stockPrice$).toHaveBeenCalledTimes(2); 
+            expect(stockPrice$).toHaveBeenCalledTimes(__YOUR_TURN__); 
 
             /** Can you explain this behavior? */
-            // ANSWER-BLOCK-START
-            // Yes: it creates a different Derivable every time, so it cannot use any caching.
-            // This is a similar issue to the `pairwise()` issue from tutorial 7, where, when we
-            // used lambda functions, we made a new pairwise object every time.
-            // ANSWER-BLOCK-END
         });
 
         /**
-         * An other problem can arise when the setup is done inside a derivation
+         * Another problem can arise when the setup is done inside a derivation
          */
-        describe('setup inside a derivation', () => {
+        describe.skip('setup inside a derivation', () => {
             /**
              * When the setup of a `Derivable` is done inside the same
              * derivation as where `.get()` is called. You may be creating some
@@ -234,19 +226,19 @@ describe('expert', () => {
                  */
 
                 // How often was the reactor on price$ called?
-                expect(reactSpy).toHaveBeenCalledTimes(0); 
+                expect(reactSpy).toHaveBeenCalledTimes(__YOUR_TURN__); 
 
                 // And how many times did the setup run?
-                expect(stockPrice$).toHaveBeenCalledTimes(2); 
+                expect(stockPrice$).toHaveBeenCalledTimes(__YOUR_TURN__); 
 
                 // What's the value of price$ now?
-                expect(price$.value).toEqual(undefined); 
+                expect(price$.value).toEqual(__YOUR_TURN__); 
 
                 // And the value of googlPrice$?
-                expect(googlPrice$.value).toEqual(1079.11); 
+                expect(googlPrice$.value).toEqual(__YOUR_TURN__); 
 
                 // Is googlPrice$ still even driving any reactors?
-                expect(googlPrice$.connected).toEqual(false); 
+                expect(googlPrice$.connected).toEqual(__YOUR_TURN__); 
 
                 /**
                  * Can you explain this behavior?
@@ -329,8 +321,8 @@ describe('expert', () => {
                  *
                  * So the value was increased. What do you think happened now?
                  */
-                expect(reactSpy).toHaveBeenCalledTimes(2); 
-                expect(reactSpy).toHaveBeenLastCalledWith([1079.11]); 
+                expect(reactSpy).toHaveBeenCalledTimes(__YOUR_TURN__); 
+                expect(reactSpy).toHaveBeenLastCalledWith([__YOUR_TURN__]); 
 
                 /**
                  * So that worked, now let's try and add another company to the
@@ -348,8 +340,8 @@ describe('expert', () => {
                  *
                  * We had a price for 'GOOGL', but not for 'APPL'...
                  */
-                expect(reactSpy).toHaveBeenCalledTimes(3); 
-                expect(reactSpy).toHaveBeenCalledWith([undefined, undefined]); 
+                expect(reactSpy).toHaveBeenCalledTimes(__YOUR_TURN__); 
+                expect(reactSpy).toHaveBeenCalledWith([__YOUR_TURN__, __YOUR_TURN__]); 
             });
         });
 
@@ -357,7 +349,7 @@ describe('expert', () => {
          * So we know a couple of problems that can arise, but how do we fix
          * them.
          */
-        describe('a solution', () => {
+        describe.skip('a solution', () => {
             /**
              * Let's try putting `stockPrice$` inside a `derivableCache`.
              * `derivableCache` requires a `derivableFactory`, this specifies
@@ -409,7 +401,7 @@ describe('expert', () => {
                  *
                  * Has anything changed, by using the `derivableCache`?
                  */
-                expect(stockPrice$).toHaveBeenCalledTimes(1); 
+                expect(stockPrice$).toHaveBeenCalledTimes(__YOUR_TURN__); 
 
                 // Now let's resolve the price
                 stockPrice$.mock.results[0].value.set(1079.11);
@@ -422,10 +414,10 @@ describe('expert', () => {
                  *
                  * What happens this time? Has the setup run again?
                  */
-                expect(stockPrice$).toHaveBeenCalledTimes(1); 
+                expect(stockPrice$).toHaveBeenCalledTimes(__YOUR_TURN__); 
                 // Ok, but did it update the HTML?
-                expect(reactSpy).toHaveBeenCalledTimes(2); 
-                expect(lastEmittedHTMLs()[0]).toContain('$ 1079.11'); 
+                expect(reactSpy).toHaveBeenCalledTimes(__YOUR_TURN__); 
+                expect(lastEmittedHTMLs()[0]).toContain(__YOUR_TURN__); 
 
                 // Last chance, what if we add a company
                 companies$.swap(current => [...current, 'APPL']);
@@ -438,12 +430,12 @@ describe('expert', () => {
                  *
                  * But did it calculate 'GOOGL' again too?
                  */
-                expect(stockPrice$).toHaveBeenCalledTimes(2); 
-                expect(reactSpy).toHaveBeenCalledTimes(3); 
+                expect(stockPrice$).toHaveBeenCalledTimes(__YOUR_TURN__); 
+                expect(reactSpy).toHaveBeenCalledTimes(__YOUR_TURN__); 
                 // The first should be the generated HTML for 'GOOGL'.
-                expect(lastEmittedHTMLs()[0]).toContain('$ 1079.11'); 
+                expect(lastEmittedHTMLs()[0]).toContain(__YOUR_TURN__); 
                 // The second should be the generated HTML for 'APPL'.
-                expect(lastEmittedHTMLs()[1]).toContain('$ unknown'); 
+                expect(lastEmittedHTMLs()[1]).toContain(__YOUR_TURN__); 
             });
         });
     });

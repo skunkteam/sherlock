@@ -2,11 +2,9 @@ import { atom, Derivable, DerivableAtom } from '@skunkteam/sherlock';
 
 /**
  * ** Your Turn **
- *
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
-
 /**
  * Sometimes your data isn't available yet. For example if it is still being
  * fetched from the server. At that point you probably still want your
@@ -174,5 +172,31 @@ describe.skip('unresolved', () => {
          */
         myString$.unset();
         expect(myDerivable$.resolved).toEqual(__YOUR_TURN__); 
+    });
+
+    /**
+     * It is nice to be able to have a backup plan when a Derivable gets unresolved.
+     * The `.fallbackTo()` function allows you to specify a default value
+     * whenever your Derivable gets unset.
+     */
+    it('Fallback-to', () => {
+        const myAtom$ = atom(0);
+
+        /**
+         * ** Your Turn **
+         * Use the `.fallbackTo()` method to create a `mySafeAtom$` which
+         * gets the backup value `3` when `myAtom$` becomes unresolved.
+         */
+        const mySafeAtom$ = myAtom$.fallbackTo(__YOUR_TURN__); 
+
+        expect(myAtom$.value).toBe(0);
+        expect(mySafeAtom$.value).toBe(0);
+
+        myAtom$.unset();
+
+        expect(myAtom$.resolved).toBeFalse();
+        expect(mySafeAtom$.resolved).toBeTrue();
+        expect(myAtom$.value).toBeUndefined();
+        expect(mySafeAtom$.value).toBe(3);
     });
 });

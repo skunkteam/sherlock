@@ -1,21 +1,6 @@
 import { atom, constant, derive, FinalWrapper } from '@skunkteam/sherlock';
 import { fromPromise, lift, pairwise, peek, scan, struct } from '@skunkteam/sherlock-utils';
 
-// #QUESTION-BLOCK-START
-/**
- * ** Your Turn **
- * If you see this variable, you should do something about it. :-)
- */
-export const __YOUR_TURN__ = {} as any;
-
-// Silence TypeScript's import not used errors.
-expect(pairwise).toBe(pairwise);
-expect(scan).toBe(scan);
-expect(struct).toBe(struct);
-expect(peek).toBe(peek);
-expect(lift).toBe(lift);
-expect(FinalWrapper).toBe(FinalWrapper); // TODO: not sure whether needed
-// #QUESTION-BLOCK-END
 /**
  * In the `sherlock-utils` lib, there are a couple of functions that can combine
  * multiple values of a single `Derivable` or combine multiple `Derivable`s into
@@ -44,8 +29,7 @@ describe('utils', () => {
          *
          * Note: don't call `pairwise()` using a lambda function!
          */
-        myCounter$.derive(__YOUR_TURN__).react(reactSpy); // #QUESTION
-        myCounter$.derive(pairwise((newVal, oldVal) => newVal - oldVal, 0)).react(reactSpy); // #ANSWER
+        myCounter$.derive(pairwise((newVal, oldVal) => newVal - oldVal, 0)).react(reactSpy); 
 
         expect(reactSpy).toHaveBeenCalledTimes(1);
         expect(reactSpy).toHaveBeenLastCalledWith(1, expect.toBeFunction());
@@ -65,8 +49,7 @@ describe('utils', () => {
         // ** Your Turn **
         // What will the next output be?
         expect(reactSpy).toHaveBeenCalledTimes(4);
-        expect(reactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction()); // #QUESTION
-        expect(reactSpy).toHaveBeenLastCalledWith(10, expect.toBeFunction()); // 20 (current value of `myCounter$`) - 10 (previous value of `myCounter$`) // #ANSWER
+        expect(reactSpy).toHaveBeenLastCalledWith(10, expect.toBeFunction()); // 20 (current value of `myCounter$`) - 10 (previous value of `myCounter$`) 
     });
 
     /**
@@ -95,8 +78,7 @@ describe('utils', () => {
          *
          * Note: don't call `pairwise()` using a lambda function!
          */
-        myCounter$.derive(__YOUR_TURN__).react(reactSpy); // #QUESTION
-        myCounter$.derive(scan((acc, val) => val - acc, 0)).react(reactSpy); // #ANSWER
+        myCounter$.derive(scan((acc, val) => val - acc, 0)).react(reactSpy); 
 
         expect(reactSpy).toHaveBeenCalledTimes(1);
         expect(reactSpy).toHaveBeenLastCalledWith(1, expect.toBeFunction());
@@ -116,8 +98,7 @@ describe('utils', () => {
         // ** Your Turn **
         // What will the next output be?
         expect(reactSpy).toHaveBeenCalledTimes(4);
-        expect(reactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction()); // #QUESTION
-        expect(reactSpy).toHaveBeenLastCalledWith(12, expect.toBeFunction()); // 20 (current value of `myCounter$`) - 8 (previous returned value) // #ANSWER
+        expect(reactSpy).toHaveBeenLastCalledWith(12, expect.toBeFunction()); // 20 (current value of `myCounter$`) - 8 (previous returned value) 
     });
 
     it('`pairwise()` on normal arrays', () => {
@@ -134,19 +115,16 @@ describe('utils', () => {
          *
          * Note: don't call `pairwise()` using a lambda function!
          */
-        myList2 = myList.map(__YOUR_TURN__); // #QUESTION
-        myList2 = myList.map(pairwise((newV, oldV) => newV - oldV, 0)); // #ANSWER
+        myList2 = myList.map(pairwise((newV, oldV) => newV - oldV, 0)); 
         expect(myList2).toMatchObject([1, 1, 1, 2, 5]);
 
         // However, we should be careful with this, as this does not always behave as intended.
         // Particularly, what exactly happens when we do call `pairwise()` using a lambda function?
-        myList2 = myList.map(v => __YOUR_TURN__(v)); // copy the same implementation here // #QUESTION
-        myList2 = myList.map(v => pairwise((newV, oldV) => newV - oldV, 0)(v)); // copy the same implementation here // #ANSWER
+        myList2 = myList.map(v => pairwise((newV, oldV) => newV - oldV, 0)(v)); // copy the same implementation here 
         expect(myList2).toMatchObject([1, 2, 3, 5, 10]);
 
         // Even if we are more clear about what we pass, this unintended behavior does not go away.
-        myList2 = myList.map((v, _, _2) => __YOUR_TURN__(v)); // copy the same implementation here // #QUESTION
-        myList2 = myList.map((v, _, _2) => pairwise((newV, oldV) => newV - oldV, 0)(v)); // copy the same implementation here // #ANSWER
+        myList2 = myList.map((v, _, _2) => pairwise((newV, oldV) => newV - oldV, 0)(v)); // copy the same implementation here 
         expect(myList2).toMatchObject([1, 2, 3, 5, 10]);
 
         // `pairwise()` keeps track of the previous value under the hood. Using a lambda of
@@ -156,16 +134,14 @@ describe('utils', () => {
         // Other than by not using a lambda function, we can fix this by
         // saving the `pairwise` in a variable and reusing it for every call.
 
-        let f: (v: number) => number = __YOUR_TURN__; // copy the same implementation here // #QUESTION
-        let f = pairwise((newV, oldV) => newV - oldV, 0); // #ANSWER
+        let f = pairwise((newV, oldV) => newV - oldV, 0); 
         myList2 = myList.map(v => f(v));
         expect(myList2).toMatchObject([1, 1, 1, 2, 5]);
 
         // To get more insight in the `pairwise()` function, you can call it
         // manually. Here, we show what happens under the hood.
 
-        f = pairwise(__YOUR_TURN__); // copy the same implementation here // #QUESTION
-        f = pairwise((newV, oldV) => newV - oldV, 0); // #ANSWER
+        f = pairwise((newV, oldV) => newV - oldV, 0); 
 
         myList2 = [];
         myList2[0] = f(myList[0]); // `f` is newly created with `init = 0`, so applies `1 - 0 = 1`.
@@ -184,10 +160,8 @@ describe('utils', () => {
          * Note that the function `f` still requires a number to be the return value.
          * Checking for equality therefore cannot be done directly within `f`.
          */
-        f = __YOUR_TURN__; // #QUESTION
-        myList2 = myList.filter(__YOUR_TURN__); // #QUESTION
-        f = pairwise((newV, oldV) => newV - oldV, 0); // #ANSWER
-        myList2 = myList.filter(v => f(v) === 1); // #ANSWER
+        f = pairwise((newV, oldV) => newV - oldV, 0); 
+        myList2 = myList.filter(v => f(v) === 1); 
 
         expect(myList2).toMatchObject([1, 2, 3]); // only the numbers `1`, `2`, and `3` produce 1 when subtracted with the previous value
     });
@@ -203,8 +177,7 @@ describe('utils', () => {
          * Use a `scan()` combined with a `.map()` on `myList`
          * to subtract the previous value from the current.
          */
-        let f: (v: number) => number = scan(__YOUR_TURN__); // #QUESTION
-        let f: (v: number) => number = scan((acc, val) => val - acc, 0); // #ANSWER
+        let f: (v: number) => number = scan((acc, val) => val - acc, 0); 
         myList2 = myList.map(f);
 
         expect(myList2).toMatchObject([1, 1, 2, 3, 7]);
@@ -231,10 +204,8 @@ describe('utils', () => {
          * (1+2+3+5+10), and since this sum only prouces a value higher than 8 when the
          * values `5` and `10` are added, the result should be `[5,10]`.
          */
-        f = scan(__YOUR_TURN__); // #QUESTION
-        myList2 = myList.filter(__YOUR_TURN__); // #QUESTION
-        f = scan((acc, val) => val + acc, 0); // #ANSWER
-        myList2 = myList.filter(v => f(v) >= 8); // #ANSWER
+        f = scan((acc, val) => val + acc, 0); 
+        myList2 = myList.filter(v => f(v) >= 8); 
 
         expect(myList2).toMatchObject([5, 10]);
     });
@@ -250,8 +221,7 @@ describe('utils', () => {
          * Now, use `pairwise()` directly in `.react()`. Implement the same
          * derivation as before: subtract the previous value from the current.
          */
-        reactSpy = jest.fn(__YOUR_TURN__); // #QUESTION
-        reactSpy = jest.fn(pairwise((newV, oldV) => newV - oldV, 0)); // #ANSWER
+        reactSpy = jest.fn(pairwise((newV, oldV) => newV - oldV, 0)); 
         myCounter$.react(reactSpy);
 
         expect(reactSpy).toHaveLastReturnedWith(1);
@@ -277,8 +247,7 @@ describe('utils', () => {
          * derivation as before: subtract all the emitted values.
          */
 
-        reactSpy = jest.fn(__YOUR_TURN__); // #QUESTION
-        reactSpy = jest.fn(scan((acc, val) => val - acc, 0)); // #ANSWER
+        reactSpy = jest.fn(scan((acc, val) => val - acc, 0)); 
         myCounter$.react(reactSpy);
 
         expect(reactSpy).toHaveLastReturnedWith(1);
@@ -332,17 +301,6 @@ describe('utils', () => {
          * Now have a look at the properties of `myOneAtom$`. Is this what you
          * expect?
          */
-        // #QUESTION-BLOCK-START
-        expect(myOneAtom$.get()).toEqual({
-            regularProp: __YOUR_TURN__,
-            string: __YOUR_TURN__,
-            number: __YOUR_TURN__,
-            sub: {
-                string: __YOUR_TURN__,
-            },
-        });
-        // #QUESTION-BLOCK-END
-        // #ANSWER-BLOCK-START
         expect(myOneAtom$.get()).toEqual({
             regularProp: 'new value',
             string: 'my string',
@@ -351,7 +309,6 @@ describe('utils', () => {
                 string: 'my new substring',
             },
         });
-        // #ANSWER-BLOCK-END
     });
 
     describe('lift()', () => {
@@ -377,8 +334,7 @@ describe('utils', () => {
              * In other words: the new function should take a `Derivable<number>` (or more specifically:
              * an `Unwrappable<number>`) and return a `Derivable<boolean>`.
              */
-            const isEvenDerivable = __YOUR_TURN__; // #QUESTION
-            const isEvenDerivable = lift(isEvenNumber); // #ANSWER
+            const isEvenDerivable = lift(isEvenNumber); 
 
             expect(isEvenNumber(2)).toBe(true);
             expect(isEvenNumber(13)).toBe(false);
@@ -399,8 +355,7 @@ describe('utils', () => {
              * ** Your Turn **
              * Now, use `lift()` as alternative to `.map()`.
              */
-            myMappedDerivable$ = __YOUR_TURN__; // #QUESTION
-            myMappedDerivable$ = lift(addOne)(myAtom$); // #ANSWER
+            myMappedDerivable$ = lift(addOne)(myAtom$); 
 
             expect(myMappedDerivable$.value).toBe(2);
         });
@@ -420,8 +375,7 @@ describe('utils', () => {
          * value of `myTrackedAtom$`, which should be tracked.
          */
         const reactor = jest.fn(v => v);
-        derive(__YOUR_TURN__).react(reactor); // #QUESTION
-        derive(() => myTrackedAtom$.get() + peek(myUntrackedAtom$)).react(reactor); // #ANSWER
+        derive(() => myTrackedAtom$.get() + peek(myUntrackedAtom$)).react(reactor); 
 
         expect(reactor).toHaveBeenCalledOnce();
         expect(reactor).toHaveLastReturnedWith(3);
@@ -471,17 +425,14 @@ describe('utils', () => {
              * What do you think will happen when we try to `.get()` or `.set()` this atom?
              */
             // .toThrow() or .not.toThrow()? ↴
-            expect(() => myAtom$.get()) /*__YOUR_TURN__*/; // #QUESTION
-            expect(() => myAtom$.set(2)) /*__YOUR_TURN__*/; // #QUESTION
-            expect(() => myAtom$.get()).not.toThrow(); // #ANSWER
-            expect(() => myAtom$.set(2)).toThrow('cannot set a final derivable'); // #ANSWER
+            expect(() => myAtom$.get()).not.toThrow(); 
+            expect(() => myAtom$.set(2)).toThrow('cannot set a final derivable'); 
 
             // This behavior is consistent with normal variables created using `const`.
             // Alternatively, you can set a last value before setting it to `final`, using `.setFinal()`.
             // .toThrow() or .not.toThrow()? ↴
-            expect(() => myAtom$.setFinal(2)) /*__YOUR_TURN__*/; // #QUESTION
-            expect(() => myAtom$.setFinal(2)).toThrow('cannot set a final derivable'); // #ANSWER
-            // Remember: we try to set an atom that is already final, so we get an error // #ANSWER
+            expect(() => myAtom$.setFinal(2)).toThrow('cannot set a final derivable'); 
+            // Remember: we try to set an atom that is already final, so we get an error 
 
             // There is no way to 'unfinalize' a Derivable, so the only solution to reset is to
             // create a whole new Derivable.
@@ -493,8 +444,7 @@ describe('utils', () => {
             // `final` in disguise. You can verify this by checking the implementation of `constant` at
             // libs/sherlock/src/lib/derivable/factories.ts:39
             const myConstantAtom$ = constant(1);
-            expect(myConstantAtom$.final).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myConstantAtom$.final).toBe(true); // #ANSWER
+            expect(myConstantAtom$.final).toBe(true); 
         });
 
         it('deriving a `final` Derivable', () => {
@@ -513,10 +463,8 @@ describe('utils', () => {
              *
              * What will happen to `myDerivable$` when I change `myAtom$` to be `final`?
              */
-            expect(myDerivable$.final).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myDerivable$.final).toBe(true); // #ANSWER
-            expect(myDerivable$.connected).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myDerivable$.connected).toBe(false); // #ANSWER
+            expect(myDerivable$.final).toBe(true); 
+            expect(myDerivable$.connected).toBe(false); 
 
             /**
              * Derivables that are final (or constant) are no longer tracked. This can save
@@ -565,10 +513,8 @@ describe('utils', () => {
              * ** Your Turn **
              * What do you think is the default state of an atom based on a Promise?
              */
-            expect(myAtom$.resolved).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.final).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.resolved).toBe(false); // #ANSWER
-            expect(myAtom$.final).toBe(false); // #ANSWER
+            expect(myAtom$.resolved).toBe(false); 
+            expect(myAtom$.final).toBe(false); 
 
             // Now we wait for the Promise to be handled (resolved).
             await promise;
@@ -577,10 +523,8 @@ describe('utils', () => {
              * ** Your Turn **
              * So, what will happen to `myAtom$` and `myMappedAtom$`?
              */
-            expect(myAtom$.get()).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.final).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.get()).toBe(15); // #ANSWER
-            expect(myAtom$.final).toBe(true); // #ANSWER
+            expect(myAtom$.get()).toBe(15); 
+            expect(myAtom$.final).toBe(true); 
 
             // Now we make a promise that is rejected when called.
             promise = Promise.reject('Oh no, I messed up!');
@@ -593,12 +537,9 @@ describe('utils', () => {
              * ** Your Turn **
              * So, what will happen to `myAtom$` now?
              */
-            expect(myAtom$.errored).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.error).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.final).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.errored).toBe(true); // #ANSWER
-            expect(myAtom$.error).toBe('Oh no, I messed up!'); // #ANSWER
-            expect(myAtom$.final).toBe(true); // #ANSWER
+            expect(myAtom$.errored).toBe(true); 
+            expect(myAtom$.error).toBe('Oh no, I messed up!'); 
+            expect(myAtom$.final).toBe(true); 
         });
 
         it('`.toPromise()`', async () => {
@@ -615,8 +556,7 @@ describe('utils', () => {
              * What do you think will happen when we try to set the atom with a value?
              */
             myAtom$.set('second value');
-            expect(await promise).toBe(__YOUR_TURN__); // #QUESTION
-            expect(await promise).toBe('initial value'); // `myAtom$` starts with a value ('initial value'), so the promise is immediately resolved // #ANSWER
+            expect(await promise).toBe('initial value'); // `myAtom$` starts with a value ('initial value'), so the promise is immediately resolved 
 
             myAtom$.unset();
             promise = myAtom$.toPromise();
@@ -626,8 +566,7 @@ describe('utils', () => {
              * We set the atom to `unresolved`. What will now happen when we try to set the atom with a value?
              */
             myAtom$.set('third value');
-            expect(await promise).toBe(__YOUR_TURN__); // #QUESTION
-            expect(await promise).toBe('third value'); // This is now the first value the atom obtains since the promise was created. // #ANSWER
+            expect(await promise).toBe('third value'); // This is now the first value the atom obtains since the promise was created. 
 
             // Whenever an atom is in an `unresolved` state, the corresponding Promise is pending.
             // This means that the Promise can still become resolved or rejected depending on the atom's actions.
@@ -646,8 +585,7 @@ describe('utils', () => {
                 await promise;
             } catch (error: any) {
                 // `.toBe('Error.')`  or  `.not.toBe('Error.')`? ↴
-                expect(error.message) /*__YOUR_TURN__*/; // #QUESTION
-                expect(error.message).not.toBe('Error.'); // #ANSWER
+                expect(error.message).not.toBe('Error.'); 
             }
 
             myAtom$.set('no more error');
@@ -665,8 +603,7 @@ describe('utils', () => {
                 await promise;
             } catch (error: any) {
                 // `.toBe('Error.')`  or  `.not.toBe('Error.')`? ↴
-                expect(error.message) /*__YOUR_TURN__*/; // #QUESTION
-                expect(error.message).toBe('Error.'); // #ANSWER
+                expect(error.message).toBe('Error.'); 
             }
         });
 

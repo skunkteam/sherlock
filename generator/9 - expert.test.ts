@@ -1,13 +1,13 @@
 import { DerivableAtom, atom, derive } from '@skunkteam/sherlock';
 import { derivableCache } from '@skunkteam/sherlock-utils';
 
+// #QUESTION-BLOCK-START
 /**
  * ** Your Turn **
- *
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
-
+// #QUESTION-BLOCK-END
 describe('expert', () => {
     describe('`.autoCache()`', () => {
         /**
@@ -30,7 +30,6 @@ describe('expert', () => {
              * `hasDerived` is used in the first derivation. But has it been
              * called at this point?
              */
-
             // `.toHaveBeenCalled()` or `.not.toHaveBeenCalled()`? ↴
             expect(hasDerived) /* Your Turn */; // #QUESTION
             expect(hasDerived).not.toHaveBeenCalled(); // #ANSWER
@@ -191,15 +190,18 @@ describe('expert', () => {
             expect(stockPrice$).toHaveBeenCalledTimes(2); // #ANSWER
 
             /** Can you explain this behavior? */
-            // ANSWER-BLOCK-START
-            // Yes: it creates a different Derivable every time, so it cannot use any caching.
-            // This is a similar issue to the `pairwise()` issue from tutorial 7, where, when we
-            // used lambda functions, we made a new pairwise object every time.
-            // ANSWER-BLOCK-END
+            // #ANSWER-BLOCK-START
+            /**
+             * Yes: `stockPrices$` is not a derivable itself, just the setup function.
+             * This function creates a different Derivable every time, so it cannot use any caching.
+             * This is a similar issue to the `pairwise()` issue from tutorial 7, where, when we
+             * used lambda functions, we made a new pairwise object every time.
+             */
+            // #ANSWER-BLOCK-END
         });
 
         /**
-         * An other problem can arise when the setup is done inside a derivation
+         * Another problem can arise when the setup is done inside a derivation
          */
         describe('setup inside a derivation', () => {
             /**
@@ -364,7 +366,8 @@ describe('expert', () => {
                 expect(reactSpy).toHaveBeenCalledTimes(__YOUR_TURN__); // #QUESTION
                 expect(reactSpy).toHaveBeenCalledWith([__YOUR_TURN__, __YOUR_TURN__]); // #QUESTION
                 expect(reactSpy).toHaveBeenCalledTimes(3); // #ANSWER
-                expect(reactSpy).toHaveBeenCalledWith([undefined, undefined]); // #ANSWER
+                expect(reactSpy).toHaveBeenCalledWith([1079.11, undefined]); // #ANSWER
+                // Note: `[undefined, undefined]` will pass too, but is incorrect. // #ANSWER
             });
         });
 

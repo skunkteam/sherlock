@@ -1,14 +1,12 @@
 import { atom, constant, Derivable, derive, SettableDerivable, unresolved } from '@skunkteam/sherlock';
-import { lift, template } from '@skunkteam/sherlock-utils';
+import { template } from '@skunkteam/sherlock-utils';
 import { Map as ImmutableMap } from 'immutable';
 
 /**
  * ** Your Turn **
- *
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
-
 describe.skip('advanced', () => {
     /**
      * In the case a `Derivable` is required, but the value is immutable.
@@ -38,7 +36,7 @@ describe.skip('advanced', () => {
     });
 
     it('`templates`', () => {
-        // Staying in the theme of redefining normal Typescript code in our Derivable language,
+        // Staying in the theme of redefining normal Typescript code in our Sherlock language,
         // we also have a special syntax to copy template literals to a Derivable.
         const one = 1;
         const myDerivable = template`I want to go to ${one} party`;
@@ -158,13 +156,11 @@ describe.skip('advanced', () => {
              * We just created two `Derivable`s that are almost exactly the same.
              * But what happens when their source becomes `unresolved`?
              */
-            
             expect(usingGet$.resolved).toEqual(__YOUR_TURN__);
             expect(usingVal$.resolved).toEqual(__YOUR_TURN__);
             myAtom$.unset();
             expect(usingGet$.resolved).toEqual(__YOUR_TURN__);
             expect(usingVal$.resolved).toEqual(__YOUR_TURN__);
-
         });
     });
 
@@ -182,6 +178,7 @@ describe.skip('advanced', () => {
 
         it('triggers when the source changes', () => {
             const myAtom$ = atom(1);
+
             /**
              * ** Your Turn **
              *
@@ -212,13 +209,13 @@ describe.skip('advanced', () => {
             expect(deriveReactSpy).toHaveBeenCalledExactlyOnceWith('ho', expect.toBeFunction());
 
             myRepeat$.value = 3;
+
             /**
              * ** Your Turn **
              *
              * We changed`myRepeat$` to equal 3.
              * Do you expect both reactors to have fired? And with what?
              */
-            
             expect(deriveReactSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
             expect(deriveReactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
 
@@ -226,12 +223,12 @@ describe.skip('advanced', () => {
             expect(mapReactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
 
             myString$.value = 'ha';
+
             /**
              * ** Your Turn **
              *
              * And now that we have changed `myString$`? And when `myRepeat$` changed again?
              */
-            
             expect(deriveReactSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
             expect(deriveReactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
 
@@ -244,7 +241,6 @@ describe.skip('advanced', () => {
 
             expect(mapReactSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
             expect(mapReactSpy).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
-
             /**
              * As you can see, a change in `myString$` will not trigger an
              * update. But if an update is triggered, `myString$` will be called
@@ -284,37 +280,33 @@ describe.skip('advanced', () => {
             expect(myInverse$.get()).toEqual(-2);
         });
 
+        /**
+         * The `.map()` used here is similar to the `.map()` used on arrays.
+         * Both get values out of a container (`Array` or `Derivable`), apply
+         * some function, and put it back in the container.
+         */
         it('similar to `map()` on arrays', () => {
-            // If the similarity is not clear yet, here is a comparison between
-            // the normal `.map()` on arrays and our `Derivable` `.map()`.
-            // Both get values out of a container (`Array` or `Derivable`), apply
-            // some function, and put it back in the container.
-
             const addOne = jest.fn((v: number) => v + 1);
 
-            const myList = [1, 2, 3];
+            const myList = [1];
             const myMappedList = myList.map(addOne);
-            expect(myMappedList).toMatchObject([2, 3, 4]);
+            expect(myMappedList).toMatchObject([2]);
 
             const myAtom$ = atom(1);
             let myMappedDerivable$ = myAtom$.map(addOne);
             expect(myMappedDerivable$.value).toBe(2);
 
-            // Or, as we have seen before, you can use `lift()` for this.
-            myMappedDerivable$ = lift(addOne)(myAtom$);
-            expect(myMappedDerivable$.value).toBe(2);
-
             // You can combine them too.
-            const myAtom2$ = atom([1, 2, 3]);
+            const myAtom2$ = atom([1]);
             const myMappedDerivable2$ = myAtom2$.map(v => v.map(addOne));
-            expect(myMappedDerivable2$.value).toMatchObject([2, 3, 4]);
+            expect(myMappedDerivable2$.value).toMatchObject([2]);
         });
 
         /**
          * In order to reason over the state of a Derivable, we can
          * use `.mapState()`. This will map one state to another, and
          * can be used to get rid of pesky `unresolved` or `Errorwrapper`
-         * states (or to introduce them!).
+         * states.
          */
         it('`.mapState()`', () => {
             const myAtom$ = atom(1);
@@ -363,7 +355,7 @@ describe.skip('advanced', () => {
             expect(myMappedAtom$.get()).toBe(3); // the state and value are linked, so this is identical to `.getState()`
             /**
              * You might think that this change in state would cause `myAtom$` to now also get
-             * `3` as its state, but this does not happen. Why not? TODO: maximally one cycle?
+             * `3` as its state, but this does not happen. Why not? TODO: maximally one cycle? ASK!
              * Since both `2` and `3` are not `unresolved`, it does not matter to our answer.
              *
              * The same cannot be said for the fourth case. Setting `myMappedAtom$` to `unresolved`
@@ -372,6 +364,22 @@ describe.skip('advanced', () => {
              * As such, `myMappedAtom$` is not `unresolved` even though we set it as such.
              * TODO: change this to be for MAP. Then make MAPSTATE a trivial one right after.
              */
+        });
+
+        // FIXME:
+        it('TEMP Flat-map', () => {
+            // const myAtom$ = atom(0);
+            // const mapping = (v: any) => atom(v);
+            // Sometimes you use `map()`, but the result within the `map()` is also a Derivable.
+            // The result would here be a `Derivable<DerivableAtom<any>>` (hover over `derive` to see this).
+            // You would have to use `.get()` to go back to a single Derivable. Similarly how `flatMap` can
+            // reduce lists of lists to a single list, it can help reduce Derivables of Derivables to a
+            // single Derivable. If you have something like this:
+            // let myAtom$$ = myAtom$.map(n => mapping(n)).derive(v => v.get());
+            // You can now rewrite it to this:
+            // myAtom$$ = myAtom$.flatMap(n => mapping(n));
+            // It only results in slightly shorter code.
+            // TODO: right?
         });
     });
 
@@ -496,12 +504,10 @@ describe.skip('advanced', () => {
              * So what if we set `firstProp$`? Does this propagate to the source
              * `Derivable`?
              */
-            
             firstProp$.set(__YOUR_TURN__);
             expect(reactSpy).toHaveBeenCalledTimes(__YOUR_TURN__);
             expect(myMap$.get().get('firstProp')).toEqual(__YOUR_TURN__);
             expect(myMap$.get().get('secondProp')).toEqual(__YOUR_TURN__);
-
         });
     });
 });

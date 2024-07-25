@@ -1,12 +1,12 @@
 import { atom, Derivable, derive } from '@skunkteam/sherlock';
 
+// #QUESTION-BLOCK-START
 /**
  * ** Your Turn **
- *
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
-
+// #QUESTION-BLOCK-END
 /**
  * Any `Derivable` (including `Atom`s) can be used (and/or combined) to create
  * a derived state. This derived state is in turn a `Derivable`.
@@ -74,15 +74,13 @@ describe('deriving', () => {
          * method on another `Derivable`.
          */
 
-        // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
-
         // Should return 'Fizz' when `myCounter$` is a multiple of 3 and '' otherwise.
         const fizz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); // #QUESTION
-        const fizz$: Derivable<string> = myCounter$.derive(v => (v % 3 ? 'Fizz' : '')); // Shorthand for `v % 3 === 0` // #ANSWER
+        const fizz$: Derivable<string> = myCounter$.derive(v => (v % 3 ? '' : 'Fizz')); // Shorthand for `v % 3 !== 0`
 
         // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
         const buzz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); // #QUESTION
-        const buzz$: Derivable<string> = myCounter$.derive(v => (v % 5 ? 'Buzz' : '')); // #ANSWER
+        const buzz$: Derivable<string> = myCounter$.derive(v => (v % 5 ? '' : 'Buzz'));
 
         const fizzBuzz$: Derivable<string | number> = derive(__YOUR_TURN__); // #QUESTION
         // #ANSWER-BLOCK-START
@@ -222,7 +220,6 @@ describe('deriving', () => {
             .and(__YOUR_TURN__)
             .or(__YOUR_TURN__) as Derivable<string>;
         // #QUESTION-BLOCK-END
-
         // #ANSWER-BLOCK-START
         const fizz$ = myCounter$
             .derive(count => count % 3)

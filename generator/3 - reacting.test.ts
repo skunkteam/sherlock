@@ -1,24 +1,48 @@
 import { atom } from '@skunkteam/sherlock';
 
+// #QUESTION-BLOCK-START
 /**
  * ** Your Turn **
- *
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
-
-// FIXME: check my solutions with the actual solutions
-/**
- * x 1
- * x 2
- *
- */
+// #QUESTION-BLOCK-END
+// xxx    check my solutions with the actual solutions (https://github.com/skunkteam/sherlock/tree/tutorial-solutions/robin/tutorial)
 // FIXME: remove all TODO: and FIXME:
-// FIXME: check whether the generated tutorials and solutions actually work (e.g. are all solutions correct? No weird shenanigans?)
-// FIXME: deze file niet linten / builden (voor automatische test). Tutorial ook niet. Maar solutions juist wel! OP EIND.
+// xxx    check whether the generated tutorials and solutions actually work (e.g. are all solutions correct? No weird shenanigans?) -
+// FIXME: ALSO CHECK "Or, alternatively"!
+// FIXME: deze file niet linten / builden (voor automatische test). Tutorial ook niet. Maar solutions juist wel! OP EIND. (mag beide wel linten right?)
 // FIXME: interne review document, mocht ik iets hebben om te laten zien! In Google Drive, zet het erin!
-// FIXME: werkt `npm run tutorial` nog???
-
+// xxx    werkt `npm run tutorial` nog? > Nu wel.
+// xxx    PETER: "nu je toch met Sherlock bezig bent; zou je voor mij eens kunnen checken of de code voorbeelden in de README
+// nog wel kloppen met de huidige API? Ik heb het gevoel dat dat niet zo is; volgens mij is er geen function "derivation()"
+// en heet dat nu "derive()" bijvoorbeeld."
+// FIXME: OOOOOOH JA, ik had eroverheen gepushed! Dat moet nog een PR met terugwerkende kracht worden... (of commits squashen, en dat ze dan maar de commit moeten reviewen?)
+// FIXME: Add FromEventPattern + FromObservable
+// xxx    fix the generator for code blocks.
+// FIXME: now check whether it did not remove excess lines or kept 2 empty lines where it should not. (I think it is good though.)
+/**
+ * x Final States; (finalGetter, finalMethod, getMaybeFinalState, FinalWrapper, MaybeFinalState, _isFinal, makeFinal, markFinal, .final, .finalized, setFinal...)
+ * ? Lens; (libs/sherlock/src/lib/derivable/lens.ts) - map die twee kanten op kan gaan. Maar een map kan dat al? Maar hier kan
+ *          je dat los definieren! Je kan gewoon `lens` ipv `var.lens`. Zelden dat je dit gebruikt. Output is een Derivable though.
+ * x Lift; (libs/sherlock-utils/src/lib/lift.ts)
+ * x Peek; (libs/sherlock-utils/src/lib/peek.ts) - dan track je niet. In een derivable, deze tracked hij dan niet (ipv .get() waar het wel getracked wordt)
+ * x Template; (libs/sherlock-utils/src/lib/template.ts) - to make a string using a template literal. (Uses unwrap!!)
+ * / Factory; (libs/sherlock/src/lib/derivable/factories.ts) - simply contains functions to create objects, namely
+ *      lens; atom; constant; derive.
+ * !! Flat-map; (libs/sherlock/src/lib/derivable/mixins/flat-map.ts) - ???
+ *          array:      nested arrays naar array
+ *          Derivable:  gooit er derive.get() achteraan?
+ *      Derivable<string> (input van inputveld). Flatmap geeft Derivable terug. Derivable<string>.flatmap() returned misschien
+ *      Derivable<number>, returned dan de number. flatMap is een `derive`, maar wat hij returned haalt hij uit de Derivable.
+ *      ofzoiets. Maakt code korter.
+ * x Fallback-to; - op een derivable. Als een atom `unresolved` is, dan fallt het back to this value. Ofwel, initial value, maar
+ *           ook als hij later unresolved wordt, dan wordt hij dit (vaak wel initial value).
+ * x Take - react options gebruiken buiten react. In een derivable chain, halverwege die options gebruiken.
+ * -- e.g. (from)Promise. Zodra die een waarde aanneemt kan hij niet meer veranderen.
+ *    Let FromPromise, FromObservable, FromEventPattern ook uit (in utils?), ToPromise, ToObservable, in praktijk ook handig.
+ *    FromEventPattern (haily mary, als alles niet werkt, dan dit doen).
+ */
 /**
  * In the intro we have seen a basic usage of the `.react()` method.
  * Let's dive a bit deeper into the details of this method.
@@ -158,7 +182,6 @@ describe('reacting', () => {
                 __YOUR_TURN___;
             });
             // #QUESTION-BLOCK-END
-
             // #ANSWER-BLOCK-START
             myAtom$.react((val, stopper) => {
                 reactor(val);
@@ -266,7 +289,13 @@ describe('reacting', () => {
                  * empty.
                  */
                 string$.react(reactor, __YOUR_TURN__); // #QUESTION
-                string$.react(reactor, { until: () => !string$.get() }); // #ANSWER
+                // #ANSWER-BLOCK-START
+                const stringEmpty = function () {
+                    return !string$.get();
+                };
+                string$.react(reactor, { until: stringEmpty });
+                // string$.react(reactor, { until: () => !string$.get() }); // Or, alternatively, in a single line:
+                // #ANSWER-BLOCK-END
 
                 // It should react as usual:
                 string$.set('New value');
@@ -294,7 +323,7 @@ describe('reacting', () => {
                  * the same as above.
                  */
                 string$.react(reactor, __YOUR_TURN__); // #QUESTION
-                string$.react(reactor, { until: s => !s.get() }); // #ANSWER
+                string$.react(reactor, { until: parent$ => !parent$.get() }); // #ANSWER
 
                 // It should react as usual.
                 string$.set('New value');
@@ -314,26 +343,30 @@ describe('reacting', () => {
              * Sometimes, the syntax may leave you confused.
              */
             it('syntax issues', () => {
-                // It looks this will start reacting until `boolean$`s value is false...
-                let stopper = boolean$.react(reactor, { until: b => !b });
+                boolean$.set(true);
+                // It looks this will keep reacting until `boolean$`s value is set to false...
+                let stopper = boolean$.react(reactor, { until: b$ => !b$ });
 
-                // ...but does it? (Remember: `boolean$` starts out as `false`)
+                boolean$.set(false);
+
+                // ...but does it? Is the reactor still connected?
                 expect(boolean$.connected).toBe(__YOUR_TURN__); // #QUESTION
                 expect(boolean$.connected).toBe(true); // #ANSWER
 
-                // The `b` it obtains as argument is a `Derivable<boolean>`. This is a
-                // reference value which will evaluate to `true` as it is not `undefined`.
-                // Thus, the negation will evaluate to `false`, independent of the value of
-                // the boolean. You can get the boolean value our of the `Derivable` using `.get()`:
+                // The `b$` it obtains as argument is a `Derivable<boolean>`. This is a
+                // reference value. Because we apply a negation to this, `b$` is coerced to a
+                // boolean value, which will evaluate to `true` as `b$` is not `undefined`.
+                // Thus, the whole expression will evaluate to `false`, independent of the value of
+                // `boolean$`. Instead, you can get the value out of the `Derivable` using `.get()`:
                 stopper(); // reset
-                stopper = boolean$.react(reactor, { until: b => !b.get() });
+                stopper = boolean$.react(reactor, { until: b$ => !b$.get() });
                 expect(boolean$.connected).toBe(__YOUR_TURN__); // #QUESTION
                 expect(boolean$.connected).toBe(false); // #ANSWER
 
                 // You can also return the `Derivable<boolean>` after appling the negation
-                // using the method designed for negating Derivables:
+                // using the method designed for negating the boolean within a `Derivable<boolean>`:
                 stopper();
-                boolean$.react(reactor, { until: b => b.not() });
+                boolean$.react(reactor, { until: b$ => b$.not() });
                 expect(boolean$.connected).toBe(__YOUR_TURN__); // #QUESTION
                 expect(boolean$.connected).toBe(false); // #ANSWER
             });
@@ -364,7 +397,7 @@ describe('reacting', () => {
              * *Hint: remember the `.is()` method from tutorial 2?*
              */
             sherlock$.react(reactor, __YOUR_TURN__); // #QUESTION
-            sherlock$.react(reactor, { from: sherlock$.is('dear') }); // #ANSWER
+            sherlock$.react(reactor, { from: parent$ => parent$.is('dear') }); // #ANSWER
 
             expectReact(0);
             ['Elementary,', 'my', 'dear', 'Watson'].forEach(txt => sherlock$.set(txt));
@@ -391,7 +424,8 @@ describe('reacting', () => {
              * Except 4, we don't want to make it too easy now.
              */
             count$.react(reactor, __YOUR_TURN__); // #QUESTION
-            count$.react(reactor, { when: v => v.get() % 2 === 0 && v.get() !== 4 }); // #ANSWER
+            count$.react(reactor, { when: parent$ => parent$.get() % 2 === 0 && parent$.get() !== 4 }); // #ANSWER
+            // count$.react(reactor, { when: parent$ => parent$.derive(value => value % 2 === 0 && value !== 4) }); // Or, alternatively: // #ANSWER
 
             expectReact(1, 0);
 
@@ -419,19 +453,20 @@ describe('reacting', () => {
              * Say you want to react when `count$` is larger than 3. But not the first time...
              */
             count$.react(reactor, __YOUR_TURN__); // #QUESTION
-            count$.react(reactor, { when: d => d.get() > 3, skipFirst: true }); // #ANSWER
+            count$.react(reactor, { when: parent$ => parent$.get() > 3, skipFirst: true }); // #ANSWER
+            // count$.react(reactor, { when: parent$ => parent$.derive(value => value > 3), skipFirst: true }); // Or, alternatively: // #ANSWER
 
             expectReact(0);
 
             for (let i = 0; i <= 5; i++) {
                 count$.set(i);
             }
-            expectReact(1, 5); // it should have skipped the 4
+            expectReact(1, 5); // it should have skipped the 4 and only reacted to the 5
 
             for (let i = 0; i <= 5; i++) {
                 count$.set(i);
             }
-            expectReact(3, 5); // now it should not have skipped the 4
+            expectReact(3, 5); // now it should have reacted to the 4 and 5 (and the 5 of last time)
         });
 
         /**
@@ -443,29 +478,30 @@ describe('reacting', () => {
          * can be very useful.
          */
         it('reacting `once`', () => {
-            const finished$ = atom(false);
+            const count$ = atom(0);
 
             /**
              * ** Your Turn **
              *
-             * Say you want to react when `finished$` is true. It can not finish
-             * twice.
+             * Say you want to react when `count$` is higher than 3. But only the first time...
              *
              * *Hint: you will need to combine `once` with another option*
              */
-            // finished$.react(reactor, __YOUR_TURN__); // #QUESTION
-            finished$.react(reactor, { once: true, when: f => f }); // `f => f.get()` is fine as well // #ANSWER
+            count$.react(reactor, __YOUR_TURN__); // #QUESTION
+            count$.react(reactor, { once: true, when: parent$ => parent$.get() > 3 }); // #ANSWER
+            // count$.react(reactor, { once: true, when: parent$ => parent$.derive(value => value > 3) }); // Or, alternatively: // #ANSWER
 
             expectReact(0);
 
-            // When finished it should react once.
-            finished$.set(true);
-            expectReact(1, true);
+            for (let i = 0; i <= 5; i++) {
+                count$.set(i);
+            }
+            expectReact(1, 4); // it should have only registered the 4 and not the 5
 
-            // After that it should really be finished. :-)
-            finished$.set(false);
-            finished$.set(true);
-            expectReact(1, true);
+            for (let i = 0; i <= 5; i++) {
+                count$.set(i);
+            }
+            expectReact(1, 4); // and after that, it should really be finished. :-)
         });
     });
 
@@ -483,39 +519,38 @@ describe('reacting', () => {
          * and `when` is true or unset. If e.g. `when` evaluates to false, `skipFirst` cannot trigger.
          */
         it('`from` and `until`', () => {
-            const myAtom$ = atom<number>(0);
-            myAtom$.react(reactor, { from: v => v.is(3), until: v => v.is(2) });
+            const myAtom$ = atom(0);
+            myAtom$.react(reactor, { from: parent$ => parent$.is(3), until: parent$ => parent$.is(2) });
 
             for (let i = 1; i <= 5; i++) {
                 myAtom$.set(i);
             }
 
             // The reactor starts reacting when `myAtom` gets the value 3, but stops when it gets the value 2.
-            // But because `myAtom` obtains the value 2 before it obtains 3...
+            // But because `myAtom$` obtains the value 2 before it obtains 3...
             // ...how many times was the reactor called, if any?
             expectReact(__YOUR_TURN__); // #QUESTION
-            expectReact(3, 5); // `from` evaluates before `until`. // #ANSWER
+            expectReact(3, 5); // `from` evaluates before `until`, so it reacted to 3, 4 and 5. // #ANSWER
         });
 
         it('`when` and `skipFirst`', () => {
-            const myAtom$ = atom<number>(0);
+            const myAtom$ = atom(0);
             myAtom$.react(reactor, { when: v => v.is(1), skipFirst: true });
 
             myAtom$.set(1);
 
-            // The reactor reacts when `myAtom` is 1 but skips the first number.
-            // The first number of `myAtom` is 0, its initial number.
-            // Does the reactor skip the 0 or the 1?
+            // The reactor reacts when `myAtom$` is 1 but skips the first number.
+            // `myAtom$` starts out at 0. Does the reactor skip only the 0 or also the 1?
             expectReact(__YOUR_TURN__); // #QUESTION
-            expectReact(0); // `skipFirst` triggers only when `when` evaluates to true. // #ANSWER
+            expectReact(0); // `skipFirst` triggers only when `when` evaluates to true, so it also skips the 1. // #ANSWER
         });
 
         it('`from`, `until`, `when`, `skipFirst`, and `once`', () => {
-            const myAtom$ = atom<number>(0);
+            const myAtom$ = atom(0);
             myAtom$.react(reactor, {
-                from: v => v.is(5),
-                until: v => v.is(1),
-                when: v => [2, 3, 4].includes(v.get()),
+                from: parent$ => parent$.is(5),
+                until: parent$ => parent$.is(1),
+                when: parent$ => [2, 3, 4].includes(parent$.get()),
                 skipFirst: true,
                 once: true,
             });
@@ -524,7 +559,7 @@ describe('reacting', () => {
                 myAtom$.set(v);
             }
 
-            // `from` and `until` allow the reactor to respectively start when `myAtom` has value 5, and stop when it has value 1.
+            // `from` and `until` allow the reactor to respectively start when `myAtom$` has value 5, and stop when it has value 1.
             // Meanwhile, `when` allows neither of those values and only allows the values 2, 3, and 4.
             // `skipFirst` and `once` are also added, just to bring the whole group together.
             // so, how many times is the reactor called, and what was the last argument (if any)?
@@ -532,8 +567,8 @@ describe('reacting', () => {
             // #ANSWER-BLOCK-START
             expectReact(1, 3);
             // `from` makes it start at the first `5`. `when` allows the next `4`,`3`, and `2`, but
-            // `skipFirst` ensures that the first `4` is skipped. `once` then ensures that only the `3`
-            // reacted to. Before the `until` can trigger from a `1`, the `once` has already stopped it.
+            // `skipFirst` ensures that the first `4` is skipped. `once` then ensures that only the `3` is
+            // reacted to. Before the `until` can trigger from a `1`, the `once` has already stopped the reactor.
             // #ANSWER-BLOCK-END
         });
     });
@@ -544,18 +579,19 @@ describe('reacting', () => {
             /**
              * ** Your Turn **
              *
-             * `connected$` indicates the current connection status:
+             * `connected$` indicates the current connection status. It is one of:
              * > 'connected';
              * > 'disconnected';
              * > 'standby'.
              *
              * We want our reactor to trigger once, when the device is not connected,
-             * which means it is either `standby` or `disconnected` (eg for cleanup).
+             * (`standby` or `disconnected`), e.g. for cleanup. However, we do not want
+             * it to trigger right away, even though we start at `disconnected`.
              *
-             * This should be possible with three simple ReactorOptions
+             * This should be possible with three simple ReactorOptions.
              */
             connected$.react(reactor, __YOUR_TURN__); // #QUESTION
-            connected$.react(reactor, { when: s => s.is('connected').not(), skipFirst: true, once: true }); // #ANSWER
+            connected$.react(reactor, { when: parent$ => parent$.is('connected').not(), skipFirst: true, once: true }); // #ANSWER
 
             // It starts as 'disconnected'
             expectReact(0);

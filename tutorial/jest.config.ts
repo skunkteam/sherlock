@@ -1,7 +1,7 @@
 import type { Config } from 'jest';
 
 export default {
-    displayName: 'generated_tutorial',
+    displayName: 'tutorial',
     preset: '../jest.preset.js',
     globals: {},
     testEnvironment: 'node',

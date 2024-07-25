@@ -37,50 +37,81 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // import * as fs from 'fs';
+var node_console_1 = require("node:console");
 var fs = require("node:fs/promises");
 // Run with: tsc generateTutorialAndSolution.ts && node generateTutorialAndSolution.js
+var generatorFolder = 'generator';
+var tutorialFolder = 'tutorial';
+var solutionFolder = 'solution';
 function generateTutorialAndSolutions() {
     return __awaiter(this, void 0, void 0, function () {
-        var filenames, _i, filenames_1, filename, originalContent, tutorialContent, solutionContent;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fs.readdir('generator')];
+        var filenames, _i, filenames_1, filename, originalContent, tutorialContent, solutionContent, _a, filenames_2, filename, _b, _c, foldername, content;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
+                case 0: return [4 /*yield*/, fs.readdir(generatorFolder)];
                 case 1:
-                    filenames = (_a.sent()).filter(function (f) { return f.endsWith("test.ts"); });
+                    filenames = (_d.sent()).filter(function (f) { return f.endsWith("test.ts"); });
                     _i = 0, filenames_1 = filenames;
-                    _a.label = 2;
+                    _d.label = 2;
                 case 2:
                     if (!(_i < filenames_1.length)) return [3 /*break*/, 7];
                     filename = filenames_1[_i];
-                    return [4 /*yield*/, fs.readFile("generator/".concat(filename), 'utf8')];
+                    return [4 /*yield*/, fs.readFile("".concat(generatorFolder, "/").concat(filename), 'utf8')];
                 case 3:
-                    originalContent = _a.sent();
+                    originalContent = _d.sent();
                     tutorialContent = originalContent
                         .replace(/describe(?!\.skip)/g, "describe.skip") // change `describe` to `describe.skip`
-                        .replace(/\/\/ #QUESTION-BLOCK-(START|END)/g, "")
+                        .replace(/\n.*?\/\/ #QUESTION-BLOCK-(START|END)/g, "")
                         .replace(/\/\/ #QUESTION/g, "") // remove `// #QUESTION` comments
-                        .replace(/\/\/ #ANSWER-BLOCK-START[\s\S]*?\/\/ #ANSWER-BLOCK-END/g, "") // remove // #ANSWER blocks
-                        .replace(/\n.*?\/\/ #ANSWER/g, "") // remove the entire `// #ANSWER` line, including comment
-                        .replace(/\n\s*\n\s*\n/g, "\n\n");
-                    return [4 /*yield*/, fs.writeFile("generated_tutorial/".concat(filename), tutorialContent)];
+                        .replace(/\n.*?\/\/ #ANSWER-BLOCK-START[\s\S]*?\/\/ #ANSWER-BLOCK-END/g, "") // remove // #ANSWER blocks
+                        .replace(/\n.*?\/\/ #ANSWER/g, "");
+                    // .replace(/\n\s*\n\s*\n/g, `\n\n`); // remove excess whitespaces/newlines
+                    return [4 /*yield*/, fs.writeFile("".concat(tutorialFolder, "/").concat(filename), tutorialContent)];
                 case 4:
-                    _a.sent();
+                    // .replace(/\n\s*\n\s*\n/g, `\n\n`); // remove excess whitespaces/newlines
+                    _d.sent();
                     solutionContent = originalContent
                         .replace(/describe\.skip/g, "describe") // change `describe.skip` to `describe`
-                        .replace(/\/\/ #ANSWER-BLOCK-(START|END)/g, "")
+                        .replace(/\n.*?\/\/ #ANSWER-BLOCK-(START|END)/g, "")
                         .replace(/\/\/ #ANSWER/g, "") // remove `// #ANSWER` comments
-                        .replace(/\/\/ #QUESTION-BLOCK-START[\s\S]*?\/\/ #QUESTION-BLOCK-END/g, "") // remove // #QUESTION blocks
-                        .replace(/\n.*?\/\/ #QUESTION/g, "") // remove the entire `// #QUESTION` line, including comment
-                        .replace(/\n\s*\n\s*\n/g, "\n\n");
-                    return [4 /*yield*/, fs.writeFile("generated_solution/".concat(filename), solutionContent)];
+                        .replace(/\n.*?\/\/ #QUESTION-BLOCK-START[\s\S]*?\/\/ #QUESTION-BLOCK-END/g, "") // remove // #QUESTION blocks
+                        .replace(/\n.*?\/\/ #QUESTION/g, "");
+                    // .replace(/\n\s*\n\s*\n/g, `\n\n`); // remove excess whitespaces/newlines
+                    return [4 /*yield*/, fs.writeFile("".concat(solutionFolder, "/").concat(filename), solutionContent)];
                 case 5:
-                    _a.sent();
+                    // .replace(/\n\s*\n\s*\n/g, `\n\n`); // remove excess whitespaces/newlines
+                    _d.sent();
                     console.log("\u001B[33m ".concat(filename, " saved! \u001B[0m"));
-                    _a.label = 6;
+                    _d.label = 6;
                 case 6:
                     _i++;
                     return [3 /*break*/, 2];
-                case 7: return [2 /*return*/];
+                case 7: return [4 /*yield*/, fs.readdir(generatorFolder)];
+                case 8:
+                    filenames = (_d.sent()).filter(function (f) { return f.endsWith("test.ts"); }); // the names are the same in all three folders
+                    _a = 0, filenames_2 = filenames;
+                    _d.label = 9;
+                case 9:
+                    if (!(_a < filenames_2.length)) return [3 /*break*/, 14];
+                    filename = filenames_2[_a];
+                    _b = 0, _c = [tutorialFolder, solutionFolder];
+                    _d.label = 10;
+                case 10:
+                    if (!(_b < _c.length)) return [3 /*break*/, 13];
+                    foldername = _c[_b];
+                    return [4 /*yield*/, fs.readFile("".concat(foldername, "/").concat(filename), 'utf8')];
+                case 11:
+                    content = _d.sent();
+                    (0, node_console_1.assert)(content.match(/\n\s*\n\s*\n/) === null, "no 2 consecutive empty lines in ".concat(foldername, "/").concat(filename));
+                    (0, node_console_1.assert)(!content.includes('#QUESTION') && !content.includes('#ANSWER'), "no '#QUESTION' or '#ANSWER' in ".concat(foldername, "/").concat(filename));
+                    _d.label = 12;
+                case 12:
+                    _b++;
+                    return [3 /*break*/, 10];
+                case 13:
+                    _a++;
+                    return [3 /*break*/, 9];
+                case 14: return [2 /*return*/];
             }
         });
     });
