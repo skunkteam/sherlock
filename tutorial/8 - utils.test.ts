@@ -517,7 +517,10 @@ describe.skip('utils', () => {
          * This translates Promises directly to Sherlock concepts we have discussed already.
          */
         it('`fromPromise()`', async () => {
-            // we initialize a Promise that will resolve, not reject, when handled
+            /**
+             * `.fromPromise()` returns an atom that is linked to the Promise it is based on.
+             * We initialize a Promise that will resolve, not reject, when handled
+             */
             let promise = Promise.resolve(15);
             let myAtom$ = fromPromise(promise);
 
@@ -525,7 +528,7 @@ describe.skip('utils', () => {
              * ** Your Turn **
              * What do you think is the default state of an atom based on a Promise?
              */
-            expect(myAtom$.resolved).toBe(__YOUR_TURN__); 
+            expect(myAtom$.value).toBe(__YOUR_TURN__); 
             expect(myAtom$.final).toBe(__YOUR_TURN__); 
 
             // Now we wait for the Promise to be handled (resolved).
@@ -533,17 +536,17 @@ describe.skip('utils', () => {
 
             /**
              * ** Your Turn **
-             * So, what will happen to `myAtom$` and `myMappedAtom$`?
+             * So, what will happen to `myAtom$`?
              */
-            expect(myAtom$.get()).toBe(__YOUR_TURN__); 
+            expect(myAtom$.value).toBe(__YOUR_TURN__); 
             expect(myAtom$.final).toBe(__YOUR_TURN__); 
 
             // Now we make a promise that is rejected when called.
             promise = Promise.reject('Oh no, I messed up!');
             myAtom$ = fromPromise(promise);
 
-            // We cannot await the Promise itself, as it would immediately throw.
-            await Promise.resolve();
+            // As expected, the promise gets rejected.
+            await expect(promise).rejects.toBe('Oh no, I messed up!');
 
             /**
              * ** Your Turn **
@@ -556,7 +559,7 @@ describe.skip('utils', () => {
 
         it('`.toPromise()`', async () => {
             /**
-             * `.toPromise()` returns a promise that is linked to the atom it is based on (`myAtom$` here)
+             * `.toPromise()` returns a promise that is linked to the atom it is based on (`myAtom$` here). Note how this is the reverse of `fromPromise()`.
              * If the atom has a value, the promise is resolved. If the atom errors, the promise is rejected using the same error.
              * And it the atom is unresolved, the promise is pending.
              */
@@ -568,9 +571,12 @@ describe.skip('utils', () => {
              * What do you think will happen when we try to set the atom with a value?
              */
             myAtom$.set('second value');
-            expect(await promise).toBe(__YOUR_TURN__); 
+            // `.resolves`  or  `.rejects`? ↴
+            await expect(promise) /*__YOUR_TURN__*/ 
+                .toBe(__YOUR_TURN__); 
 
-            myAtom$.unset();
+            myAtom$.unset(); // reset
+
             promise = myAtom$.toPromise();
 
             /**
@@ -578,14 +584,16 @@ describe.skip('utils', () => {
              * We set the atom to `unresolved`. What will now happen when we try to set the atom with a value?
              */
             myAtom$.set('third value');
-            expect(await promise).toBe(__YOUR_TURN__); 
+            // `.resolves`  or  `.rejects`? ↴
+            await expect(promise) /*__YOUR_TURN__*/ 
+                .toBe(__YOUR_TURN__); 
 
             // Whenever an atom is in an `unresolved` state, the corresponding Promise is pending.
             // This means that the Promise can still become resolved or rejected depending on the atom's actions.
 
-            myAtom$.unset();
-            promise = myAtom$.toPromise();
+            myAtom$.unset(); // reset
 
+            promise = myAtom$.toPromise();
             myAtom$.setError('Error.');
 
             /**
@@ -608,7 +616,7 @@ describe.skip('utils', () => {
 
             /**
              * ** Your Turn **
-             * We now let `myDerivable$` derive from `myAtom$`, and it will throw a normal error (not a custom Sherlock error).
+             * We now let `myDerivable$` derive from `myAtom$`, which will throw a normal error (not a custom Sherlock error).
              * What will the error message be this time?
              */
             try {

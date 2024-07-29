@@ -557,7 +557,10 @@ describe('utils', () => {
          * This translates Promises directly to Sherlock concepts we have discussed already.
          */
         it('`fromPromise()`', async () => {
-            // we initialize a Promise that will resolve, not reject, when handled
+            /**
+             * `.fromPromise()` returns an atom that is linked to the Promise it is based on.
+             * We initialize a Promise that will resolve, not reject, when handled
+             */
             let promise = Promise.resolve(15);
             let myAtom$ = fromPromise(promise);
 
@@ -565,9 +568,9 @@ describe('utils', () => {
              * ** Your Turn **
              * What do you think is the default state of an atom based on a Promise?
              */
-            expect(myAtom$.resolved).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
             expect(myAtom$.final).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.resolved).toBe(false); // #ANSWER
+            expect(myAtom$.value).toBe(undefined); // #ANSWER
             expect(myAtom$.final).toBe(false); // #ANSWER
 
             // Now we wait for the Promise to be handled (resolved).
@@ -575,19 +578,19 @@ describe('utils', () => {
 
             /**
              * ** Your Turn **
-             * So, what will happen to `myAtom$` and `myMappedAtom$`?
+             * So, what will happen to `myAtom$`?
              */
-            expect(myAtom$.get()).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
             expect(myAtom$.final).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.get()).toBe(15); // #ANSWER
+            expect(myAtom$.value).toBe(15); // #ANSWER
             expect(myAtom$.final).toBe(true); // #ANSWER
 
             // Now we make a promise that is rejected when called.
             promise = Promise.reject('Oh no, I messed up!');
             myAtom$ = fromPromise(promise);
 
-            // We cannot await the Promise itself, as it would immediately throw.
-            await Promise.resolve();
+            // As expected, the promise gets rejected.
+            await expect(promise).rejects.toBe('Oh no, I messed up!');
 
             /**
              * ** Your Turn **
@@ -603,7 +606,7 @@ describe('utils', () => {
 
         it('`.toPromise()`', async () => {
             /**
-             * `.toPromise()` returns a promise that is linked to the atom it is based on (`myAtom$` here)
+             * `.toPromise()` returns a promise that is linked to the atom it is based on (`myAtom$` here). Note how this is the reverse of `fromPromise()`.
              * If the atom has a value, the promise is resolved. If the atom errors, the promise is rejected using the same error.
              * And it the atom is unresolved, the promise is pending.
              */
@@ -615,10 +618,13 @@ describe('utils', () => {
              * What do you think will happen when we try to set the atom with a value?
              */
             myAtom$.set('second value');
-            expect(await promise).toBe(__YOUR_TURN__); // #QUESTION
-            expect(await promise).toBe('initial value'); // `myAtom$` starts with a value ('initial value'), so the promise is immediately resolved // #ANSWER
+            // `.resolves`  or  `.rejects`? ↴
+            await expect(promise) /*__YOUR_TURN__*/ // #QUESTION
+                .toBe(__YOUR_TURN__); // #QUESTION
+            await expect(promise).resolves.toBe('initial value'); // `myAtom$` starts with a value ('initial value'), so the promise is immediately resolved // #ANSWER
 
-            myAtom$.unset();
+            myAtom$.unset(); // reset
+
             promise = myAtom$.toPromise();
 
             /**
@@ -626,15 +632,17 @@ describe('utils', () => {
              * We set the atom to `unresolved`. What will now happen when we try to set the atom with a value?
              */
             myAtom$.set('third value');
-            expect(await promise).toBe(__YOUR_TURN__); // #QUESTION
-            expect(await promise).toBe('third value'); // This is now the first value the atom obtains since the promise was created. // #ANSWER
+            // `.resolves`  or  `.rejects`? ↴
+            await expect(promise) /*__YOUR_TURN__*/ // #QUESTION
+                .toBe(__YOUR_TURN__); // #QUESTION
+            await expect(promise).resolves.toBe('third value'); // This is now the first value the atom obtains since the promise was created. // #ANSWER
 
             // Whenever an atom is in an `unresolved` state, the corresponding Promise is pending.
             // This means that the Promise can still become resolved or rejected depending on the atom's actions.
 
-            myAtom$.unset();
-            promise = myAtom$.toPromise();
+            myAtom$.unset(); // reset
 
+            promise = myAtom$.toPromise();
             myAtom$.setError('Error.');
 
             /**
@@ -658,7 +666,7 @@ describe('utils', () => {
 
             /**
              * ** Your Turn **
-             * We now let `myDerivable$` derive from `myAtom$`, and it will throw a normal error (not a custom Sherlock error).
+             * We now let `myDerivable$` derive from `myAtom$`, which will throw a normal error (not a custom Sherlock error).
              * What will the error message be this time?
              */
             try {

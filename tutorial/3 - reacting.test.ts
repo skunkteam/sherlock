@@ -7,7 +7,8 @@ import { atom } from '@skunkteam/sherlock';
 export const __YOUR_TURN__ = {} as any;
 // xxx    check my solutions with the actual solutions (https://github.com/skunkteam/sherlock/tree/tutorial-solutions/robin/tutorial)
 // FIXME: remove all TODO: and FIXME:
-// FIXME: check whether the generated tutorials and solutions actually work (e.g. are all solutions correct? No weird shenanigans?) - ALSO CHECK "Or, alternatively"!
+// xxx    check whether the generated tutorials and solutions actually work (e.g. are all solutions correct? No weird shenanigans?) -
+// FIXME: ALSO CHECK "Or, alternatively"!
 // FIXME: deze file niet linten / builden (voor automatische test). Tutorial ook niet. Maar solutions juist wel! OP EIND. (mag beide wel linten right?)
 // FIXME: interne review document, mocht ik iets hebben om te laten zien! In Google Drive, zet het erin!
 // xxx    werkt `npm run tutorial` nog? > Nu wel.
@@ -15,7 +16,6 @@ export const __YOUR_TURN__ = {} as any;
 // nog wel kloppen met de huidige API? Ik heb het gevoel dat dat niet zo is; volgens mij is er geen function "derivation()"
 // en heet dat nu "derive()" bijvoorbeeld."
 // FIXME: OOOOOOH JA, ik had eroverheen gepushed! Dat moet nog een PR met terugwerkende kracht worden... (of commits squashen, en dat ze dan maar de commit moeten reviewen?)
-
 // FIXME: Add FromEventPattern + FromObservable
 // xxx    fix the generator for code blocks.
 // FIXME: now check whether it did not remove excess lines or kept 2 empty lines where it should not. (I think it is good though.)

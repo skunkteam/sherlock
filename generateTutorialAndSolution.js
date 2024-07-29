@@ -88,6 +88,8 @@ function generateTutorialAndSolutions() {
                     return [3 /*break*/, 2];
                 case 7: return [4 /*yield*/, fs.readdir(generatorFolder)];
                 case 8:
+                    // These tests will not cause any failing, but are just nice to have.
+                    // e.g. instead of removing excess whitespaces/newlines, we now just prevent them altogether.
                     filenames = (_d.sent()).filter(function (f) { return f.endsWith("test.ts"); }); // the names are the same in all three folders
                     _a = 0, filenames_2 = filenames;
                     _d.label = 9;
