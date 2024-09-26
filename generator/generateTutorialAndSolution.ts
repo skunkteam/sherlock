@@ -1,8 +1,10 @@
 import { assert } from 'node:console';
-import * as fs from 'node:fs/promises';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 
-// Run this file with: `tsc generateTutorialAndSolution.ts && node generateTutorialAndSolution.js`
-// Run this automated with: `npm run generate`
+// Run this with: `npm run generate`
+// NOTE: you should be in the project root directory when you run this command.
+
+// #!/usr/bin/env ts-node-script -r tsconfig-paths/register --transpile-only --project tsconfig.tools.json --
 
 const generatorFolder = 'generator';
 const tutorialFolder = 'tutorial';
@@ -10,11 +12,11 @@ const solutionFolder = 'solution';
 
 async function generateTutorialAndSolutions() {
     // get all filenames in the folder 'tutorial' that end on '.ts'
-    let filenames: string[] = (await fs.readdir(generatorFolder)).filter(f => f.endsWith(`test.ts`));
+    let filenames: string[] = (await readdir(generatorFolder)).filter(f => f.endsWith(`test.ts`));
 
     for (let filename of filenames) {
         // // Read the original text file
-        const originalContent = await fs.readFile(`${generatorFolder}/${filename}`, 'utf8');
+        const originalContent = await readFile(`${generatorFolder}/${filename}`, 'utf8');
 
         // ** TUTORIAL **
         let tutorialContent = originalContent
@@ -25,7 +27,7 @@ async function generateTutorialAndSolutions() {
             .replace(/\n.*?\/\/ #ANSWER/g, ``); // remove the entire `// #ANSWER` line, including comment
         // .replace(/\n\s*\n\s*\n/g, `\n\n`); // remove excess whitespaces/newlines
 
-        await fs.writeFile(`${tutorialFolder}/${filename}`, tutorialContent);
+        await writeFile(`${tutorialFolder}/${filename}`, tutorialContent);
 
         // ** SOLUTION **
         let solutionContent = originalContent
@@ -36,16 +38,16 @@ async function generateTutorialAndSolutions() {
             .replace(/\n.*?\/\/ #QUESTION/g, ``); // remove the entire `// #QUESTION` line, including comment
         // .replace(/\n\s*\n\s*\n/g, `\n\n`); // remove excess whitespaces/newlines
 
-        await fs.writeFile(`${solutionFolder}/${filename}`, solutionContent);
+        await writeFile(`${solutionFolder}/${filename}`, solutionContent);
         console.log(`\x1b[33m ${filename} saved! \x1b[0m`);
     }
 
     // These tests will not cause any failing, but are just nice to have.
     // e.g. instead of removing excess whitespaces/newlines, we now just prevent them altogether.
-    filenames = (await fs.readdir(generatorFolder)).filter(f => f.endsWith(`test.ts`)); // the names are the same in all three folders
+    filenames = (await readdir(generatorFolder)).filter(f => f.endsWith(`test.ts`)); // the names are the same in all three folders
     for (let foldername of [tutorialFolder, solutionFolder]) {
         for (let filename of filenames) {
-            let content = await fs.readFile(`${foldername}/${filename}`, 'utf8');
+            let content = await readFile(`${foldername}/${filename}`, 'utf8');
             assert(content.match(/\n\s*\n\s*\n/) === null, `no 2 consecutive empty lines in ${foldername}/${filename}`);
             assert(
                 !content.includes('#QUESTION') && !content.includes('#ANSWER'),
