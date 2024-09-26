@@ -18,7 +18,7 @@ expect(struct).toBe(struct);
  * multiple values of a single `Derivable` or combine multiple `Derivable`s into
  * one. We will show a couple of those here.
  */
-describe.skip('utils', () => {
+describe('utils', () => {
     /**
      * As the name suggests, `pairwise()` will call the given function with both
      * the current and the previous state.
@@ -39,7 +39,13 @@ describe.skip('utils', () => {
          * *Hint: check the overloads of pairwise if you're struggling with
          * `oldVal`.*
          */
-        myCounter$.derive(__YOUR_TURN__).react(reactSpy);
+        myCounter$
+            .derive(
+                pairwise((newVal, oldVal) => {
+                    return newVal - oldVal;
+                }, 0),
+            )
+            .react(reactSpy);
 
         expect(reactSpy).toHaveBeenCalledExactlyOnceWith(1, expect.toBeFunction());
 
@@ -72,7 +78,13 @@ describe.skip('utils', () => {
          *
          * Now, use `scan()`, to add all the emitted values together
          */
-        myCounter$.derive(__YOUR_TURN__).react(reactSpy);
+        myCounter$
+            .derive(
+                scan((accumulator, currentValue) => {
+                    return currentValue + accumulator;
+                }, 0),
+            )
+            .react(reactSpy);
 
         expect(reactSpy).toHaveBeenCalledExactlyOnceWith(1, expect.toBeFunction());
 
@@ -92,7 +104,7 @@ describe.skip('utils', () => {
          */
     });
 
-    it.skip('pairwise - BONUS', () => {
+    it('pairwise - BONUS', () => {
         const myCounter$ = atom(1);
         let lastPairwiseResult = 0;
 
@@ -107,7 +119,11 @@ describe.skip('utils', () => {
          * `lastPairwiseResult` instead. This is so the implementation can be
          * validated.
          */
-        myCounter$.react(__YOUR_TURN__);
+        myCounter$.react(
+            pairwise((newVal, oldVal) => {
+                lastPairwiseResult = newVal - oldVal;
+            }, 0),
+        );
 
         expect(lastPairwiseResult).toEqual(1);
 
@@ -120,7 +136,7 @@ describe.skip('utils', () => {
         expect(lastPairwiseResult).toEqual(42);
     });
 
-    it.skip('scan - BONUS', () => {
+    it('scan - BONUS', () => {
         const myCounter$ = atom(1);
         let lastScanResult = 0;
 
@@ -135,7 +151,12 @@ describe.skip('utils', () => {
          * `lastScanResult` instead. This is so the implementation can be
          * validated.
          */
-        myCounter$.react(__YOUR_TURN__);
+        myCounter$.react(
+            scan((accumulator, newVal) => {
+                lastScanResult = newVal + accumulator;
+                return lastScanResult;
+            }, 0),
+        );
 
         expect(lastScanResult).toEqual(1);
 
@@ -186,11 +207,11 @@ describe.skip('utils', () => {
          * expect?
          */
         expect(myOneAtom$.get()).toEqual({
-            regularProp: __YOUR_TURN__,
-            string: __YOUR_TURN__,
-            number: __YOUR_TURN__,
+            regularProp: 'new value',
+            string: 'my string',
+            number: 1,
             sub: {
-                string: __YOUR_TURN__,
+                string: 'my new substring',
             },
         });
     });

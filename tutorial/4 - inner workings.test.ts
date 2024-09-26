@@ -11,7 +11,7 @@ export const __YOUR_TURN__ = {} as any;
 /**
  * Time to dive a bit deeper into the inner workings of `@skunkteam/sherlock`.
  */
-describe.skip('inner workings', () => {
+describe('inner workings', () => {
     /**
      * What if there is a derivation that reads from one of two `Derivable`s
      * dynamically? Will both of those `Derivable`s be tracked for changes?
@@ -43,8 +43,8 @@ describe.skip('inner workings', () => {
          *
          * What do you expect?
          */
-        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
-        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
+        expect(reacted).toHaveBeenCalledTimes(1);
+        expect(reacted).toHaveBeenLastCalledWith(1, expect.toBeFunction());
 
         // `switch$` is still set to true (number)
         number$.set(2);
@@ -54,8 +54,8 @@ describe.skip('inner workings', () => {
          *
          * What do you expect?
          */
-        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
-        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
+        expect(reacted).toHaveBeenCalledTimes(2);
+        expect(reacted).toHaveBeenLastCalledWith(2, expect.toBeFunction());
 
         // Now let's reset the mock function, so the call count should
         // be 0 again.
@@ -71,8 +71,8 @@ describe.skip('inner workings', () => {
          *
          * What do you expect now?
          */
-        expect(reacted).toHaveBeenCalledTimes(__YOUR_TURN__);
-        expect(reacted).toHaveBeenLastCalledWith(__YOUR_TURN__, expect.toBeFunction());
+        expect(reacted).toHaveBeenCalledTimes(1);
+        expect(reacted).toHaveBeenLastCalledWith('two', expect.toBeFunction());
     });
 
     /**
@@ -98,17 +98,17 @@ describe.skip('inner workings', () => {
          */
 
         // Well, what do you expect?
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(0);
 
         myDerivation$.get();
 
         // And after a `.get()`?
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(1);
 
         myDerivation$.get();
 
         // And after the second `.get()`? Is there an extra call?
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(2);
 
         /**
          * The state of any `Derivable` can change at any moment.
@@ -147,27 +147,27 @@ describe.skip('inner workings', () => {
          *
          * Ok, it's your turn to complete the expectations.
          */
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(1);
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(1);
 
         myAtom$.set(false);
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(2);
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(2);
 
         stopper();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(2);
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(hasDerived).toHaveBeenCalledTimes(3);
 
         /**
          * Since the `.react()` already listens to the value(changes) there is
@@ -212,23 +212,23 @@ describe.skip('inner workings', () => {
         // Note that this is the same value as it was initialized with
         myAtom$.set(1);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(first).toHaveBeenCalledTimes(1);
+        expect(second).toHaveBeenCalledTimes(1);
 
         myAtom$.set(2);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(first).toHaveBeenCalledTimes(2);
+        expect(second).toHaveBeenCalledTimes(1);
 
         myAtom$.set(3);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(first).toHaveBeenCalledTimes(3);
+        expect(second).toHaveBeenCalledTimes(2);
 
         myAtom$.set(4);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(first).toHaveBeenCalledTimes(4);
+        expect(second).toHaveBeenCalledTimes(2);
 
         /**
          * Can you explain the behavior above?
@@ -265,7 +265,7 @@ describe.skip('inner workings', () => {
          * The `Atom` is set with exactly the same object as before. Will the
          * `.react()` fire?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(hasReacted).toHaveBeenCalledTimes(1);
 
         /**
          * But what if you use an object, that can be easily compared through a
