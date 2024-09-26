@@ -91,17 +91,17 @@ describe('inner workings', () => {
          */
 
         // Well, what do you expect?
-        expect(hasDerived).toHaveBeenCalledTimes(0); 
+        expect(hasDerived).toHaveBeenCalledTimes(0);
 
         myDerivation$.get();
 
         // And after a `.get()`?
-        expect(hasDerived).toHaveBeenCalledTimes(1); 
+        expect(hasDerived).toHaveBeenCalledTimes(1);
 
         myDerivation$.get();
 
         // And after the second `.get()`? Is there an extra call?
-        expect(hasDerived).toHaveBeenCalledTimes(2); 
+        expect(hasDerived).toHaveBeenCalledTimes(2);
 
         /**
          * The state of any `Derivable` can change at any moment.
@@ -140,27 +140,27 @@ describe('inner workings', () => {
          *
          * Ok, it's your turn to complete the expectations.
          */
-        expect(hasDerived).toHaveBeenCalledTimes(1); // because of the react. 
+        expect(hasDerived).toHaveBeenCalledTimes(1); // because of the react.
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(1); // no update: someone is reacting, and there has been no update in value. 
+        expect(hasDerived).toHaveBeenCalledTimes(1); // no update: someone is reacting, and there has been no update in value.
 
         myAtom$.set(false);
 
-        expect(hasDerived).toHaveBeenCalledTimes(2); // `myDerivation$`s value has changed, so update. 
+        expect(hasDerived).toHaveBeenCalledTimes(2); // `myDerivation$`s value has changed, so update.
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(2); // no update. 
+        expect(hasDerived).toHaveBeenCalledTimes(2); // no update.
 
         stopper();
 
-        expect(hasDerived).toHaveBeenCalledTimes(2); // stopping doesn't change the value... 
+        expect(hasDerived).toHaveBeenCalledTimes(2); // stopping doesn't change the value...
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(3); // ...but now, it is not being reacted to, so it goes back to updating every time `.get()` is called. 
+        expect(hasDerived).toHaveBeenCalledTimes(3); // ...but now, it is not being reacted to, so it goes back to updating every time `.get()` is called.
 
         /**
          * Since the `.react()` already listens to the value-changes, there is
@@ -205,23 +205,23 @@ describe('inner workings', () => {
         // Note that this is the same value as it was initialized with
         myAtom$.set(1);
 
-        expect(first).toHaveBeenCalledTimes(1); // `myAtom$` has the same value (`1`), so no need to be called 
-        expect(second).toHaveBeenCalledTimes(1); // `first$` has the same value (`false`), so no need to be called 
+        expect(first).toHaveBeenCalledTimes(1); // `myAtom$` has the same value (`1`), so no need to be called
+        expect(second).toHaveBeenCalledTimes(1); // `first$` has the same value (`false`), so no need to be called
 
         myAtom$.set(2);
 
-        expect(first).toHaveBeenCalledTimes(2); // `myAtom$` has a different value (`2`), so call again 
-        expect(second).toHaveBeenCalledTimes(1); // `first$` has the same value (`false`), so no need to be called 
+        expect(first).toHaveBeenCalledTimes(2); // `myAtom$` has a different value (`2`), so call again
+        expect(second).toHaveBeenCalledTimes(1); // `first$` has the same value (`false`), so no need to be called
 
         myAtom$.set(3);
 
-        expect(first).toHaveBeenCalledTimes(3); // `myAtom$` has a different value (`3`), so call again 
-        expect(second).toHaveBeenCalledTimes(2); // `first$` has a different value (`true`), so call again 
+        expect(first).toHaveBeenCalledTimes(3); // `myAtom$` has a different value (`3`), so call again
+        expect(second).toHaveBeenCalledTimes(2); // `first$` has a different value (`true`), so call again
 
         myAtom$.set(4);
 
-        expect(first).toHaveBeenCalledTimes(4); // `myAtom$` has a different value (`4`), so call again 
-        expect(second).toHaveBeenCalledTimes(2); // `first$` has the same value (`true`), so no need to be called 
+        expect(first).toHaveBeenCalledTimes(4); // `myAtom$` has a different value (`4`), so call again
+        expect(second).toHaveBeenCalledTimes(2); // `first$` has the same value (`true`), so no need to be called
 
         /**
          * Can you explain the behavior above?
@@ -259,7 +259,7 @@ describe('inner workings', () => {
          * The `Atom` is set with exactly the same object as before. Will the
          * `.react()` fire?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(1); // `{} !== {}`, as they are different references 
+        expect(hasReacted).toHaveBeenCalledTimes(1); // `{} !== {}`, as they are different references
 
         /**
          * But what if you use an object, that can be easily compared through a
@@ -278,7 +278,7 @@ describe('inner workings', () => {
          *
          * Do you think the `.react()` fired with this new value?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(0); 
+        expect(hasReacted).toHaveBeenCalledTimes(0);
 
         atom$.set(Seq.Indexed.of(1, 2));
 
@@ -287,15 +287,16 @@ describe('inner workings', () => {
          *
          * And now?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(1); 
+        expect(hasReacted).toHaveBeenCalledTimes(1);
 
         /**
          * In `@skunkteam/sherlock` equality is a bit complex:
          *
-         * First we check `Object.is()` equality, if that is true, it is the
+         * First we check `Object.is()` equality. If that is true, it is the
          * same, you can't deny that.
          *
-         * After that it is pluggable. It can be anything you want. TODO: what is pluggable?
+         * After that it is pluggable. This means that you can 'plug in' or 'define'
+         * the definition for equality yourself.
          *
          * By default we try to use `.equals()`, to support libraries like
          * `ImmutableJS`.

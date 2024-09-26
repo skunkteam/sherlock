@@ -1,5 +1,16 @@
-import { atom, constant, derive, FinalWrapper } from '@skunkteam/sherlock';
-import { fromPromise, lift, pairwise, peek, scan, struct } from '@skunkteam/sherlock-utils';
+import { atom, constant, Derivable, derive, ErrorWrapper, FinalWrapper } from '@skunkteam/sherlock';
+import {
+    fromEventPattern,
+    fromObservable,
+    fromPromise,
+    lift,
+    pairwise,
+    peek,
+    scan,
+    struct,
+} from '@skunkteam/sherlock-utils';
+import { Atom } from 'libs/sherlock/src/internal';
+import { from, Observable, Subject } from 'rxjs';
 
 // #QUESTION-BLOCK-START
 /**
@@ -14,7 +25,11 @@ expect(scan).toBe(scan);
 expect(struct).toBe(struct);
 expect(peek).toBe(peek);
 expect(lift).toBe(lift);
-expect(FinalWrapper).toBe(FinalWrapper); // TODO: not sure whether needed
+expect(fromObservable).toBe(fromObservable);
+expect(from).toBe(from);
+expect(ErrorWrapper).toBe(ErrorWrapper);
+expect(Observable).toBe(Observable);
+expect(FinalWrapper).toBe(FinalWrapper);
 // #QUESTION-BLOCK-END
 /**
  * In the `sherlock-utils` lib, there are a couple of functions that can combine
@@ -460,8 +475,6 @@ describe('utils', () => {
             // Every atom has a `final` property.
             expect(myAtom$.final).toBeFalse();
 
-            // TODO: SHOW THAT CONST ALSO GIVES THE SAME ERROR MESSAGE WHEN SET!!
-
             // You can make an atom final using the `.makeFinal()` function.
             myAtom$.makeFinal();
             expect(myAtom$.final).toBeTrue();
@@ -477,6 +490,7 @@ describe('utils', () => {
             expect(() => myAtom$.set(2)).toThrow('cannot set a final derivable'); // #ANSWER
 
             // This behavior is consistent with normal variables created using `const`.
+
             // Alternatively, you can set a last value before setting it to `final`, using `.setFinal()`.
             // .toThrow() or .not.toThrow()? ↴
             expect(() => myAtom$.setFinal(2)) /*__YOUR_TURN__*/; // #QUESTION
@@ -526,28 +540,26 @@ describe('utils', () => {
              */
         });
 
-        it('TODO: `final` State', () => {
-            /** A property such as `.final`, similar to variables like `.errored` and `.resolved`
-             * is useful for checking whenever a Derivable is in a certain state, but these properties
-             * are just a boolean. This means that these properties cannot be derived and we cannot
-             * have certain functions execute whenever there is a change in the state. For this reason,
-             * every Derivable holds an internal state, retrievable using `.getState()` which can be
-             * derived. TODO: Have a clear place where I explain this! Now I have info up top here too.
-             *
-             * We have seen that states (`State<V>`) can be `undefined`, `ErrorWrapper`,
-             * or any regular type `V`. Other states exist, such as the `MaybeFinalState<V>`. This state can be either
-             * a normal state `State<V>` or a special `FinalWrapper<State<V>>` state. Let's see that in action.
+        it('`final` State', () => {
+            /**
+             * We have seen that states (`State<V>`) can be `unresolved`, `ErrorWrapper`,
+             * or any regular type `V`. If you want to also show whether a Derivable is `final`, you can
+             * use the `MaybeFinalState<V>`, which is either any normal `State<V>` or a special
+             * `FinalWrapper<State<V>>` state. Let's see that in action.
              */
-            expect(myAtom$.getMaybeFinalState()).toBe(1); // `getMaybeFinalState` can return a normal state, which in turn can be any normal type.
+            myAtom$.set(2);
+            expect(myAtom$.getMaybeFinalState()).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.getMaybeFinalState()).toBe(2); // `getMaybeFinalState` can return a normal state, which in turn can be any normal type. // #ANSWER
 
-            myAtom$.makeFinal();
+            myAtom$.setError('2');
+            expect(myAtom$.getMaybeFinalState()).toBeInstanceOf(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.getMaybeFinalState()).toBeInstanceOf(ErrorWrapper); // `getMaybeFinalState()` can return a normal state, which in turn can be unresolved. // #ANSWER
 
-            expect(myAtom$.getMaybeFinalState()).toBeInstanceOf(FinalWrapper); // but `getMaybeFinalState` can also return a `FinalWrapper` type.
-            expect(myAtom$.getState()).toBe(1); // the normal type is still the final it contains.
-
-            // TODO: MAAR JE KAN EEN STATE HELEMAAL NIET DERIVEN!
-            // Dus dat is allemaal onzin lijkt me....??? Bovendien, kan je normale variabelen niet deriven door het gewoon te
-            // wrappen in een atom ofzo? Of door te structen?
+            myAtom$.setFinal(2);
+            expect(myAtom$.getMaybeFinalState()).toBeInstanceOf(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.getState()).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.getMaybeFinalState()).toBeInstanceOf(FinalWrapper); // but `getMaybeFinalState)_` can also return a `FinalWrapper` type. // #ANSWER
+            expect(myAtom$.getState()).toBe(2); // the normal `getState()` function cannot return a FinalWrapper. // #ANSWER
         });
     });
 
@@ -678,14 +690,192 @@ describe('utils', () => {
             }
         });
 
+        /**
+         * Some reactive libraries already existed, such as RxJS.
+         * Angular uses RxJS, and since we use Angular, we are forced to use RxJS.
+         * However, RxJS becomes more and more complicated and user-unfriendly
+         * as your application becomes bigger. This was the main reason why
+         * Sherlock was developed.
+         * As Angular uses RxJS, our Sherlock library needs to be compatible with it.
+         * The `fromObservable()` and `toObservable()` functions are used for this.
+         */
         it('`fromObservable()`', () => {
-            // Has to do with SUBSCRIBING. Hasn't been discussed either...
-            // TODO: "As all Derivables are now compatible with rxjs's `from` function,
-            // we no longer need the `toObservable` function from `@skunkteam/sherlock-rxjs`."
+            /**
+             * RxJS uses `Observables` which are similar to our `Derivables`.
+             * It also uses the concept of `Subscribing`, which is similar to `Deriving`.
+             *
+             * Here's an example of the similarities and differences.
+             */
+
+            const dummyObservable = new Subject<number>(); // `Subject` is a form of `Observable`
+            let subscribedToDummy;
+            dummyObservable.subscribe({ next: x => (subscribedToDummy = x) });
+            dummyObservable.next(2);
+            expect(subscribedToDummy).toBe(2);
+
+            const dummyDerivable$ = new Atom<number>(1);
+            const derivedOfDummy = dummyDerivable$.derive(x => x);
+            dummyDerivable$.set(2);
+            expect(derivedOfDummy.value).toBe(2);
+
+            /**
+             * The code for turning an Observable "observable" into a derivable "value$" is
+             * like this (from libs/sherlock-utils/src/lib/from-observable.ts):
+             *
+             * ```
+             * observable.subscribe({
+             *   next: value => value$.set(value),
+             *   error: err => value$.setFinal(error(err)),
+             *   complete: () => value$.makeFinal(),
+             * });
+             * return () => subscription.unsubscribe();
+             * ```
+             *
+             * Essentially,
+             * - we map `next()` (Observable) to `set()` (Derivable);
+             * - we map `error()` (Observable) to `setFinal(error())` (Derivable);
+             * NOTE: we don't map it to `setError()` as we would then be able to undo the error state. We can't undo it when it's final.
+             * - we map`complete()` (Observable) to `makeFinal()` (Derivable);
+             * - and we return a function we can call to stop (similar to using `react()`), which is mapped to `unsubscribe()`
+             * NOTE: in fact, `fromEventPattern()` is build using the `react()` function!
+             *
+             * Okay, that's enough info for now. Let's get to work.
+             * The `fromObservable()` function translates an `Observable` to a `Derivable`.
+             *
+             * ** Your Turn **
+             *
+             * Use `fromObservable()` to turn this `Observable` into a `Derivable`.
+             */
+
+            // A `Subject` is the simplest form of `Observable`: it is comparable to our `Atom`.
+            const myObservable = new Subject<number>();
+
+            const myDerivable$: Derivable<number> = __YOUR_TURN__; // #QUESTION
+            const myDerivable$: Derivable<number> = fromObservable(myObservable); // #ANSWER
+            const reactor = jest.fn();
+            const onError = jest.fn();
+            myDerivable$.react(reactor, { onError });
+
+            myObservable.next(1);
+            expect(myDerivable$.value).toBe(1);
+
+            myObservable.next(2);
+            expect(myDerivable$.value).toBe(2);
+
+            myObservable.error('OH NO!');
+            expect(myDerivable$.error).toBe('OH NO!');
+
+            myObservable.next(3);
+            expect(myDerivable$.value).toBe(undefined);
+            // It is set to final, so after an error has been thrown, you cannot undo it.
+
+            /**
+             * The `toObservable()` function has become obsolete as RxJS already contains a function
+             * called `from()` that can parse `Derivables` to `Observables`. Note that a `from` from
+             * the side of RxJS is the same as a `to` from the side of Sherlock.
+             *
+             * ** Your Turn **
+             *
+             * Use the `from()` function to turn this `Derivable` into an `Observable`.
+             */
+            const myDerivable2$ = atom(1);
+
+            const myObservable2: Observable<number> = __YOUR_TURN__; // #QUESTION
+            const myObservable2: Observable<number> = from(myDerivable2$); // #ANSWER
+
+            let value = 0;
+            myObservable2.subscribe({ next: x => (value = x) });
+
+            expect(value).toBe(1); // immediate call to `next()`
+
+            myDerivable2$.set(2);
+            expect(value).toBe(2);
         });
 
-        it('`fromEventPattern`', () => {
-            // TODO: this is kinda complicated shit... Requires explaining a lot of extra stuff (Subjects, Subscribing, Observables...). Leave for now?
+        /**
+         * The `fromObservable()` function can be used to turn `Observables` into `Derivables`. Under the hood,
+         * this function uses the `fromEventPattern()` function which is capable of turning any abstract pattern
+         * into a `Derivable`. Let's see how that works.
+         */
+        it('`fromEventPattern`', async () => {
+            /**
+             * The basic idea is that you get a stream of inputs, and want to map that stream to a Derivable stream.
+             * This means that, whenever an update comes from the input-stream, this update is also given to a Derivable,
+             * which can then be `derive`d and `react`ed to.
+             *
+             * For example, you may get a function which, instead of returning an output, passes some output to your own chosen
+             * `callback` function. For example, this code 'heyifies' your input, adding "hey" in front of it.
+             * It then passes this heyified output to the callback function. As seen before in `react()` and `fromObservable()`,
+             * these functions like `heyify()` typically return a stopping function, which can be called to stop the heyification.
+             */
+            function heyify(names: string[], callback: (something: string) => void) {
+                let i = 0;
+                // every 100ms, call the callback function
+                const int = setInterval(() => callback(`Hey ${names[i++]}`), 100);
+                // when this function is called, `clearInterval()` stops the stream.
+                return () => clearInterval(int);
+            }
+
+            /**
+             * Now, we want to turn this process into a Derivable, where updates that are send to the callback are passed to the Derivable as well.
+             * This way, we can use our cool Derivable functions like `derive()` or `react()` to process changes to this Derivable
+             * (= new outputs from the callback).
+             *
+             * `fromEventPattern()` looks more complex than it is. This function sets a Derivable in place of the callback and also returns
+             * a stopping function, which can be reused from the `heyify()` function.
+             */
+            function heyify$(names: string[]): Derivable<string> {
+                return fromEventPattern<string>(v$ => {
+                    // the callback now sets a derivable.
+                    const stop = heyify(names, something => v$.set(something));
+                    // and the stopping function is returned.
+                    return stop;
+                });
+            }
+
+            /**
+             * This Derivable can now be reacted to.
+             * When this Derivable gets connected (reacted to, in this case), the function within the `fromEventPattern()` triggers.
+             * Upon connection, a fresh atom is passed to this function, which is then `set()` in the callback function of `heyify()`.
+             * This atom "lives" in the body of the callback function and is only changed when a new value is passed to the callback function.
+             * Here, this is a new "Hey {name}" message, every 100ms.
+             */
+
+            // To test this, we need to make sure time elapses only when we want it to. So we temporarily stop time, no big deal.
+            // (Don't worry about what the internet says about the dangers of stopping time: this is perfectly safe.)
+            jest.useFakeTimers();
+
+            let value: string = '';
+            const stop = heyify$(['Bob', 'Jan', 'Hans', 'Roos']).react(v => (value = v));
+
+            /**
+             * ** Your Turn **
+             *
+             * What do you expect `value` to be?
+             * *Hint: At the start, time has not yet passed, and `setInterval()` only responds after the first 100ms.*
+             */
+            expect(value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(value).toBe(''); // #ANSWER
+
+            // We manually move time by 100ms, which is exactly the time that the `heyify()` function needs to call the `callback()` again.
+            jest.advanceTimersByTime(100);
+            expect(value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(value).toBe('Hey Bob'); // #ANSWER
+
+            jest.advanceTimersByTime(100);
+            expect(value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(value).toBe('Hey Jan'); // #ANSWER
+
+            jest.advanceTimersByTime(100);
+            expect(value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(value).toBe('Hey Hans'); // #ANSWER
+
+            stop();
+
+            // After stopping, the Derivable no longer responds to updates - it is essentially final.
+            jest.advanceTimersByTime(100);
+            expect(value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(value).toBe('Hey Hans'); // #ANSWER
         });
     });
 });

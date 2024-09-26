@@ -1,4 +1,4 @@
-import { atom, DerivableAtom, error } from '@skunkteam/sherlock';
+import { atom, DerivableAtom } from '@skunkteam/sherlock';
 
 /**
  * Errors are a bit part of any programming language, and Sherlock has its own custom errors
@@ -23,40 +23,19 @@ describe('errors', () => {
         expect(myAtom$.errored).toBe(true);
         expect(myAtom$.error).toBe('my Error');
 
-        // expect(myAtom$.get).toThrow("Cannot read properties of undefined (reading 'getState')");
-        // TODO: WHAT - normally this works, but internal JEST just fucks with me....?
-
         // What will happen if you try to call `get()` on `myAtom$`?
         // `.toThrow()` or `.not.toThrow()`? ↴
-        expect(() => myAtom$.get()).toThrow('my Error'); 
+        expect(() => myAtom$.get()).toThrow('my Error');
 
         // ** __YOUR_TURN__ **
         // What will happen if you try to call `set()` on `myAtom$`?
         // `.toThrow()` or `.not.toThrow()`? ↴
-        expect(() => myAtom$.set(2)).not.toThrow(); 
-        expect(myAtom$.errored).toBe(false); 
+        expect(() => myAtom$.set(2)).not.toThrow();
+        expect(myAtom$.errored).toBe(false);
 
         // Interestingly, calling `set()` does not throw an error. In fact, it removes the error state
         // altogether. This means we can now call `get()` again.
         expect(() => myAtom$.get()).not.toThrow();
-    });
-
-    /**
-     * libs/sherlock/src/lib/interfaces.ts:289  shows the basic states that a Derivable can have.
-     * >    `export type State<V> = V | unresolved | ErrorWrapper;`
-     * A state can be either any type `V` (`number`, `string`, etc.), `unresolved` as we saw in the
-     * previous tutorial, or `ErrorWrapper`. This last state is explained here.
-     */
-    it('error states', () => {
-        expect(myAtom$.getState()).toBe(1); // as explained above, any type can be a state
-
-        myAtom$.setError('my Error');
-
-        // The `ErrorWrapper` state only holds an error string. The `error()` function returns
-        // such an `ErrorWrapper` which we can use to compare.
-        expect(myAtom$.getState()).toMatchObject(error('my Error'));
-
-        // TODO: more! There wasn't a question in here. Maybe combine with Final States? NO, that one should go!
     });
 
     it('deriving an error', () => {
@@ -66,7 +45,7 @@ describe('errors', () => {
         myAtom$.setError('division by zero');
 
         // ...what happens to `myDerivable$`?
-        expect(myDerivable$.errored).toBe(true); 
+        expect(myDerivable$.errored).toBe(true);
 
         // If any Derivable tries to derive from an atom in an error state,
         // this Derivable will itself throw an error too. This makes sense,
@@ -86,11 +65,11 @@ describe('errors', () => {
         // ** __YOUR_TURN__ **
         // Will an error be thrown when `myAtom$` is now set to an error state?
         // `.toThrow()` or `.not.toThrow()`? ↴
-        expect(() => myAtom$.setError('my Error')).toThrow('my Error'); 
+        expect(() => myAtom$.setError('my Error')).toThrow('my Error');
 
         // ** __YOUR_TURN__ **
         // Is the reactor still connected now that it errored?
-        expect(myAtom$.connected).toBe(false); 
+        expect(myAtom$.connected).toBe(false);
 
         // Reacting to a Derivable that throws an error will make the reactor throw as well.
         // Because the reactor will usually fire when it gets connected, it also throws when
@@ -102,11 +81,11 @@ describe('errors', () => {
         // ** __YOUR_TURN__ **
         // Will an error be thrown when you use `skipFirst`?
         // `.toThrow()` or `.not.toThrow()`? ↴
-        expect(() => myAtom$.react(reactor, { skipFirst: true })).toThrow('my second Error'); 
+        expect(() => myAtom$.react(reactor, { skipFirst: true })).toThrow('my second Error');
 
         // And will an error be thrown when `from = false`?
         // `.toThrow()` or `.not.toThrow()`? ↴
-        expect(() => myAtom$.react(reactor, { from: false })).not.toThrow(); 
+        expect(() => myAtom$.react(reactor, { from: false })).not.toThrow();
 
         // When `from = false`, the reactor is disconnected, preventing the error message from entering.
         // `skipFirst`, on the other hand, does allow the error in, but does not trigger an update.

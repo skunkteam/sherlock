@@ -62,7 +62,7 @@ function generateTutorialAndSolutions() {
                     tutorialContent = originalContent
                         .replace(/describe(?!\.skip)/g, "describe.skip") // change `describe` to `describe.skip`
                         .replace(/\n.*?\/\/ #QUESTION-BLOCK-(START|END)/g, "")
-                        .replace(/\/\/ #QUESTION/g, "") // remove `// #QUESTION` comments
+                        .replace(/ \/\/ #QUESTION/g, "") // remove `// #QUESTION` comments
                         .replace(/\n.*?\/\/ #ANSWER-BLOCK-START[\s\S]*?\/\/ #ANSWER-BLOCK-END/g, "") // remove // #ANSWER blocks
                         .replace(/\n.*?\/\/ #ANSWER/g, "");
                     // .replace(/\n\s*\n\s*\n/g, `\n\n`); // remove excess whitespaces/newlines
@@ -73,7 +73,7 @@ function generateTutorialAndSolutions() {
                     solutionContent = originalContent
                         .replace(/describe\.skip/g, "describe") // change `describe.skip` to `describe`
                         .replace(/\n.*?\/\/ #ANSWER-BLOCK-(START|END)/g, "")
-                        .replace(/\/\/ #ANSWER/g, "") // remove `// #ANSWER` comments
+                        .replace(/ \/\/ #ANSWER/g, "") // remove `// #ANSWER` comments
                         .replace(/\n.*?\/\/ #QUESTION-BLOCK-START[\s\S]*?\/\/ #QUESTION-BLOCK-END/g, "") // remove // #QUESTION blocks
                         .replace(/\n.*?\/\/ #QUESTION/g, "");
                     // .replace(/\n\s*\n\s*\n/g, `\n\n`); // remove excess whitespaces/newlines

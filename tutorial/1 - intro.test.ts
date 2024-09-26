@@ -50,7 +50,7 @@ describe.skip('intro', () => {
          * This can also be indicated with the `__YOUR_TURN__` variable.
          *
          * It should be clear what to do here... */
-        bool = __YOUR_TURN__; 
+        bool = __YOUR_TURN__;
         expect(bool).toBeTrue();
         // We use expectations like this to verify the result.
     });
@@ -78,7 +78,7 @@ describe.skip('the basics', () => {
         // the `Atom`.
         expect(myValue$.get()).toEqual(1);
 
-        // ** Your Turn ** 
+        // ** Your Turn **
         // Use the `.set(<newValue>)` method to change the value of the `Atom`.
         expect(myValue$.get()).toEqual(2);
     });
@@ -104,7 +104,7 @@ describe.skip('the basics', () => {
          * negative to a positive number and vice versa) of the original `Atom`.
          */
         // Use `myValue$.derive(val => ...)` to implement `myInverse$`.
-        const myInverse$ = myValue$.derive(__YOUR_TURN__ => __YOUR_TURN__); 
+        const myInverse$ = myValue$.derive(__YOUR_TURN__ => __YOUR_TURN__);
         expect(myInverse$.get()).toEqual(-1);
         // So if we set `myValue$` to -2:
         myValue$.set(-2);
@@ -129,7 +129,7 @@ describe.skip('the basics', () => {
          *
          * Now react to `myCounter$`. In every `react()`.
          * Increase the `reacted` variable by one. */
-        myCounter$.react(() => __YOUR_TURN__); 
+        myCounter$.react(() => __YOUR_TURN__);
         expect(reacted).toEqual(1);
         // `react()` will react immediately, more on that later.
 

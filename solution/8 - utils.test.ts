@@ -1,5 +1,16 @@
-import { atom, constant, derive, FinalWrapper } from '@skunkteam/sherlock';
-import { fromPromise, lift, pairwise, peek, scan, struct } from '@skunkteam/sherlock-utils';
+import { atom, constant, Derivable, derive, ErrorWrapper, FinalWrapper } from '@skunkteam/sherlock';
+import {
+    fromEventPattern,
+    fromObservable,
+    fromPromise,
+    lift,
+    pairwise,
+    peek,
+    scan,
+    struct,
+} from '@skunkteam/sherlock-utils';
+import { Atom } from 'libs/sherlock/src/internal';
+import { from, Observable, Subject } from 'rxjs';
 
 /**
  * In the `sherlock-utils` lib, there are a couple of functions that can combine
@@ -29,7 +40,7 @@ describe('utils', () => {
          *
          * Note: don't call `pairwise()` using a lambda function!
          */
-        myCounter$.derive(pairwise((newVal, oldVal) => newVal - oldVal, 0)).react(reactSpy); 
+        myCounter$.derive(pairwise((newVal, oldVal) => newVal - oldVal, 0)).react(reactSpy);
 
         expect(reactSpy).toHaveBeenCalledTimes(1);
         expect(reactSpy).toHaveBeenLastCalledWith(1, expect.toBeFunction());
@@ -49,7 +60,7 @@ describe('utils', () => {
         // ** Your Turn **
         // What will the next output be?
         expect(reactSpy).toHaveBeenCalledTimes(4);
-        expect(reactSpy).toHaveBeenLastCalledWith(10, expect.toBeFunction()); // 20 (current value of `myCounter$`) - 10 (previous value of `myCounter$`) 
+        expect(reactSpy).toHaveBeenLastCalledWith(10, expect.toBeFunction()); // 20 (current value of `myCounter$`) - 10 (previous value of `myCounter$`)
     });
 
     /**
@@ -78,7 +89,7 @@ describe('utils', () => {
          *
          * Note: don't call `pairwise()` using a lambda function!
          */
-        myCounter$.derive(scan((acc, val) => val - acc, 0)).react(reactSpy); 
+        myCounter$.derive(scan((acc, val) => val - acc, 0)).react(reactSpy);
 
         expect(reactSpy).toHaveBeenCalledTimes(1);
         expect(reactSpy).toHaveBeenLastCalledWith(1, expect.toBeFunction());
@@ -98,7 +109,7 @@ describe('utils', () => {
         // ** Your Turn **
         // What will the next output be?
         expect(reactSpy).toHaveBeenCalledTimes(4);
-        expect(reactSpy).toHaveBeenLastCalledWith(12, expect.toBeFunction()); // 20 (current value of `myCounter$`) - 8 (previous returned value) 
+        expect(reactSpy).toHaveBeenLastCalledWith(12, expect.toBeFunction()); // 20 (current value of `myCounter$`) - 8 (previous returned value)
     });
 
     it('`pairwise()` on normal arrays', () => {
@@ -115,16 +126,16 @@ describe('utils', () => {
          *
          * Note: don't call `pairwise()` using a lambda function!
          */
-        myList2 = myList.map(pairwise((newV, oldV) => newV - oldV, 0)); 
+        myList2 = myList.map(pairwise((newV, oldV) => newV - oldV, 0));
         expect(myList2).toMatchObject([1, 1, 1, 2, 5]);
 
         // However, we should be careful with this, as this does not always behave as intended.
         // Particularly, what exactly happens when we do call `pairwise()` using a lambda function?
-        myList2 = myList.map(v => pairwise((newV, oldV) => newV - oldV, 0)(v)); // copy the same implementation here 
+        myList2 = myList.map(v => pairwise((newV, oldV) => newV - oldV, 0)(v)); // copy the same implementation here
         expect(myList2).toMatchObject([1, 2, 3, 5, 10]);
 
         // Even if we are more clear about what we pass, this unintended behavior does not go away.
-        myList2 = myList.map((v, _, _2) => pairwise((newV, oldV) => newV - oldV, 0)(v)); // copy the same implementation here 
+        myList2 = myList.map((v, _, _2) => pairwise((newV, oldV) => newV - oldV, 0)(v)); // copy the same implementation here
         expect(myList2).toMatchObject([1, 2, 3, 5, 10]);
 
         // `pairwise()` keeps track of the previous value under the hood. Using a lambda of
@@ -134,14 +145,14 @@ describe('utils', () => {
         // Other than by not using a lambda function, we can fix this by
         // saving the `pairwise` in a variable and reusing it for every call.
 
-        let f = pairwise((newV, oldV) => newV - oldV, 0); 
+        let f = pairwise((newV, oldV) => newV - oldV, 0);
         myList2 = myList.map(v => f(v));
         expect(myList2).toMatchObject([1, 1, 1, 2, 5]);
 
         // To get more insight in the `pairwise()` function, you can call it
         // manually. Here, we show what happens under the hood.
 
-        f = pairwise((newV, oldV) => newV - oldV, 0); 
+        f = pairwise((newV, oldV) => newV - oldV, 0);
 
         myList2 = [];
         myList2[0] = f(myList[0]); // `f` is newly created with `init = 0`, so applies `1 - 0 = 1`.
@@ -160,8 +171,8 @@ describe('utils', () => {
          * Note that the function `f` still requires a number to be the return value.
          * Checking for equality therefore cannot be done directly within `f`.
          */
-        f = pairwise((newV, oldV) => newV - oldV, 0); 
-        myList2 = myList.filter(v => f(v) === 1); 
+        f = pairwise((newV, oldV) => newV - oldV, 0);
+        myList2 = myList.filter(v => f(v) === 1);
 
         expect(myList2).toMatchObject([1, 2, 3]); // only the numbers `1`, `2`, and `3` produce 1 when subtracted with the previous value
     });
@@ -177,7 +188,7 @@ describe('utils', () => {
          * Use a `scan()` combined with a `.map()` on `myList`
          * to subtract the previous value from the current.
          */
-        let f: (v: number) => number = scan((acc, val) => val - acc, 0); 
+        let f: (v: number) => number = scan((acc, val) => val - acc, 0);
         myList2 = myList.map(f);
 
         expect(myList2).toMatchObject([1, 1, 2, 3, 7]);
@@ -204,8 +215,8 @@ describe('utils', () => {
          * (1+2+3+5+10), and since this sum only prouces a value higher than 8 when the
          * values `5` and `10` are added, the result should be `[5,10]`.
          */
-        f = scan((acc, val) => val + acc, 0); 
-        myList2 = myList.filter(v => f(v) >= 8); 
+        f = scan((acc, val) => val + acc, 0);
+        myList2 = myList.filter(v => f(v) >= 8);
 
         expect(myList2).toMatchObject([5, 10]);
     });
@@ -221,7 +232,7 @@ describe('utils', () => {
          * Now, use `pairwise()` directly in `.react()`. Implement the same
          * derivation as before: subtract the previous value from the current.
          */
-        reactSpy = jest.fn(pairwise((newV, oldV) => newV - oldV, 0)); 
+        reactSpy = jest.fn(pairwise((newV, oldV) => newV - oldV, 0));
         myCounter$.react(reactSpy);
 
         expect(reactSpy).toHaveLastReturnedWith(1);
@@ -247,7 +258,7 @@ describe('utils', () => {
          * derivation as before: subtract all the emitted values.
          */
 
-        reactSpy = jest.fn(scan((acc, val) => val - acc, 0)); 
+        reactSpy = jest.fn(scan((acc, val) => val - acc, 0));
         myCounter$.react(reactSpy);
 
         expect(reactSpy).toHaveLastReturnedWith(1);
@@ -334,7 +345,7 @@ describe('utils', () => {
              * In other words: the new function should take a `Derivable<number>` (or more specifically:
              * an `Unwrappable<number>`) and return a `Derivable<boolean>`.
              */
-            const isEvenDerivable = lift(isEvenNumber); 
+            const isEvenDerivable = lift(isEvenNumber);
 
             expect(isEvenNumber(2)).toBe(true);
             expect(isEvenNumber(13)).toBe(false);
@@ -355,7 +366,7 @@ describe('utils', () => {
              * ** Your Turn **
              * Now, use `lift()` as alternative to `.map()`.
              */
-            myMappedDerivable$ = lift(addOne)(myAtom$); 
+            myMappedDerivable$ = lift(addOne)(myAtom$);
 
             expect(myMappedDerivable$.value).toBe(2);
         });
@@ -375,7 +386,7 @@ describe('utils', () => {
          * value of `myTrackedAtom$`, which should be tracked.
          */
         const reactor = jest.fn(v => v);
-        derive(() => myTrackedAtom$.get() + peek(myUntrackedAtom$)).react(reactor); 
+        derive(() => myTrackedAtom$.get() + peek(myUntrackedAtom$)).react(reactor);
 
         expect(reactor).toHaveBeenCalledOnce();
         expect(reactor).toHaveLastReturnedWith(3);
@@ -414,8 +425,6 @@ describe('utils', () => {
             // Every atom has a `final` property.
             expect(myAtom$.final).toBeFalse();
 
-            // TODO: SHOW THAT CONST ALSO GIVES THE SAME ERROR MESSAGE WHEN SET!!
-
             // You can make an atom final using the `.makeFinal()` function.
             myAtom$.makeFinal();
             expect(myAtom$.final).toBeTrue();
@@ -425,14 +434,15 @@ describe('utils', () => {
              * What do you think will happen when we try to `.get()` or `.set()` this atom?
              */
             // .toThrow() or .not.toThrow()? ↴
-            expect(() => myAtom$.get()).not.toThrow(); 
-            expect(() => myAtom$.set(2)).toThrow('cannot set a final derivable'); 
+            expect(() => myAtom$.get()).not.toThrow();
+            expect(() => myAtom$.set(2)).toThrow('cannot set a final derivable');
 
             // This behavior is consistent with normal variables created using `const`.
+
             // Alternatively, you can set a last value before setting it to `final`, using `.setFinal()`.
             // .toThrow() or .not.toThrow()? ↴
-            expect(() => myAtom$.setFinal(2)).toThrow('cannot set a final derivable'); 
-            // Remember: we try to set an atom that is already final, so we get an error 
+            expect(() => myAtom$.setFinal(2)).toThrow('cannot set a final derivable');
+            // Remember: we try to set an atom that is already final, so we get an error
 
             // There is no way to 'unfinalize' a Derivable, so the only solution to reset is to
             // create a whole new Derivable.
@@ -444,7 +454,7 @@ describe('utils', () => {
             // `final` in disguise. You can verify this by checking the implementation of `constant` at
             // libs/sherlock/src/lib/derivable/factories.ts:39
             const myConstantAtom$ = constant(1);
-            expect(myConstantAtom$.final).toBe(true); 
+            expect(myConstantAtom$.final).toBe(true);
         });
 
         it('deriving a `final` Derivable', () => {
@@ -463,8 +473,8 @@ describe('utils', () => {
              *
              * What will happen to `myDerivable$` when I change `myAtom$` to be `final`?
              */
-            expect(myDerivable$.final).toBe(true); 
-            expect(myDerivable$.connected).toBe(false); 
+            expect(myDerivable$.final).toBe(true);
+            expect(myDerivable$.connected).toBe(false);
 
             /**
              * Derivables that are final (or constant) are no longer tracked. This can save
@@ -474,28 +484,22 @@ describe('utils', () => {
              */
         });
 
-        it('TODO: `final` State', () => {
-            /** A property such as `.final`, similar to variables like `.errored` and `.resolved`
-             * is useful for checking whenever a Derivable is in a certain state, but these properties
-             * are just a boolean. This means that these properties cannot be derived and we cannot
-             * have certain functions execute whenever there is a change in the state. For this reason,
-             * every Derivable holds an internal state, retrievable using `.getState()` which can be
-             * derived. TODO: Have a clear place where I explain this! Now I have info up top here too.
-             *
-             * We have seen that states (`State<V>`) can be `undefined`, `ErrorWrapper`,
-             * or any regular type `V`. Other states exist, such as the `MaybeFinalState<V>`. This state can be either
-             * a normal state `State<V>` or a special `FinalWrapper<State<V>>` state. Let's see that in action.
+        it('`final` State', () => {
+            /**
+             * We have seen that states (`State<V>`) can be `unresolved`, `ErrorWrapper`,
+             * or any regular type `V`. If you want to also show whether a Derivable is `final`, you can
+             * use the `MaybeFinalState<V>`, which is either any normal `State<V>` or a special
+             * `FinalWrapper<State<V>>` state. Let's see that in action.
              */
-            expect(myAtom$.getMaybeFinalState()).toBe(1); // `getMaybeFinalState` can return a normal state, which in turn can be any normal type.
+            myAtom$.set(2);
+            expect(myAtom$.getMaybeFinalState()).toBe(2); // `getMaybeFinalState` can return a normal state, which in turn can be any normal type.
 
-            myAtom$.makeFinal();
+            myAtom$.setError('2');
+            expect(myAtom$.getMaybeFinalState()).toBeInstanceOf(ErrorWrapper); // `getMaybeFinalState()` can return a normal state, which in turn can be unresolved.
 
-            expect(myAtom$.getMaybeFinalState()).toBeInstanceOf(FinalWrapper); // but `getMaybeFinalState` can also return a `FinalWrapper` type.
-            expect(myAtom$.getState()).toBe(1); // the normal type is still the final it contains.
-
-            // TODO: MAAR JE KAN EEN STATE HELEMAAL NIET DERIVEN!
-            // Dus dat is allemaal onzin lijkt me....??? Bovendien, kan je normale variabelen niet deriven door het gewoon te
-            // wrappen in een atom ofzo? Of door te structen?
+            myAtom$.setFinal(2);
+            expect(myAtom$.getMaybeFinalState()).toBeInstanceOf(FinalWrapper); // but `getMaybeFinalState)_` can also return a `FinalWrapper` type.
+            expect(myAtom$.getState()).toBe(2); // the normal `getState()` function cannot return a FinalWrapper.
         });
     });
 
@@ -516,8 +520,8 @@ describe('utils', () => {
              * ** Your Turn **
              * What do you think is the default state of an atom based on a Promise?
              */
-            expect(myAtom$.value).toBe(undefined); 
-            expect(myAtom$.final).toBe(false); 
+            expect(myAtom$.value).toBe(undefined);
+            expect(myAtom$.final).toBe(false);
 
             // Now we wait for the Promise to be handled (resolved).
             await promise;
@@ -526,8 +530,8 @@ describe('utils', () => {
              * ** Your Turn **
              * So, what will happen to `myAtom$`?
              */
-            expect(myAtom$.value).toBe(15); 
-            expect(myAtom$.final).toBe(true); 
+            expect(myAtom$.value).toBe(15);
+            expect(myAtom$.final).toBe(true);
 
             // Now we make a promise that is rejected when called.
             promise = Promise.reject('Oh no, I messed up!');
@@ -540,9 +544,9 @@ describe('utils', () => {
              * ** Your Turn **
              * So, what will happen to `myAtom$` now?
              */
-            expect(myAtom$.errored).toBe(true); 
-            expect(myAtom$.error).toBe('Oh no, I messed up!'); 
-            expect(myAtom$.final).toBe(true); 
+            expect(myAtom$.errored).toBe(true);
+            expect(myAtom$.error).toBe('Oh no, I messed up!');
+            expect(myAtom$.final).toBe(true);
         });
 
         it('`.toPromise()`', async () => {
@@ -560,7 +564,7 @@ describe('utils', () => {
              */
             myAtom$.set('second value');
             // `.resolves`  or  `.rejects`? ↴
-            await expect(promise).resolves.toBe('initial value'); // `myAtom$` starts with a value ('initial value'), so the promise is immediately resolved 
+            await expect(promise).resolves.toBe('initial value'); // `myAtom$` starts with a value ('initial value'), so the promise is immediately resolved
 
             myAtom$.unset(); // reset
 
@@ -572,7 +576,7 @@ describe('utils', () => {
              */
             myAtom$.set('third value');
             // `.resolves`  or  `.rejects`? ↴
-            await expect(promise).resolves.toBe('third value'); // This is now the first value the atom obtains since the promise was created. 
+            await expect(promise).resolves.toBe('third value'); // This is now the first value the atom obtains since the promise was created.
 
             // Whenever an atom is in an `unresolved` state, the corresponding Promise is pending.
             // This means that the Promise can still become resolved or rejected depending on the atom's actions.
@@ -591,7 +595,7 @@ describe('utils', () => {
                 await promise;
             } catch (error: any) {
                 // `.toBe('Error.')`  or  `.not.toBe('Error.')`? ↴
-                expect(error.message).not.toBe('Error.'); 
+                expect(error.message).not.toBe('Error.');
             }
 
             myAtom$.set('no more error');
@@ -609,18 +613,189 @@ describe('utils', () => {
                 await promise;
             } catch (error: any) {
                 // `.toBe('Error.')`  or  `.not.toBe('Error.')`? ↴
-                expect(error.message).toBe('Error.'); 
+                expect(error.message).toBe('Error.');
             }
         });
 
+        /**
+         * Some reactive libraries already existed, such as RxJS.
+         * Angular uses RxJS, and since we use Angular, we are forced to use RxJS.
+         * However, RxJS becomes more and more complicated and user-unfriendly
+         * as your application becomes bigger. This was the main reason why
+         * Sherlock was developed.
+         * As Angular uses RxJS, our Sherlock library needs to be compatible with it.
+         * The `fromObservable()` and `toObservable()` functions are used for this.
+         */
         it('`fromObservable()`', () => {
-            // Has to do with SUBSCRIBING. Hasn't been discussed either...
-            // TODO: "As all Derivables are now compatible with rxjs's `from` function,
-            // we no longer need the `toObservable` function from `@skunkteam/sherlock-rxjs`."
+            /**
+             * RxJS uses `Observables` which are similar to our `Derivables`.
+             * It also uses the concept of `Subscribing`, which is similar to `Deriving`.
+             *
+             * Here's an example of the similarities and differences.
+             */
+
+            const dummyObservable = new Subject<number>(); // `Subject` is a form of `Observable`
+            let subscribedToDummy;
+            dummyObservable.subscribe({ next: x => (subscribedToDummy = x) });
+            dummyObservable.next(2);
+            expect(subscribedToDummy).toBe(2);
+
+            const dummyDerivable$ = new Atom<number>(1);
+            const derivedOfDummy = dummyDerivable$.derive(x => x);
+            dummyDerivable$.set(2);
+            expect(derivedOfDummy.value).toBe(2);
+
+            /**
+             * The code for turning an Observable "observable" into a derivable "value$" is
+             * like this (from libs/sherlock-utils/src/lib/from-observable.ts):
+             *
+             * ```
+             * observable.subscribe({
+             *   next: value => value$.set(value),
+             *   error: err => value$.setFinal(error(err)),
+             *   complete: () => value$.makeFinal(),
+             * });
+             * return () => subscription.unsubscribe();
+             * ```
+             *
+             * Essentially,
+             * - we map `next()` (Observable) to `set()` (Derivable);
+             * - we map `error()` (Observable) to `setFinal(error())` (Derivable);
+             * NOTE: we don't map it to `setError()` as we would then be able to undo the error state. We can't undo it when it's final.
+             * - we map`complete()` (Observable) to `makeFinal()` (Derivable);
+             * - and we return a function we can call to stop (similar to using `react()`), which is mapped to `unsubscribe()`
+             * NOTE: in fact, `fromEventPattern()` is build using the `react()` function!
+             *
+             * Okay, that's enough info for now. Let's get to work.
+             * The `fromObservable()` function translates an `Observable` to a `Derivable`.
+             *
+             * ** Your Turn **
+             *
+             * Use `fromObservable()` to turn this `Observable` into a `Derivable`.
+             */
+
+            // A `Subject` is the simplest form of `Observable`: it is comparable to our `Atom`.
+            const myObservable = new Subject<number>();
+
+            const myDerivable$: Derivable<number> = fromObservable(myObservable);
+            const reactor = jest.fn();
+            const onError = jest.fn();
+            myDerivable$.react(reactor, { onError });
+
+            myObservable.next(1);
+            expect(myDerivable$.value).toBe(1);
+
+            myObservable.next(2);
+            expect(myDerivable$.value).toBe(2);
+
+            myObservable.error('OH NO!');
+            expect(myDerivable$.error).toBe('OH NO!');
+
+            myObservable.next(3);
+            expect(myDerivable$.value).toBe(undefined);
+            // It is set to final, so after an error has been thrown, you cannot undo it.
+
+            /**
+             * The `toObservable()` function has become obsolete as RxJS already contains a function
+             * called `from()` that can parse `Derivables` to `Observables`. Note that a `from` from
+             * the side of RxJS is the same as a `to` from the side of Sherlock.
+             *
+             * ** Your Turn **
+             *
+             * Use the `from()` function to turn this `Derivable` into an `Observable`.
+             */
+            const myDerivable2$ = atom(1);
+
+            const myObservable2: Observable<number> = from(myDerivable2$);
+
+            let value = 0;
+            myObservable2.subscribe({ next: x => (value = x) });
+
+            expect(value).toBe(1); // immediate call to `next()`
+
+            myDerivable2$.set(2);
+            expect(value).toBe(2);
         });
 
-        it('`fromEventPattern`', () => {
-            // TODO: this is kinda complicated shit... Requires explaining a lot of extra stuff (Subjects, Subscribing, Observables...). Leave for now?
+        /**
+         * The `fromObservable()` function can be used to turn `Observables` into `Derivables`. Under the hood,
+         * this function uses the `fromEventPattern()` function which is capable of turning any abstract pattern
+         * into a `Derivable`. Let's see how that works.
+         */
+        it('`fromEventPattern`', async () => {
+            /**
+             * The basic idea is that you get a stream of inputs, and want to map that stream to a Derivable stream.
+             * This means that, whenever an update comes from the input-stream, this update is also given to a Derivable,
+             * which can then be `derive`d and `react`ed to.
+             *
+             * For example, you may get a function which, instead of returning an output, passes some output to your own chosen
+             * `callback` function. For example, this code 'heyifies' your input, adding "hey" in front of it.
+             * It then passes this heyified output to the callback function. As seen before in `react()` and `fromObservable()`,
+             * these functions like `heyify()` typically return a stopping function, which can be called to stop the heyification.
+             */
+            function heyify(names: string[], callback: (something: string) => void) {
+                let i = 0;
+                // every 100ms, call the callback function
+                const int = setInterval(() => callback(`Hey ${names[i++]}`), 100);
+                // when this function is called, `clearInterval()` stops the stream.
+                return () => clearInterval(int);
+            }
+
+            /**
+             * Now, we want to turn this process into a Derivable, where updates that are send to the callback are passed to the Derivable as well.
+             * This way, we can use our cool Derivable functions like `derive()` or `react()` to process changes to this Derivable
+             * (= new outputs from the callback).
+             *
+             * `fromEventPattern()` looks more complex than it is. This function sets a Derivable in place of the callback and also returns
+             * a stopping function, which can be reused from the `heyify()` function.
+             */
+            function heyify$(names: string[]): Derivable<string> {
+                return fromEventPattern<string>(v$ => {
+                    // the callback now sets a derivable.
+                    const stop = heyify(names, something => v$.set(something));
+                    // and the stopping function is returned.
+                    return stop;
+                });
+            }
+
+            /**
+             * This Derivable can now be reacted to.
+             * When this Derivable gets connected (reacted to, in this case), the function within the `fromEventPattern()` triggers.
+             * Upon connection, a fresh atom is passed to this function, which is then `set()` in the callback function of `heyify()`.
+             * This atom "lives" in the body of the callback function and is only changed when a new value is passed to the callback function.
+             * Here, this is a new "Hey {name}" message, every 100ms.
+             */
+
+            // To test this, we need to make sure time elapses only when we want it to. So we temporarily stop time, no big deal.
+            // (Don't worry about what the internet says about the dangers of stopping time: this is perfectly safe.)
+            jest.useFakeTimers();
+
+            let value: string = '';
+            const stop = heyify$(['Bob', 'Jan', 'Hans', 'Roos']).react(v => (value = v));
+
+            /**
+             * ** Your Turn **
+             *
+             * What do you expect `value` to be?
+             * *Hint: At the start, time has not yet passed, and `setInterval()` only responds after the first 100ms.*
+             */
+            expect(value).toBe('');
+
+            // We manually move time by 100ms, which is exactly the time that the `heyify()` function needs to call the `callback()` again.
+            jest.advanceTimersByTime(100);
+            expect(value).toBe('Hey Bob');
+
+            jest.advanceTimersByTime(100);
+            expect(value).toBe('Hey Jan');
+
+            jest.advanceTimersByTime(100);
+            expect(value).toBe('Hey Hans');
+
+            stop();
+
+            // After stopping, the Derivable no longer responds to updates - it is essentially final.
+            jest.advanceTimersByTime(100);
+            expect(value).toBe('Hey Hans');
         });
     });
 });

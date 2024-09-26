@@ -1,4 +1,13 @@
-import { atom, constant, Derivable, derive, SettableDerivable, unresolved } from '@skunkteam/sherlock';
+import {
+    atom,
+    constant,
+    Derivable,
+    derive,
+    ErrorWrapper,
+    SettableDerivable,
+    State,
+    unresolved,
+} from '@skunkteam/sherlock';
 import { template } from '@skunkteam/sherlock-utils';
 import { Map as ImmutableMap } from 'immutable';
 
@@ -100,7 +109,7 @@ describe('advanced', () => {
         expect(myLimitedAtom$.resolved).toBe(false);
         myAtom$.set('allowed');
         expect(myLimitedAtom$.resolved).toBe(true);
-        expect(myLimitedAtom$.value).toBe('allowed');
+        expect(myLimitedAtom$.get()).toBe('allowed');
     });
 
     /**
@@ -337,16 +346,175 @@ describe('advanced', () => {
 
             const myList = [1];
             const myMappedList = myList.map(addOne);
-            expect(myMappedList).toMatchObject([2]);
+            expect(myMappedList).toMatchObject(__YOUR_TURN__); // #QUESTION
+            expect(myMappedList).toMatchObject([2]); // #ANSWER
 
             const myAtom$ = atom(1);
             let myMappedDerivable$ = myAtom$.map(addOne);
-            expect(myMappedDerivable$.value).toBe(2);
+            expect(myMappedDerivable$.value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myMappedDerivable$.value).toBe(2); // #ANSWER
 
             // You can combine them too.
             const myAtom2$ = atom([1]);
             const myMappedDerivable2$ = myAtom2$.map(v => v.map(addOne));
-            expect(myMappedDerivable2$.value).toMatchObject([2]);
+            expect(myMappedDerivable2$.value).toMatchObject(__YOUR_TURN__); // #QUESTION
+            expect(myMappedDerivable2$.value).toMatchObject([2]); // #ANSWER
+        });
+
+        /**
+         * Although the `.map()` function can be reversed, the intended flow of the
+         * function is still meant to go the original non-reversed way. This means that,
+         * if the reverse flow is used, the non-reverse flow is also activated. We will
+         * show what that means.
+         */
+        it('one-way flow', () => {
+            const myAtom$ = atom(1);
+
+            const myMappedAtom$ = myAtom$.map(
+                n => n + 1,
+                n => n * 2,
+            );
+
+            // This may seem logical...
+            myAtom$.set(5);
+            expect(myAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myMappedAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.value).toBe(5); // #ANSWER
+            expect(myMappedAtom$.value).toBe(6); // #ANSWER
+
+            // ...but this may seem weird.
+            myMappedAtom$.set(5);
+            expect(myAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myMappedAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.value).toBe(10); // #ANSWER
+            expect(myMappedAtom$.value).toBe(11); // #ANSWER
+
+            /**
+             * `.map()` is intended to use one-way, from `myAtom$` to `myMappedAtom$`.
+             * The reverse direction or 'flow', of setting `myMappedAtom$` and mapping it to `myAtom$` is not
+             * the intended flow, and is used only as a shortcut to alter `myAtom$`. However, if you do this,
+             * `myAtom$` will notice that it is changed and thus will trigger another call of `.map()`, now
+             * from `myAtom$` to `myMappedAtom$`! Thus, `myMappedAtom$` is changed again.
+             *
+             * Although this behavior is intended, it may give seemingly weird situations like this where
+             * you set `myMappedAtom$` to the value 5, yet it "suddenly" has value 11.
+             *
+             * Also note that removing the second case of `.map()`, so for the reverse direction, will actually have effects
+             * on the typing of `myMappedAtom$`: it will become a `Derivable<number>` instead of a `DerivableAtom<number>`,
+             * which also means it does not have a `.set()` method anymore. Try it out by commenting out the second line of `.map()`!
+             */
+        });
+
+        it('`.flatMap()`', () => {
+            const myAtom$ = atom(0);
+            const atomize = jest.fn((n: number) => atom(n)); // turn a number into an atom.
+            /**
+             * Sometimes you use `.map()`, but the result of the function within the `.map()` is also a Derivable.
+             * The result would be a `Derivable<DerivableAtom<any>>` (like the return type of `.map()` below: hover over it to see)
+             */
+            myAtom$.map(atomize);
+
+            /**
+             * You would have to use `.get()` to go back to a single Derivable. Similarly how `flatMap` can
+             * reduce lists of lists to a single list, it can help reduce Derivables of Derivables to a
+             * single Derivable.
+             *
+             * ** Your Turn **
+             *
+             * Rewrite the first line using `.flatMap()`.
+             */
+            let myMappedAtom$ = myAtom$.map(atomize).derive(v => v.get()); // the `derive()` uses `get()` to remove one layer of `Derivable`
+            myMappedAtom$ = __YOUR_TURN__ as Derivable<number>; // #QUESTION
+            myMappedAtom$ = myAtom$.flatMap(atomize) as Derivable<number>; // #ANSWER
+
+            myAtom$.set(1);
+            expect(myMappedAtom$.get()).toBe(1);
+            expect(atomize).toHaveBeenCalledTimes(1);
+
+            // `.flatMap()`, like `.map()`, is a common functionality of standard libraries and can be used on e.g. arrays.
+            const myList = [1, 2, 3];
+            const myMappedList = myList.map(v => [v, v + 1]).flat();
+            const myFlatMappedList = __YOUR_TURN__; // #QUESTION
+            const myFlatMappedList = myList.flatMap(v => [v, v + 1]); // #ANSWER
+            expect(myMappedList).toEqual(myFlatMappedList);
+        });
+    });
+
+    /**
+     * Every Derivable also contains a `State`. This state contains all the information of a Derivable in one place,
+     * such as whether it is a value, unresolved, or an error.
+     */
+    describe('States', () => {
+        /**
+         * libs/sherlock/src/lib/interfaces.ts:289  shows all that a State can be.
+         * ```
+         * export type State<V> = V | unresolved | ErrorWrapper;
+         * ```
+         */
+        it('value states, unresolved states, and error states', () => {
+            const myAtom$ = atom(1);
+            /**
+             * ** Your Turn **
+             *
+             * What do you expect the state to be?
+             */
+            expect(myAtom$.getState()).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.getState()).toBe(1); // #ANSWER
+
+            /**
+             * We cannot directly set the state of `myAtom$` as there is no `setState()` function,
+             * but it will change automatically when we change the value of `myAtom$`.
+             */
+            myAtom$.unset();
+
+            /**
+             * ** Your Turn **
+             *
+             * What do you expect the state to be?
+             */
+            expect(myAtom$.getState()).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.getState()).toBe(unresolved); // #ANSWER
+
+            myAtom$.setError('my Error');
+
+            /**
+             * ** Your Turn **
+             *
+             * What do you expect the state to be?
+             */
+            expect(myAtom$.getState()).toBeInstanceOf(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.getState()).toBeInstanceOf(ErrorWrapper); // #ANSWER
+
+            /**
+             * Here is an example of when a state can be useful. Using the concept of type 'narrowing', we can check
+             * on type-level what state the atom is in and we can vary our return value accordingly.
+             * Study the following function and then fill in the expectations below.
+             */
+            function stateToString(state: State<number>): string {
+                if (state instanceof ErrorWrapper) {
+                    // We know `state` is of type 'ErrorWrapper', which allows us to grab a property such as 'error' from it.
+                    // Note that our `error` is `ErrorWrapper.error`, not `Derivable<number>.error` such as when using `myAtom$.error`.
+                    return state.error as string;
+                } else if (typeof state === 'number') {
+                    // We know `state` is of type 'number', so we can apply numerical functions to it.
+                    return String(state + 1);
+                } else {
+                    // We know `state` must now be of type 'unresolved'.
+                    return state.toString();
+                }
+            }
+
+            myAtom$.set(1);
+            expect(stateToString(myAtom$.getState())).toBe(__YOUR_TURN__); // #QUESTION
+            expect(stateToString(myAtom$.getState())).toBe('2'); // #ANSWER
+
+            myAtom$.unset();
+            expect(stateToString(myAtom$.getState())).toBe(__YOUR_TURN__); // #QUESTION
+            expect(stateToString(myAtom$.getState())).toBe('Symbol(unresolved)'); // #ANSWER
+
+            myAtom$.setError('OH NO!');
+            expect(stateToString(myAtom$.getState())).toBe(__YOUR_TURN__); // #QUESTION
+            expect(stateToString(myAtom$.getState())).toBe('OH NO!'); // #ANSWER
         });
 
         /**
@@ -358,83 +526,30 @@ describe('advanced', () => {
         it('`.mapState()`', () => {
             const myAtom$ = atom(1);
 
-            // like `.map()`, we can specify it both ways.
             const myMappedAtom$ = myAtom$.mapState(
-                state => (state === unresolved ? 3 : state), // `myAtom$` => `myMappedAtom$`
-                state => (state === 2 ? unresolved : state), // `myMappedAtom$` => `myAtom$`
+                state => (state === unresolved || state instanceof ErrorWrapper ? 0 : state), // `myAtom$` => `myMappedAtom$`
+                state => state, // `myMappedAtom$` => `myAtom$`
             );
 
             myAtom$.set(2);
-            expect(myAtom$.resolved).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.resolved).toBe(true); // #ANSWER
-            expect(myMappedAtom$.resolved).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myMappedAtom$.resolved).toBe(true); // #ANSWER
+            expect(myAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.value).toBe(2); // #ANSWER
+            expect(myMappedAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myMappedAtom$.value).toBe(2); // #ANSWER
 
             myAtom$.unset();
-            expect(myAtom$.resolved).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.resolved).toBe(false); // #ANSWER
-            expect(myMappedAtom$.resolved).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myMappedAtom$.resolved).toBe(true); // #ANSWER
+            expect(myAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.value).toBe(undefined); // #ANSWER
+            expect(myMappedAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myMappedAtom$.value).toBe(0); // #ANSWER
 
-            myMappedAtom$.set(2);
-            expect(myAtom$.resolved).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.resolved).toBe(false); // #ANSWER
-            expect(myMappedAtom$.resolved).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myMappedAtom$.resolved).toBe(true); // #ANSWER
-
-            // This is a tricky one:
+            // This is a tricky one. Remember the intended flow of the `map()` function,
+            // as it is the same for the `mapState()` function.
             myMappedAtom$.unset();
-            expect(myAtom$.resolved).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myAtom$.resolved).toBe(false); // #ANSWER
-            expect(myMappedAtom$.resolved).toBe(__YOUR_TURN__); // #QUESTION
-            expect(myMappedAtom$.resolved).toBe(true); // #ANSWER
-
-            /**
-             * The results, especially of the last case, may seem weird.
-             * In the first exercise, `myAtom$` is set to 2, causing the state to be 2 as well.
-             * By setting the state of `myAtom$`, the first line of `mapState()` is triggered.
-             * Since `2` is not equal to `unresolved`, we return the state `2`, causing
-             * `myMappedAtom$` to also get state 2 (and thus: value 2). Neither are unresolved.
-             *
-             * In the second case, `myAtom$` is set to `unresolved`, triggering the first line of
-             * `mapState()`, letting `myMappedAtom$` become 3. `myAtom$` is now `unresolved`, and
-             * `myMappedAtom$` is not.
-             *
-             * In the third case, `myMappedAtom$` is set to 2, it triggers the second line of
-             * `mapState()`, causing `myAtom$` to become `unresolved`. However, what we don't
-             * notice is that this change in state triggers the first line of `mapState()` again,
-             * causing `myMappedAtom$` to get state `3`. We can check this:
-             */
-
-            myMappedAtom$.set(2);
-            expect(myMappedAtom$.get()).toBe(3); // the state and value are linked, so this is identical to `.getState()`
-            /**
-             * You might think that this change in state would cause `myAtom$` to now also get
-             * `3` as its state, but this does not happen. Why not? TODO: maximally one cycle? ASK!
-             * Since both `2` and `3` are not `unresolved`, it does not matter to our answer.
-             *
-             * The same cannot be said for the fourth case. Setting `myMappedAtom$` to `unresolved`
-             * triggers the second line of `mapState()`, causing `myAtom$` to also become `unresolved`. This, in turn,
-             * triggers the first line of `mapState()`, causing `myMappedAtom$` to become `3`.
-             * As such, `myMappedAtom$` is not `unresolved` even though we set it as such.
-             * TODO: change this to be for MAP. Then make MAPSTATE a trivial one right after.
-             */
-        });
-
-        // FIXME:
-        it('TEMP Flat-map', () => {
-            // const myAtom$ = atom(0);
-            // const mapping = (v: any) => atom(v);
-            // Sometimes you use `map()`, but the result within the `map()` is also a Derivable.
-            // The result would here be a `Derivable<DerivableAtom<any>>` (hover over `derive` to see this).
-            // You would have to use `.get()` to go back to a single Derivable. Similarly how `flatMap` can
-            // reduce lists of lists to a single list, it can help reduce Derivables of Derivables to a
-            // single Derivable. If you have something like this:
-            // let myAtom$$ = myAtom$.map(n => mapping(n)).derive(v => v.get());
-            // You can now rewrite it to this:
-            // myAtom$$ = myAtom$.flatMap(n => mapping(n));
-            // It only results in slightly shorter code.
-            // TODO: right?
+            expect(myAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myAtom$.value).toBe(undefined); // #ANSWER
+            expect(myMappedAtom$.value).toBe(__YOUR_TURN__); // #QUESTION
+            expect(myMappedAtom$.value).toBe(0); // #ANSWER
         });
     });
 
@@ -444,7 +559,7 @@ describe('advanced', () => {
      * `Derivable`, one of those values can be plucked into a new `Derivable`.
      * This plucked `Derivable` can be settable, if the source supports it.
      *
-     * The way properties are plucked is pluggable, but by default both // TODO: no-one here knows what "pluggable" is. Or ImmutableJS.
+     * The way properties are plucked is 'pluggable' (customizable), but by default both
      * `<source>.get(<prop>)` and `<source>[<prop>]` are supported to support
      * basic Objects, Maps and Arrays.
      *
@@ -452,7 +567,7 @@ describe('advanced', () => {
      * does not. This means that setting a plucked property of a regular
      * Object/Array/Map will not cause any reaction on that source `Derivable`.
      *
-     * ImmutableJS can help fix this problem*
+     * ImmutableJS can help fix this problem.
      */
     describe('`.pluck()`', () => {
         const reactSpy = jest.fn();

@@ -337,10 +337,11 @@ describe('inner workings', () => {
         /**
          * In `@skunkteam/sherlock` equality is a bit complex:
          *
-         * First we check `Object.is()` equality, if that is true, it is the
+         * First we check `Object.is()` equality. If that is true, it is the
          * same, you can't deny that.
          *
-         * After that it is pluggable. It can be anything you want. TODO: what is pluggable?
+         * After that it is pluggable. This means that you can 'plug in' or 'define'
+         * the definition for equality yourself.
          *
          * By default we try to use `.equals()`, to support libraries like
          * `ImmutableJS`.

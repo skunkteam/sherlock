@@ -26,7 +26,8 @@
         "dep-graph": "nx dep-graph",
         "help": "nx help",
         "tutorial": "jest tutorial/* -c tutorial/jest.config.ts",
-        "solution": "jest solution/* -c solution/jest.config.ts"
+        "solution": "jest solution/* -c solution/jest.config.ts",
+        "generate": "tsc generateTutorialAndSolution.ts && node generateTutorialAndSolution.js && npm run tutorial && npm run solution"
     },
     "standard-version": {
         "bumpFiles": [

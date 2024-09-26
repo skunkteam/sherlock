@@ -76,11 +76,11 @@ describe('deriving', () => {
 
         // Should return 'Fizz' when `myCounter$` is a multiple of 3 and '' otherwise.
         const fizz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); // #QUESTION
-        const fizz$: Derivable<string> = myCounter$.derive(v => (v % 3 ? '' : 'Fizz')); // Shorthand for `v % 3 !== 0`
+        const fizz$: Derivable<string> = myCounter$.derive(v => (v % 3 ? '' : 'Fizz')); // Shorthand for `v % 3 !== 0` // #ANSWER
 
         // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
         const buzz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); // #QUESTION
-        const buzz$: Derivable<string> = myCounter$.derive(v => (v % 5 ? '' : 'Buzz'));
+        const buzz$: Derivable<string> = myCounter$.derive(v => (v % 5 ? '' : 'Buzz')); // #ANSWER
 
         const fizzBuzz$: Derivable<string | number> = derive(__YOUR_TURN__); // #QUESTION
         // #ANSWER-BLOCK-START
@@ -160,11 +160,11 @@ describe('deriving', () => {
         const lastTweet = pastTweets[tweetCount - 1];
 
         expect(tweetCount).toEqual(__YOUR_TURN__); // Is there a new tweet? // #QUESTION
-        expect(tweetCount).toEqual(3); // Is there a new tweet?// #ANSWER
-        expect(lastTweet).toContain(__YOUR_TURN__); // Who sent it? Donald? Or Barack?// #QUESTION
-        expect(lastTweet).toContain('Donald'); // Who sent it? Donald? Or Barack?// #ANSWER
-        expect(lastTweet).toContain(__YOUR_TURN__); // What did he tweet?// #QUESTION
-        expect(lastTweet).toContain('politics'); // What did he tweet?// #ANSWER
+        expect(tweetCount).toEqual(3); // Is there a new tweet? // #ANSWER
+        expect(lastTweet).toContain(__YOUR_TURN__); // Who sent it? Donald? Or Barack? // #QUESTION
+        expect(lastTweet).toContain('Donald'); // Who sent it? Donald? Or Barack? // #ANSWER
+        expect(lastTweet).toContain(__YOUR_TURN__); // What did he tweet? // #QUESTION
+        expect(lastTweet).toContain('politics'); // What did he tweet? // #ANSWER
 
         /**
          * As you can see, this is something to look out for.

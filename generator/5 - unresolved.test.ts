@@ -206,14 +206,14 @@ describe('unresolved', () => {
         const mySafeAtom$ = myAtom$.fallbackTo(__YOUR_TURN__); // #QUESTION
         const mySafeAtom$ = myAtom$.fallbackTo(() => 3); // #ANSWER
 
-        expect(myAtom$.value).toBe(0);
-        expect(mySafeAtom$.value).toBe(0);
+        expect(myAtom$.get()).toBe(0);
+        expect(mySafeAtom$.get()).toBe(0);
 
         myAtom$.unset();
 
         expect(myAtom$.resolved).toBeFalse();
         expect(mySafeAtom$.resolved).toBeTrue();
-        expect(myAtom$.value).toBeUndefined();
-        expect(mySafeAtom$.value).toBe(3);
+        expect(() => myAtom$.get()).toThrow();
+        expect(mySafeAtom$.get()).toBe(3);
     });
 });

@@ -30,7 +30,7 @@ describe('deriving', () => {
          */
 
         // We can combine txt with `repeat$.get()` here.
-        const lyric$ = text$.derive(txt => txt.repeat(repeat$.get())); 
+        const lyric$ = text$.derive(txt => txt.repeat(repeat$.get()));
 
         expect(lyric$.get()).toEqual(`It won't be long`);
 
@@ -203,8 +203,8 @@ describe('deriving', () => {
             .and('Buzz')
             .or('');
 
-        const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(myCounter$); 
-        // This will check whether `fizz$.get() + buzz$.get()` is truthy: if so, return it; if not, return `myCounter$` 
+        const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(myCounter$);
+        // This will check whether `fizz$.get() + buzz$.get()` is truthy: if so, return it; if not, return `myCounter$`
 
         for (let count = 1; count <= 100; count++) {
             // Set the value of the `Atom`,

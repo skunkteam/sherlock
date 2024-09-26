@@ -35,7 +35,7 @@ describe.skip('deriving', () => {
          */
 
         // We can combine txt with `repeat$.get()` here.
-        const lyric$ = text$.derive(txt => txt /* __YOUR_TURN__ */); 
+        const lyric$ = text$.derive(txt => txt /* __YOUR_TURN__ */);
 
         expect(lyric$.get()).toEqual(`It won't be long`);
 
@@ -72,14 +72,12 @@ describe.skip('deriving', () => {
          */
 
         // Should return 'Fizz' when `myCounter$` is a multiple of 3 and '' otherwise.
-        const fizz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); 
-        const fizz$: Derivable<string> = myCounter$.derive(v => (v % 3 ? '' : 'Fizz')); // Shorthand for `v % 3 !== 0`
+        const fizz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__);
 
         // Should return 'Buzz' when `myCounter$` is a multiple of 5 and '' otherwise.
-        const buzz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__); 
-        const buzz$: Derivable<string> = myCounter$.derive(v => (v % 5 ? '' : 'Buzz'));
+        const buzz$: Derivable<string> = myCounter$.derive(__YOUR_TURN__);
 
-        const fizzBuzz$: Derivable<string | number> = derive(__YOUR_TURN__); 
+        const fizzBuzz$: Derivable<string | number> = derive(__YOUR_TURN__);
 
         expect(fizz$.get()).toEqual('');
         expect(buzz$.get()).toEqual('');
@@ -153,7 +151,7 @@ describe.skip('deriving', () => {
         const tweetCount = pastTweets.length;
         const lastTweet = pastTweets[tweetCount - 1];
 
-        expect(tweetCount).toEqual(__YOUR_TURN__); // Is there a new tweet? 
+        expect(tweetCount).toEqual(__YOUR_TURN__); // Is there a new tweet?
         expect(lastTweet).toContain(__YOUR_TURN__); // Who sent it? Donald? Or Barack?
         expect(lastTweet).toContain(__YOUR_TURN__); // What did he tweet?
 
@@ -210,7 +208,7 @@ describe.skip('deriving', () => {
             .and(__YOUR_TURN__)
             .or(__YOUR_TURN__) as Derivable<string>;
 
-        const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(__YOUR_TURN__); 
+        const fizzBuzz$ = derive(() => fizz$.get() + buzz$.get()).or(__YOUR_TURN__);
 
         for (let count = 1; count <= 100; count++) {
             // Set the value of the `Atom`,

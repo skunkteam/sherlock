@@ -91,17 +91,17 @@ describe.skip('inner workings', () => {
          */
 
         // Well, what do you expect?
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myDerivation$.get();
 
         // And after a `.get()`?
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myDerivation$.get();
 
         // And after the second `.get()`? Is there an extra call?
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         /**
          * The state of any `Derivable` can change at any moment.
@@ -140,27 +140,27 @@ describe.skip('inner workings', () => {
          *
          * Ok, it's your turn to complete the expectations.
          */
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myAtom$.set(false);
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         stopper();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myDerivation$.get();
 
-        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasDerived).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         /**
          * Since the `.react()` already listens to the value-changes, there is
@@ -205,23 +205,23 @@ describe.skip('inner workings', () => {
         // Note that this is the same value as it was initialized with
         myAtom$.set(1);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); 
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myAtom$.set(2);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); 
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myAtom$.set(3);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); 
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         myAtom$.set(4);
 
-        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__); 
-        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(first).toHaveBeenCalledTimes(__YOUR_TURN__);
+        expect(second).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         /**
          * Can you explain the behavior above?
@@ -259,7 +259,7 @@ describe.skip('inner workings', () => {
          * The `Atom` is set with exactly the same object as before. Will the
          * `.react()` fire?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         /**
          * But what if you use an object, that can be easily compared through a
@@ -278,7 +278,7 @@ describe.skip('inner workings', () => {
          *
          * Do you think the `.react()` fired with this new value?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         atom$.set(Seq.Indexed.of(1, 2));
 
@@ -287,15 +287,16 @@ describe.skip('inner workings', () => {
          *
          * And now?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__); 
+        expect(hasReacted).toHaveBeenCalledTimes(__YOUR_TURN__);
 
         /**
          * In `@skunkteam/sherlock` equality is a bit complex:
          *
-         * First we check `Object.is()` equality, if that is true, it is the
+         * First we check `Object.is()` equality. If that is true, it is the
          * same, you can't deny that.
          *
-         * After that it is pluggable. It can be anything you want. TODO: what is pluggable?
+         * After that it is pluggable. This means that you can 'plug in' or 'define'
+         * the definition for equality yourself.
          *
          * By default we try to use `.equals()`, to support libraries like
          * `ImmutableJS`.

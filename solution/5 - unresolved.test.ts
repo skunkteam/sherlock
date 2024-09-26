@@ -20,14 +20,14 @@ describe('unresolved', () => {
         // since it can't be inferred by TypeScript this way.
         const myAtom$ = atom.unresolved<number>();
 
-        expect(myAtom$.resolved).toEqual(false); 
+        expect(myAtom$.resolved).toEqual(false);
 
         /**
          * ** Your Turn **
          *
          * Resolve the atom, it's pretty easy
          */
-        myAtom$.set(1); // setting it to any value will unresolve it 
+        myAtom$.set(1); // setting it to any value will unresolve it
 
         expect(myAtom$.resolved).toBeTrue();
     });
@@ -42,7 +42,7 @@ describe('unresolved', () => {
          *
          * Time to create an `unresolved` Atom..
          */
-        const myAtom$: DerivableAtom<string> = atom.unresolved(); 
+        const myAtom$: DerivableAtom<string> = atom.unresolved();
 
         expect(myAtom$.resolved).toBeFalse();
 
@@ -57,10 +57,10 @@ describe('unresolved', () => {
          *
          * What do you expect?
          */
-        expect(myAtom$.resolved).toEqual(true); 
+        expect(myAtom$.resolved).toEqual(true);
 
         // .toThrow() or .not.toThrow()? ↴
-        expect(() => myAtom$.get()).not.toThrow(); 
+        expect(() => myAtom$.get()).not.toThrow();
     });
 
     /**
@@ -78,14 +78,14 @@ describe('unresolved', () => {
          *
          * What do you expect?
          */
-        expect(hasReacted).toHaveBeenCalledTimes(0); 
+        expect(hasReacted).toHaveBeenCalledTimes(0);
 
         /**
          * ** Your Turn **
          *
          * Now make the last expect succeed
          */
-        myAtom$.set(`woohoow, I was called`); 
+        myAtom$.set(`woohoow, I was called`);
 
         expect(myAtom$.resolved).toBeTrue();
         expect(hasReacted).toHaveBeenCalledExactlyOnceWith(`woohoow, I was called`, expect.toBeFunction());
@@ -105,7 +105,7 @@ describe('unresolved', () => {
          *
          * Set the value..
          */
-        myAtom$.set(`it's alive!`); 
+        myAtom$.set(`it's alive!`);
 
         expect(myAtom$.get()).toEqual(`it's alive!`);
 
@@ -114,7 +114,7 @@ describe('unresolved', () => {
          *
          * Unset the value.. (*Hint: TypeScript is your friend*)
          */
-        myAtom$.unset(); 
+        myAtom$.unset();
 
         expect(myAtom$.resolved).toBeFalse();
     });
@@ -135,14 +135,14 @@ describe('unresolved', () => {
          *
          * Combine the two `Atom`s into one `Derivable`
          */
-        const myDerivable$: Derivable<string> = myString$.derive(parent$ => parent$ + myOtherString$.get()); 
+        const myDerivable$: Derivable<string> = myString$.derive(parent$ => parent$ + myOtherString$.get());
 
         /**
          * ** Your Turn **
          *
          * Is `myDerivable$` expected to be `resolved`?
          */
-        expect(myDerivable$.resolved).toEqual(false); 
+        expect(myDerivable$.resolved).toEqual(false);
 
         // Now let's set one of the two source `Atom`s
         myString$.set('some');
@@ -156,8 +156,8 @@ describe('unresolved', () => {
 
         // And what if we set `myOtherString$`?
         myOtherString$.set('data');
-        expect(myDerivable$.resolved).toEqual(true); 
-        expect(myDerivable$.get()).toEqual('somedata'); 
+        expect(myDerivable$.resolved).toEqual(true);
+        expect(myDerivable$.get()).toEqual('somedata');
 
         /**
          * ** Your Turn **
@@ -166,7 +166,7 @@ describe('unresolved', () => {
          * What do you expect `myDerivable$` to be?
          */
         myString$.unset();
-        expect(myDerivable$.resolved).toEqual(false); 
+        expect(myDerivable$.resolved).toEqual(false);
     });
 
     /**
@@ -182,16 +182,16 @@ describe('unresolved', () => {
          * Use the `.fallbackTo()` method to create a `mySafeAtom$` which
          * gets the backup value `3` when `myAtom$` becomes unresolved.
          */
-        const mySafeAtom$ = myAtom$.fallbackTo(() => 3); 
+        const mySafeAtom$ = myAtom$.fallbackTo(() => 3);
 
-        expect(myAtom$.value).toBe(0);
-        expect(mySafeAtom$.value).toBe(0);
+        expect(myAtom$.get()).toBe(0);
+        expect(mySafeAtom$.get()).toBe(0);
 
         myAtom$.unset();
 
         expect(myAtom$.resolved).toBeFalse();
         expect(mySafeAtom$.resolved).toBeTrue();
-        expect(myAtom$.value).toBeUndefined();
-        expect(mySafeAtom$.value).toBe(3);
+        expect(() => myAtom$.get()).toThrow();
+        expect(mySafeAtom$.get()).toBe(3);
     });
 });

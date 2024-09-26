@@ -5,42 +5,6 @@ import { atom } from '@skunkteam/sherlock';
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
-// xxx    check my solutions with the actual solutions (https://github.com/skunkteam/sherlock/tree/tutorial-solutions/robin/tutorial)
-// FIXME: remove all TODO: and FIXME:
-// xxx    check whether the generated tutorials and solutions actually work (e.g. are all solutions correct? No weird shenanigans?) -
-// FIXME: ALSO CHECK "Or, alternatively"!
-// FIXME: deze file niet linten / builden (voor automatische test). Tutorial ook niet. Maar solutions juist wel! OP EIND. (mag beide wel linten right?)
-// FIXME: interne review document, mocht ik iets hebben om te laten zien! In Google Drive, zet het erin!
-// xxx    werkt `npm run tutorial` nog? > Nu wel.
-// xxx    PETER: "nu je toch met Sherlock bezig bent; zou je voor mij eens kunnen checken of de code voorbeelden in de README
-// nog wel kloppen met de huidige API? Ik heb het gevoel dat dat niet zo is; volgens mij is er geen function "derivation()"
-// en heet dat nu "derive()" bijvoorbeeld."
-// FIXME: OOOOOOH JA, ik had eroverheen gepushed! Dat moet nog een PR met terugwerkende kracht worden... (of commits squashen, en dat ze dan maar de commit moeten reviewen?)
-// FIXME: Add FromEventPattern + FromObservable
-// xxx    fix the generator for code blocks.
-// FIXME: now check whether it did not remove excess lines or kept 2 empty lines where it should not. (I think it is good though.)
-/**
- * x Final States; (finalGetter, finalMethod, getMaybeFinalState, FinalWrapper, MaybeFinalState, _isFinal, makeFinal, markFinal, .final, .finalized, setFinal...)
- * ? Lens; (libs/sherlock/src/lib/derivable/lens.ts) - map die twee kanten op kan gaan. Maar een map kan dat al? Maar hier kan
- *          je dat los definieren! Je kan gewoon `lens` ipv `var.lens`. Zelden dat je dit gebruikt. Output is een Derivable though.
- * x Lift; (libs/sherlock-utils/src/lib/lift.ts)
- * x Peek; (libs/sherlock-utils/src/lib/peek.ts) - dan track je niet. In een derivable, deze tracked hij dan niet (ipv .get() waar het wel getracked wordt)
- * x Template; (libs/sherlock-utils/src/lib/template.ts) - to make a string using a template literal. (Uses unwrap!!)
- * / Factory; (libs/sherlock/src/lib/derivable/factories.ts) - simply contains functions to create objects, namely
- *      lens; atom; constant; derive.
- * !! Flat-map; (libs/sherlock/src/lib/derivable/mixins/flat-map.ts) - ???
- *          array:      nested arrays naar array
- *          Derivable:  gooit er derive.get() achteraan?
- *      Derivable<string> (input van inputveld). Flatmap geeft Derivable terug. Derivable<string>.flatmap() returned misschien
- *      Derivable<number>, returned dan de number. flatMap is een `derive`, maar wat hij returned haalt hij uit de Derivable.
- *      ofzoiets. Maakt code korter.
- * x Fallback-to; - op een derivable. Als een atom `unresolved` is, dan fallt het back to this value. Ofwel, initial value, maar
- *           ook als hij later unresolved wordt, dan wordt hij dit (vaak wel initial value).
- * x Take - react options gebruiken buiten react. In een derivable chain, halverwege die options gebruiken.
- * -- e.g. (from)Promise. Zodra die een waarde aanneemt kan hij niet meer veranderen.
- *    Let FromPromise, FromObservable, FromEventPattern ook uit (in utils?), ToPromise, ToObservable, in praktijk ook handig.
- *    FromEventPattern (haily mary, als alles niet werkt, dan dit doen).
- */
 /**
  * In the intro we have seen a basic usage of the `.react()` method.
  * Let's dive a bit deeper into the details of this method.
@@ -103,7 +67,7 @@ describe.skip('reacting', () => {
          * Time to react to `myAtom$` with the `reactor()` function defined
          * above.
          */
-        __YOUR_TURN__; 
+        __YOUR_TURN__;
 
         expectReact(1, 'initial value');
 
@@ -135,7 +99,7 @@ describe.skip('reacting', () => {
              *
              * catch the returned `stopper` in a variable
              */
-            __YOUR_TURN__; 
+            __YOUR_TURN__;
 
             expectReact(1, 'initial value');
 
@@ -144,7 +108,7 @@ describe.skip('reacting', () => {
              *
              * Call the `stopper`.
              */
-            __YOUR_TURN__; 
+            __YOUR_TURN__;
 
             myAtom$.set('new value');
 
@@ -222,7 +186,7 @@ describe.skip('reacting', () => {
                  *
                  * Try giving `boolean$` as `until` option.
                  */
-                string$.react(reactor, __YOUR_TURN__); 
+                string$.react(reactor, __YOUR_TURN__);
 
                 // It should react directly as usual.
                 expectReact(1, 'Value');
@@ -270,7 +234,7 @@ describe.skip('reacting', () => {
                  * Use `!string$.get()` to return `true` when the `string` is
                  * empty.
                  */
-                string$.react(reactor, __YOUR_TURN__); 
+                string$.react(reactor, __YOUR_TURN__);
 
                 // It should react as usual:
                 string$.set('New value');
@@ -297,7 +261,7 @@ describe.skip('reacting', () => {
                  * Try using the first parameter of the `until` function to do
                  * the same as above.
                  */
-                string$.react(reactor, __YOUR_TURN__); 
+                string$.react(reactor, __YOUR_TURN__);
 
                 // It should react as usual.
                 string$.set('New value');
@@ -324,7 +288,7 @@ describe.skip('reacting', () => {
                 boolean$.set(false);
 
                 // ...but does it? Is the reactor still connected?
-                expect(boolean$.connected).toBe(__YOUR_TURN__); 
+                expect(boolean$.connected).toBe(__YOUR_TURN__);
 
                 // The `b$` it obtains as argument is a `Derivable<boolean>`. This is a
                 // reference value. Because we apply a negation to this, `b$` is coerced to a
@@ -333,13 +297,13 @@ describe.skip('reacting', () => {
                 // `boolean$`. Instead, you can get the value out of the `Derivable` using `.get()`:
                 stopper(); // reset
                 stopper = boolean$.react(reactor, { until: b$ => !b$.get() });
-                expect(boolean$.connected).toBe(__YOUR_TURN__); 
+                expect(boolean$.connected).toBe(__YOUR_TURN__);
 
                 // You can also return the `Derivable<boolean>` after appling the negation
                 // using the method designed for negating the boolean within a `Derivable<boolean>`:
                 stopper();
                 boolean$.react(reactor, { until: b$ => b$.not() });
-                expect(boolean$.connected).toBe(__YOUR_TURN__); 
+                expect(boolean$.connected).toBe(__YOUR_TURN__);
             });
         });
 
@@ -367,7 +331,7 @@ describe.skip('reacting', () => {
              *
              * *Hint: remember the `.is()` method from tutorial 2?*
              */
-            sherlock$.react(reactor, __YOUR_TURN__); 
+            sherlock$.react(reactor, __YOUR_TURN__);
 
             expectReact(0);
             ['Elementary,', 'my', 'dear', 'Watson'].forEach(txt => sherlock$.set(txt));
@@ -393,7 +357,7 @@ describe.skip('reacting', () => {
              * Now, let's react to all even numbers.
              * Except 4, we don't want to make it too easy now.
              */
-            count$.react(reactor, __YOUR_TURN__); 
+            count$.react(reactor, __YOUR_TURN__);
 
             expectReact(1, 0);
 
@@ -420,7 +384,7 @@ describe.skip('reacting', () => {
              *
              * Say you want to react when `count$` is larger than 3. But not the first time...
              */
-            count$.react(reactor, __YOUR_TURN__); 
+            count$.react(reactor, __YOUR_TURN__);
 
             expectReact(0);
 
@@ -453,7 +417,7 @@ describe.skip('reacting', () => {
              *
              * *Hint: you will need to combine `once` with another option*
              */
-            count$.react(reactor, __YOUR_TURN__); 
+            count$.react(reactor, __YOUR_TURN__);
 
             expectReact(0);
 
@@ -493,7 +457,7 @@ describe.skip('reacting', () => {
             // The reactor starts reacting when `myAtom` gets the value 3, but stops when it gets the value 2.
             // But because `myAtom$` obtains the value 2 before it obtains 3...
             // ...how many times was the reactor called, if any?
-            expectReact(__YOUR_TURN__); 
+            expectReact(__YOUR_TURN__);
         });
 
         it('`when` and `skipFirst`', () => {
@@ -504,7 +468,7 @@ describe.skip('reacting', () => {
 
             // The reactor reacts when `myAtom$` is 1 but skips the first number.
             // `myAtom$` starts out at 0. Does the reactor skip only the 0 or also the 1?
-            expectReact(__YOUR_TURN__); 
+            expectReact(__YOUR_TURN__);
         });
 
         it('`from`, `until`, `when`, `skipFirst`, and `once`', () => {
@@ -525,7 +489,7 @@ describe.skip('reacting', () => {
             // Meanwhile, `when` allows neither of those values and only allows the values 2, 3, and 4.
             // `skipFirst` and `once` are also added, just to bring the whole group together.
             // so, how many times is the reactor called, and what was the last argument (if any)?
-            expectReact(__YOUR_TURN__); 
+            expectReact(__YOUR_TURN__);
         });
     });
 
@@ -546,7 +510,7 @@ describe.skip('reacting', () => {
              *
              * This should be possible with three simple ReactorOptions.
              */
-            connected$.react(reactor, __YOUR_TURN__); 
+            connected$.react(reactor, __YOUR_TURN__);
 
             // It starts as 'disconnected'
             expectReact(0);

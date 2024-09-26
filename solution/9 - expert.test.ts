@@ -1,4 +1,4 @@
-import { DerivableAtom, atom, derive } from '@skunkteam/sherlock';
+import { DerivableAtom, atom, derive, unwrap } from '@skunkteam/sherlock';
 import { derivableCache } from '@skunkteam/sherlock-utils';
 
 describe('expert', () => {
@@ -24,7 +24,7 @@ describe('expert', () => {
              * called at this point?
              */
             // `.toHaveBeenCalled()` or `.not.toHaveBeenCalled()`? ↴
-            expect(hasDerived).not.toHaveBeenCalled(); 
+            expect(hasDerived).not.toHaveBeenCalled();
 
             mySecondDerivation$.get();
 
@@ -36,7 +36,7 @@ describe('expert', () => {
              * first `Derivable` actually executed its derivation?
              */
             // how many times?
-            expect(hasDerived).toHaveBeenCalledTimes(3); 
+            expect(hasDerived).toHaveBeenCalledTimes(3);
         });
 
         /**
@@ -60,7 +60,7 @@ describe('expert', () => {
              * expectations pass.
              */
             const myAtom$ = atom(true);
-            const myFirstDerivation$ = myAtom$.derive(firstHasDerived).autoCache(); 
+            const myFirstDerivation$ = myAtom$.derive(firstHasDerived).autoCache();
             const mySecondDerivation$ = myFirstDerivation$.derive(() =>
                 secondHasDerived(myFirstDerivation$.get() + myFirstDerivation$.get()),
             );
@@ -102,9 +102,9 @@ describe('expert', () => {
             mySecondDerivation$.get();
 
             // first after last .get()
-            expect(firstHasDerived).toHaveBeenCalledTimes(2); 
+            expect(firstHasDerived).toHaveBeenCalledTimes(2);
             // second after last .get()
-            expect(secondHasDerived).toHaveBeenCalledTimes(3); 
+            expect(secondHasDerived).toHaveBeenCalledTimes(3);
         });
     });
 
@@ -174,7 +174,7 @@ describe('expert', () => {
              * But does that apply here?
              * How many times has the setup run, for the price `Derivable`.
              */
-            expect(stockPrice$).toHaveBeenCalledTimes(2); 
+            expect(stockPrice$).toHaveBeenCalledTimes(2);
 
             /** Can you explain this behavior? */
             /**
@@ -227,19 +227,19 @@ describe('expert', () => {
                  */
 
                 // How often was the reactor on price$ called?
-                expect(reactSpy).toHaveBeenCalledTimes(0); 
+                expect(reactSpy).toHaveBeenCalledTimes(0);
 
                 // And how many times did the setup run?
-                expect(stockPrice$).toHaveBeenCalledTimes(2); 
+                expect(stockPrice$).toHaveBeenCalledTimes(2);
 
                 // What's the value of price$ now?
-                expect(price$.value).toEqual(undefined); 
+                expect(price$.value).toEqual(undefined);
 
                 // And the value of googlPrice$?
-                expect(googlPrice$.value).toEqual(1079.11); 
+                expect(googlPrice$.value).toEqual(1079.11);
 
                 // Is googlPrice$ still even driving any reactors?
-                expect(googlPrice$.connected).toEqual(false); 
+                expect(googlPrice$.connected).toEqual(false);
 
                 /**
                  * Can you explain this behavior?
@@ -271,10 +271,45 @@ describe('expert', () => {
                  * the created `Derivable` will not run the setup again and
                  * everything should work as expected.
                  *
-                 * ** Your Turn ** TODO: not in the SOLUTIONS!!
+                 * ** Your Turn **
                  *
                  * *Hint: there is even an `unwrap` helper function for just
                  * such an occasion, try it!*
+                 */
+            });
+            it('BONUS', () => {
+                const company$ = atom<Stocks>('GOOGL');
+
+                // We have now split it into two derivations.
+                // The `unwrap()` function essentially does the same as `v => v.get()`, unwrapping one layer of derivable.
+                const price$ = company$.derive(company => stockPrice$(company)).derive(unwrap);
+
+                // The rest of the steps are the same..
+                price$.react(reactor);
+                expect(reactSpy).not.toHaveBeenCalled();
+
+                const googlPrice$ = stockPrice$.mock.results[0].value as DerivableAtom<number>;
+                expect(googlPrice$.connected).toEqual(true);
+                expect(googlPrice$.value).toEqual(undefined);
+
+                googlPrice$.set(1079.11);
+
+                // ..but all these results are now different.
+                expect(reactSpy).toHaveBeenCalledTimes(1);
+                expect(stockPrice$).toHaveBeenCalledTimes(1);
+                expect(price$.value).toEqual(1079.11);
+                expect(googlPrice$.value).toEqual(1079.11);
+                expect(googlPrice$.connected).toEqual(true);
+
+                /**
+                 * In the original case, the `derive` used `stockPrice$(company).get()`,.
+                 * This results in a value (`undefined` here) which is stored in `price$`. If you now set the value of the atom, the
+                 * `derive` will run again as it is connected, and this will create a new atom, again with value `atom.unresolved()`.
+                 * As such, `price$` keeps the same value, `undefined`.
+                 * In our new case here, the first `derive` uses `stockPrice$(company)`, and a second `derive` applies the `.get()`
+                 * (namely: `unwrap`). The second `derive` is put directly on the result of the first (namely, the `atom.unresolved()`).
+                 * If you now set the value of the atom, this second derivation will trigger again and will `get()` the new value from the atom.
+                 * As such, `price$` will update to the new value: 1079.11.
                  */
             });
 
@@ -322,8 +357,8 @@ describe('expert', () => {
                  *
                  * So the value was increased. What do you think happened now?
                  */
-                expect(reactSpy).toHaveBeenCalledTimes(2); 
-                expect(reactSpy).toHaveBeenLastCalledWith([1079.11]); 
+                expect(reactSpy).toHaveBeenCalledTimes(2);
+                expect(reactSpy).toHaveBeenLastCalledWith([1079.11]);
 
                 /**
                  * So that worked, now let's try and add another company to the
@@ -341,9 +376,9 @@ describe('expert', () => {
                  *
                  * We had a price for 'GOOGL', but not for 'APPL'...
                  */
-                expect(reactSpy).toHaveBeenCalledTimes(3); 
-                expect(reactSpy).toHaveBeenCalledWith([1079.11, undefined]); 
-                // Note: `[undefined, undefined]` will pass too, but is incorrect. 
+                expect(reactSpy).toHaveBeenCalledTimes(3);
+                expect(reactSpy).toHaveBeenCalledWith([1079.11, undefined]);
+                // Note: `[undefined, undefined]` will pass too, but is incorrect.
             });
         });
 
@@ -403,7 +438,7 @@ describe('expert', () => {
                  *
                  * Has anything changed, by using the `derivableCache`?
                  */
-                expect(stockPrice$).toHaveBeenCalledTimes(1); 
+                expect(stockPrice$).toHaveBeenCalledTimes(1);
 
                 // Now let's resolve the price
                 stockPrice$.mock.results[0].value.set(1079.11);
@@ -416,10 +451,10 @@ describe('expert', () => {
                  *
                  * What happens this time? Has the setup run again?
                  */
-                expect(stockPrice$).toHaveBeenCalledTimes(1); 
+                expect(stockPrice$).toHaveBeenCalledTimes(1);
                 // Ok, but did it update the HTML?
-                expect(reactSpy).toHaveBeenCalledTimes(2); 
-                expect(lastEmittedHTMLs()[0]).toContain('$ 1079.11'); 
+                expect(reactSpy).toHaveBeenCalledTimes(2);
+                expect(lastEmittedHTMLs()[0]).toContain('$ 1079.11');
 
                 // Last chance, what if we add a company
                 companies$.swap(current => [...current, 'APPL']);
@@ -432,12 +467,12 @@ describe('expert', () => {
                  *
                  * But did it calculate 'GOOGL' again too?
                  */
-                expect(stockPrice$).toHaveBeenCalledTimes(2); 
-                expect(reactSpy).toHaveBeenCalledTimes(3); 
+                expect(stockPrice$).toHaveBeenCalledTimes(2);
+                expect(reactSpy).toHaveBeenCalledTimes(3);
                 // The first should be the generated HTML for 'GOOGL'.
-                expect(lastEmittedHTMLs()[0]).toContain('$ 1079.11'); 
+                expect(lastEmittedHTMLs()[0]).toContain('$ 1079.11');
                 // The second should be the generated HTML for 'APPL'.
-                expect(lastEmittedHTMLs()[1]).toContain('$ unknown'); 
+                expect(lastEmittedHTMLs()[1]).toContain('$ unknown');
             });
         });
     });

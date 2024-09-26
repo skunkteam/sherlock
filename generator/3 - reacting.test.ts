@@ -7,42 +7,6 @@ import { atom } from '@skunkteam/sherlock';
  */
 export const __YOUR_TURN__ = {} as any;
 // #QUESTION-BLOCK-END
-// xxx    check my solutions with the actual solutions (https://github.com/skunkteam/sherlock/tree/tutorial-solutions/robin/tutorial)
-// FIXME: remove all TODO: and FIXME:
-// xxx    check whether the generated tutorials and solutions actually work (e.g. are all solutions correct? No weird shenanigans?) -
-// FIXME: ALSO CHECK "Or, alternatively"!
-// FIXME: deze file niet linten / builden (voor automatische test). Tutorial ook niet. Maar solutions juist wel! OP EIND. (mag beide wel linten right?)
-// FIXME: interne review document, mocht ik iets hebben om te laten zien! In Google Drive, zet het erin!
-// xxx    werkt `npm run tutorial` nog? > Nu wel.
-// xxx    PETER: "nu je toch met Sherlock bezig bent; zou je voor mij eens kunnen checken of de code voorbeelden in de README
-// nog wel kloppen met de huidige API? Ik heb het gevoel dat dat niet zo is; volgens mij is er geen function "derivation()"
-// en heet dat nu "derive()" bijvoorbeeld."
-// FIXME: OOOOOOH JA, ik had eroverheen gepushed! Dat moet nog een PR met terugwerkende kracht worden... (of commits squashen, en dat ze dan maar de commit moeten reviewen?)
-// FIXME: Add FromEventPattern + FromObservable
-// xxx    fix the generator for code blocks.
-// FIXME: now check whether it did not remove excess lines or kept 2 empty lines where it should not. (I think it is good though.)
-/**
- * x Final States; (finalGetter, finalMethod, getMaybeFinalState, FinalWrapper, MaybeFinalState, _isFinal, makeFinal, markFinal, .final, .finalized, setFinal...)
- * ? Lens; (libs/sherlock/src/lib/derivable/lens.ts) - map die twee kanten op kan gaan. Maar een map kan dat al? Maar hier kan
- *          je dat los definieren! Je kan gewoon `lens` ipv `var.lens`. Zelden dat je dit gebruikt. Output is een Derivable though.
- * x Lift; (libs/sherlock-utils/src/lib/lift.ts)
- * x Peek; (libs/sherlock-utils/src/lib/peek.ts) - dan track je niet. In een derivable, deze tracked hij dan niet (ipv .get() waar het wel getracked wordt)
- * x Template; (libs/sherlock-utils/src/lib/template.ts) - to make a string using a template literal. (Uses unwrap!!)
- * / Factory; (libs/sherlock/src/lib/derivable/factories.ts) - simply contains functions to create objects, namely
- *      lens; atom; constant; derive.
- * !! Flat-map; (libs/sherlock/src/lib/derivable/mixins/flat-map.ts) - ???
- *          array:      nested arrays naar array
- *          Derivable:  gooit er derive.get() achteraan?
- *      Derivable<string> (input van inputveld). Flatmap geeft Derivable terug. Derivable<string>.flatmap() returned misschien
- *      Derivable<number>, returned dan de number. flatMap is een `derive`, maar wat hij returned haalt hij uit de Derivable.
- *      ofzoiets. Maakt code korter.
- * x Fallback-to; - op een derivable. Als een atom `unresolved` is, dan fallt het back to this value. Ofwel, initial value, maar
- *           ook als hij later unresolved wordt, dan wordt hij dit (vaak wel initial value).
- * x Take - react options gebruiken buiten react. In een derivable chain, halverwege die options gebruiken.
- * -- e.g. (from)Promise. Zodra die een waarde aanneemt kan hij niet meer veranderen.
- *    Let FromPromise, FromObservable, FromEventPattern ook uit (in utils?), ToPromise, ToObservable, in praktijk ook handig.
- *    FromEventPattern (haily mary, als alles niet werkt, dan dit doen).
- */
 /**
  * In the intro we have seen a basic usage of the `.react()` method.
  * Let's dive a bit deeper into the details of this method.

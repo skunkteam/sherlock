@@ -1,4 +1,4 @@
-import { DerivableAtom, atom, derive } from '@skunkteam/sherlock';
+import { DerivableAtom, atom, derive, unwrap } from '@skunkteam/sherlock';
 import { derivableCache } from '@skunkteam/sherlock-utils';
 
 // #QUESTION-BLOCK-START
@@ -7,6 +7,9 @@ import { derivableCache } from '@skunkteam/sherlock-utils';
  * If you see this variable, you should do something about it. :-)
  */
 export const __YOUR_TURN__ = {} as any;
+
+// Silence TypeScript's import not used errors.
+expect(unwrap).toBe(unwrap);
 // #QUESTION-BLOCK-END
 describe('expert', () => {
     describe('`.autoCache()`', () => {
@@ -291,12 +294,49 @@ describe('expert', () => {
                  * the created `Derivable` will not run the setup again and
                  * everything should work as expected.
                  *
-                 * ** Your Turn ** TODO: not in the SOLUTIONS!!
+                 * ** Your Turn **
                  *
                  * *Hint: there is even an `unwrap` helper function for just
                  * such an occasion, try it!*
                  */
             });
+            // #ANSWER-BLOCK-START
+            it('BONUS', () => {
+                const company$ = atom<Stocks>('GOOGL');
+
+                // We have now split it into two derivations.
+                // The `unwrap()` function essentially does the same as `v => v.get()`, unwrapping one layer of derivable.
+                const price$ = company$.derive(company => stockPrice$(company)).derive(unwrap);
+
+                // The rest of the steps are the same..
+                price$.react(reactor);
+                expect(reactSpy).not.toHaveBeenCalled();
+
+                const googlPrice$ = stockPrice$.mock.results[0].value as DerivableAtom<number>;
+                expect(googlPrice$.connected).toEqual(true);
+                expect(googlPrice$.value).toEqual(undefined);
+
+                googlPrice$.set(1079.11);
+
+                // ..but all these results are now different.
+                expect(reactSpy).toHaveBeenCalledTimes(1);
+                expect(stockPrice$).toHaveBeenCalledTimes(1);
+                expect(price$.value).toEqual(1079.11);
+                expect(googlPrice$.value).toEqual(1079.11);
+                expect(googlPrice$.connected).toEqual(true);
+
+                /**
+                 * In the original case, the `derive` used `stockPrice$(company).get()`,.
+                 * This results in a value (`undefined` here) which is stored in `price$`. If you now set the value of the atom, the
+                 * `derive` will run again as it is connected, and this will create a new atom, again with value `atom.unresolved()`.
+                 * As such, `price$` keeps the same value, `undefined`.
+                 * In our new case here, the first `derive` uses `stockPrice$(company)`, and a second `derive` applies the `.get()`
+                 * (namely: `unwrap`). The second `derive` is put directly on the result of the first (namely, the `atom.unresolved()`).
+                 * If you now set the value of the atom, this second derivation will trigger again and will `get()` the new value from the atom.
+                 * As such, `price$` will update to the new value: 1079.11.
+                 */
+            });
+            // #ANSWER-BLOCK-END
 
             /**
              * But even when you split the setup and the `unwrap`, you may not
