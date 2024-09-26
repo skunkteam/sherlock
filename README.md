@@ -145,28 +145,39 @@ There are three types of Derivables:
     ```typescript
     const isBrilliant$ = name$.derive(name => name === 'Sherlock');
 
-    isBrilliant$.get(); // false
+    isBrilliant$.get(); // => false
 
     name$.set('Sherlock');
 
-    isBrilliant$.get(); // true
+    isBrilliant$.get(); // => true
     ```
 
     Derivations can also be created with the generic `derive` function as seen earlier. This function can be used to do an arbitrary calculation on any number of derivables. `@skunkteam/sherlock` automatically records which derivable is dependent on which other derivable to be able to update derived state when needed.
 
 ## Reactors
 
-To execute side effects, you can react to changes on any derivable as seen in an earlier example.
+To execute side effects, you can react to changes on any derivable as seen in an earlier example. This can be done using the `#react` method that is present on all derivables.
 
-_More documentation coming soon_
+```typescript
+const normalEffect = atom('');
+let sideEffect = '';
+
+normalEffect.react(v => {
+    sideEffect = v.replace('effect', 'side-effect');
+});
+
+normalEffect.set('Watch this effect');
+sideEffect; // => 'Watch this side-effect'
+```
+
+## Interoperability with RxJS out of the box
+
+RxJS is another popular reactive library. However, RxJS can become quite complicated and user-unfriendly when your application becomes big. This was the main reason why Sherlock was developed. As Angular uses RxJS, and we use Angualr, our Sherlock library needs to be compatible with RxJS. The `fromObservable()` and `toObservable()` functions are used for this. However, the `from()` function in RxJS has become a succesful alternative to `toObservable()`.
+`fromObservable()` can be used to map an `Observable` to a `Derivable`, and the `from()` function in RxJS can be used to map a `Derivable` to a `Derivable`.
 
 ## Transactions
 
 _More documentation coming soon_
-
-## Interoperability with RxJS out of the box
-
-_Coming soon_
 
 ## Proxies using sherlock-proxies
 
@@ -185,5 +196,3 @@ _Coming soon_
 ### Cyclic reactors
 
 _Coming soon_
-
-TODO: FIX THE README!

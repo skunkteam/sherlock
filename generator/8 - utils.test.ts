@@ -563,7 +563,7 @@ describe('utils', () => {
         });
     });
 
-    describe('`Promise`, `Observable`, and `EventPattern`', () => {
+    describe('`Promise`, `Observable`, and `fromEventPattern`', () => {
         /**
          * Sherlock can also deal with Promises using the `.fromPromise()` and `.toPromise()` functions.
          * This translates Promises directly to Sherlock concepts we have discussed already.
