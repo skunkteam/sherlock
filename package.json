@@ -24,7 +24,10 @@
         "update": "nx migrate latest",
         "workspace-generator": "nx workspace-generator",
         "dep-graph": "nx dep-graph",
-        "help": "nx help"
+        "help": "nx help",
+        "tutorial": "jest tutorial/* -c tutorial/jest.config.ts",
+        "solution": "jest solution/* -c solution/jest.config.ts",
+        "generate": "tsc generator/generateTutorialAndSolution.ts && node generator/generateTutorialAndSolution.js && npm run tutorial && npm run solution && rm generator/generateTutorialAndSolution.js"
     },
     "standard-version": {
         "bumpFiles": [
