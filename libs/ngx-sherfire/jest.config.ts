@@ -21,4 +21,8 @@ export default {
             },
         ],
     },
+    // Zet de standaard jest environment naar een licht uitgebreide variant waar TextDecoder/Encoder globaal beschikbaar is.
+    // Dit lost het probleem op dat TextDecoder niet in de backend .spec files gevonden kan worden als ze via frontend tests aangeroepen worden.
+    // Backend tests die direct uitgevoerd worden, overschrijven de testEnvironment naar node.
+    testEnvironment: 'jest-environment-jsdom-sherlock',
 } satisfies Config;
