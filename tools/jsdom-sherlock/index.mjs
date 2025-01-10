@@ -3,7 +3,7 @@ import { ReadableStream, WritableStream } from 'stream/web';
 import { TextDecoder, TextEncoder } from 'util';
 
 /**
- * Extend the default jest-jsdom test environment to make TextDecoder/-Encoder and fetch API globally available. This fixes the issue
+ * Extend the default jest-jsdom test environment to make TextDecoder/-Encoder, Readable-/WritableStream and fetch API globally available. This fixes the issue
  * where those classes/functions can't be found when it's being called from frontend unit tests.
  *
  * @see [bufbuild](https://github.com/bufbuild/jest-environment-jsdom)
