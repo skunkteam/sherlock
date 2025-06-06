@@ -3,6 +3,7 @@ import type { FirestoreSettings } from 'firebase/firestore';
 
 export abstract class FirebaseConfig {
     abstract firestoreSettings?: FirestoreSettings;
+    abstract firestoreDatabaseId?: string;
     abstract firestoreEmulator?: { host: string; port: number };
     abstract appSettings?: FirebaseAppSettings;
 }
