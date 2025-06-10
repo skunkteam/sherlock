@@ -11,8 +11,8 @@ export interface SherfireFirestore extends Firestore {}
     providedIn: NgxSherfireModule,
     useFactory: () =>
         inject(NgZone).runOutsideAngular(() => {
-            const { firestoreEmulator, firestoreSettings } = inject(FirebaseConfig);
-            const firestore = initializeFirestore(inject(SherfireApp), firestoreSettings ?? {});
+            const { firestoreEmulator, firestoreDatabaseId, firestoreSettings } = inject(FirebaseConfig);
+            const firestore = initializeFirestore(inject(SherfireApp), firestoreSettings ?? {}, firestoreDatabaseId);
             if (firestoreEmulator) {
                 connectFirestoreEmulator(firestore, firestoreEmulator.host, firestoreEmulator.port);
             }
