@@ -1,8 +1,11 @@
 {
     "name": "@skunkteam/sherlock",
-    "version": "8.0.0",
+    "version": "8.1.0",
     "license": "MIT",
-    "repository": "github:skunkteam/sherlock",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/skunkteam/sherlock.git"
+    },
     "scripts": {
         "nx": "nx",
         "start": "nx serve",

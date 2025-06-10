@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.1.0](https://github.com/skunkteam/sherlock/compare/v8.0.0...v8.1.0) (2025-06-10)
+
+### Features
+
+-   **ngx-sherlock:** add ability to set firestore database id ([#85](https://github.com/skunkteam/sherlock/issues/85)) ([47ec808](https://github.com/skunkteam/sherlock/commit/47ec80834a744365d56e439dfa4c9736ee06a4b4))
+
 ## [8.0.0](https://github.com/skunkteam/sherlock/compare/v7.0.0...v8.0.0) (2023-10-17)
 
 ### ⚠ BREAKING CHANGES
